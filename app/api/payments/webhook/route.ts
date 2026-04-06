@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { paymentClient } from "@/lib/mercadopago";
+import { PaymentStatus } from "@/app/generated/prisma/client";
 
-function mapMpStatusToPaymentStatus(mpStatus: string) {
+function mapMpStatus(mpStatus: string): PaymentStatus {
   switch (mpStatus) {
-    case "approved": return "APPROVED";
-    case "rejected": return "REJECTED";
-    case "in_process": return "IN_PROCESS";
-    case "pending": return "PENDING";
-    case "cancelled": return "CANCELLED";
-    default: return "PENDING";
+    case "approved": return PaymentStatus.APPROVED;
+    case "rejected": return PaymentStatus.REJECTED;
+    case "cancelled": return PaymentStatus.CANCELLED;
+    default: return PaymentStatus.PENDING;
   }
 }
 
@@ -28,18 +27,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    const mpStatus = payment.status || "pending";
-    const paymentStatus = mapMpStatusToPaymentStatus(mpStatus);
+    const paymentStatus = mapMpStatus(payment.status ?? "pending");
 
-    await prisma.order.update({
-      where: { id: payment.external_reference },
+    await prisma.payment.updateMany({
+      where: { orderId: payment.external_reference },
       data: {
         mpPaymentId: paymentId,
-        mpStatus,
-        paymentStatus: paymentStatus as "PENDING" | "APPROVED" | "REJECTED" | "IN_PROCESS" | "CANCELLED",
-        orderStatus: paymentStatus === "APPROVED" ? "PAID" : undefined,
+        status: paymentStatus,
+        statusDetail: payment.status_detail ?? null,
       },
     });
+
+    if (paymentStatus === PaymentStatus.APPROVED) {
+      await prisma.order.update({
+        where: { id: payment.external_reference },
+        data: { status: "PAID" },
+      });
+    }
 
     return NextResponse.json({ received: true });
   } catch (error) {

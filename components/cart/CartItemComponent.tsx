@@ -37,7 +37,7 @@ export function CartItemComponent({ item }: CartItemProps) {
         >
           {item.name}
         </h3>
-        <p className="text-[#d4af37] text-sm font-semibold mt-1">{formatPEN(item.price + (item.lensPrice ?? 0))}</p>
+        <p className="text-[#d4af37] text-sm font-semibold mt-1">{formatPEN(item.price)}</p>
 
         {/* Quantity controls */}
         <div className="flex items-center gap-3 mt-3">
@@ -71,7 +71,7 @@ export function CartItemComponent({ item }: CartItemProps) {
       {/* Total */}
       <div className="text-right flex-shrink-0">
         <span className="font-semibold text-sm text-[#111111]">
-          {formatPEN((item.price + (item.lensPrice ?? 0)) * item.quantity)}
+          {formatPEN(item.price * item.quantity)}
         </span>
       </div>
     </div>

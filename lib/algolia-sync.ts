@@ -3,14 +3,13 @@ import { getAdminClient, INDEX_NAME } from "./algolia";
 type SyncProduct = {
   id: string;
   name: string;
-  slug: string;
-  brand: string | null;
-  description: string | null;
+  description: string;
   price: unknown;
-  images: string[];
+  imageUrl: string | null;
+  imageUrls: string[];
   stock: number;
-  active: boolean;
-  category: { name: string; slug: string } | null;
+  isActive: boolean;
+  category: string | null;
 };
 
 export async function indexProduct(p: SyncProduct) {
@@ -19,15 +18,12 @@ export async function indexProduct(p: SyncProduct) {
     body: {
       objectID: p.id,
       name: p.name,
-      slug: p.slug,
-      brand: p.brand ?? "",
       description: p.description ?? "",
       price: Number(p.price),
-      images: p.images,
+      imageUrl: p.imageUrl ?? p.imageUrls[0] ?? "",
       stock: p.stock,
-      active: p.active,
-      category: p.category?.name ?? "",
-      categorySlug: p.category?.slug ?? "",
+      active: p.isActive,
+      category: p.category ?? "",
     },
   });
 }

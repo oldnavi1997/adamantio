@@ -166,8 +166,8 @@ export function ProductTable({ products, categories = [] }: ProductTableProps) {
   let filtered = products.filter((p) => {
     if (q && !p.name.toLowerCase().includes(q) && !(p.category ?? "").toLowerCase().includes(q)) return false;
     if (filterCategory && (p.category ?? "") !== filterCategory) return false;
-    if (filterStatus === "active" && !p.active) return false;
-    if (filterStatus === "inactive" && p.active) return false;
+    if (filterStatus === "active" && !p.isActive) return false;
+    if (filterStatus === "inactive" && p.isActive) return false;
     return true;
   });
 
@@ -271,7 +271,6 @@ export function ProductTable({ products, categories = [] }: ProductTableProps) {
                         style={{ paddingLeft: `${8 + depth * 16}px` }}
                       >
                         {cat.name}
-                        <span className="ml-1.5 text-[11px] text-gray-400">— {cat.slug}</span>
                       </button>
                     );
                   })}
@@ -311,7 +310,7 @@ export function ProductTable({ products, categories = [] }: ProductTableProps) {
                     >
                       <option value="">— Sin cambio —</option>
                       {orderedCategories.map(({ cat, depth }) => (
-                        <option key={cat.id} value={cat.id}>{indent(depth)}{cat.name} — {cat.slug}</option>
+                        <option key={cat.id} value={cat.id}>{indent(depth)}{cat.name}</option>
                       ))}
                     </select>
                   </div>
@@ -553,8 +552,8 @@ export function ProductTable({ products, categories = [] }: ProductTableProps) {
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-center">
-                    <Badge variant={product.active ? "success" : "default"}>
-                      {product.active ? "Activo" : "Inactivo"}
+                    <Badge variant={product.isActive ? "success" : "default"}>
+                      {product.isActive ? "Activo" : "Inactivo"}
                     </Badge>
                   </td>
                   <td className="py-3.5 px-4">

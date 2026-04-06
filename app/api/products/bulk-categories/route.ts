@@ -19,23 +19,19 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { productIds, categoryIds, mode, primaryCategoryId } = bulkSchema.parse(body);
+    const { productIds, categoryIds, mode } = bulkSchema.parse(body);
 
-    const categoryConnect = categoryIds.map((id) => ({ id }));
+    let categoryName: string | null = null;
+    if (mode !== "remove" && categoryIds.length > 0) {
+      const cat = await prisma.category.findUnique({ where: { id: categoryIds[0] } });
+      categoryName = cat?.name ?? null;
+    }
 
     await prisma.$transaction(
       productIds.map((id) =>
         prisma.product.update({
           where: { id },
-          data: {
-            categories:
-              mode === "add"
-                ? { connect: categoryConnect }
-                : mode === "set"
-                ? { set: categoryConnect }
-                : { disconnect: categoryConnect },
-            ...(primaryCategoryId ? { primaryCategoryId } : {}),
-          },
+          data: { category: mode === "remove" ? null : categoryName },
         })
       )
     );
