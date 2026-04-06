@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "admin-dashboard": {
+      "source": "erichowens/some_claude_skills",
+      "sourceType": "github",
+      "computedHash": "a5f24494ea83d6c37984216a42233830058f0c36c488e5b00961408a72cc8077"
+    },
+    "creating-dashboards": {
+      "source": "ancoleman/ai-design-components",
+      "sourceType": "github",
+      "computedHash": "49bb31a25ef571a2927c991f78041a9bd685f675e55b89eb1b3b04b6e61962c1"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "computedHash": "25872a21881a950edc3db1f3329664d60405d539660ce05b3265db2de06a7dfd"
+    }
+  }
+}

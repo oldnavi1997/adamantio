@@ -1,0 +1,8189 @@
+{
+  "departments": [
+    "Amazonas",
+    "Ancash",
+    "Apurimac",
+    "Arequipa",
+    "Ayacucho",
+    "Cajamarca",
+    "Callao",
+    "Cusco",
+    "Huancavelica",
+    "Huanuco",
+    "Ica",
+    "Junin",
+    "La Libertad",
+    "Lambayeque",
+    "Lima",
+    "Loreto",
+    "Madre de Dios",
+    "Moquegua",
+    "Pasco",
+    "Piura",
+    "Puno",
+    "San Martin",
+    "Tacna",
+    "Tumbes",
+    "Ucayali"
+  ],
+  "provincesByDepartment": {
+    "Amazonas": [
+      "Bagua",
+      "Bongara",
+      "Chachapoyas",
+      "Condorcanqui",
+      "Luya",
+      "Rodriguez de Mendoza",
+      "Utcubamba"
+    ],
+    "Ancash": [
+      "Aija",
+      "Antonio Raymondi",
+      "Asuncion",
+      "Bolognesi",
+      "Carhuaz",
+      "Carlos Fermin Fitzcarrald",
+      "Casma",
+      "Corongo",
+      "Huaraz",
+      "Huari",
+      "Huarmey",
+      "Huaylas",
+      "Mariscal Luzuriaga",
+      "Ocros",
+      "Pallasca",
+      "Pomabamba",
+      "Recuay",
+      "Santa",
+      "Sihuas",
+      "Yungay"
+    ],
+    "Apurimac": [
+      "Abancay",
+      "Andahuaylas",
+      "Antabamba",
+      "Aymaraes",
+      "Chincheros",
+      "Cotabambas",
+      "Grau"
+    ],
+    "Arequipa": [
+      "Arequipa",
+      "Camana",
+      "Caraveli",
+      "Castilla",
+      "Caylloma",
+      "Condesuyos",
+      "Islay",
+      "La Union"
+    ],
+    "Ayacucho": [
+      "Cangallo",
+      "Huamanga",
+      "Huanca Sancos",
+      "Huanta",
+      "La Mar",
+      "Lucanas",
+      "Parinacochas",
+      "Paucar del Sara Sara",
+      "Sucre",
+      "Victor Fajardo",
+      "Vilcas Huaman"
+    ],
+    "Cajamarca": [
+      "Cajabamba",
+      "Cajamarca",
+      "Celendin",
+      "Chota",
+      "Contumaza",
+      "Cutervo",
+      "Hualgayoc",
+      "Jaen",
+      "San Ignacio",
+      "San Marcos",
+      "San Miguel",
+      "San Pablo",
+      "Santa Cruz"
+    ],
+    "Callao": [
+      "Prov Const del Callao"
+    ],
+    "Cusco": [
+      "Acomayo",
+      "Anta",
+      "Calca",
+      "Canas",
+      "Canchis",
+      "Chumbivilcas",
+      "Cusco",
+      "Espinar",
+      "La Convencion",
+      "Paruro",
+      "Paucartambo",
+      "Quispicanchi",
+      "Urubamba"
+    ],
+    "Huancavelica": [
+      "Acobamba",
+      "Angaraes",
+      "Castrovirreyna",
+      "Churcampa",
+      "Huancavelica",
+      "Huaytara",
+      "Tayacaja"
+    ],
+    "Huanuco": [
+      "Ambo",
+      "Dos de Mayo",
+      "Huacaybamba",
+      "Huamalies",
+      "Huanuco",
+      "Lauricocha",
+      "Leoncio Prado",
+      "Maranon",
+      "Pachitea",
+      "Puerto Inca",
+      "Yarowilca"
+    ],
+    "Ica": [
+      "Chincha",
+      "Ica",
+      "Nasca",
+      "Palpa",
+      "Pisco"
+    ],
+    "Junin": [
+      "Chanchamayo",
+      "Chupaca",
+      "Concepcion",
+      "Huancayo",
+      "Jauja",
+      "Junin",
+      "Satipo",
+      "Tarma",
+      "Yauli"
+    ],
+    "La Libertad": [
+      "Ascope",
+      "Bolivar",
+      "Chepen",
+      "Gran Chimu",
+      "Julcan",
+      "Otuzco",
+      "Pacasmayo",
+      "Pataz",
+      "Sanchez Carrion",
+      "Santiago de Chuco",
+      "Trujillo",
+      "Viru"
+    ],
+    "Lambayeque": [
+      "Chiclayo",
+      "Ferrenafe",
+      "Lambayeque"
+    ],
+    "Lima": [
+      "Barranca",
+      "Cajatambo",
+      "Canete",
+      "Canta",
+      "Huaral",
+      "Huarochiri",
+      "Huaura",
+      "Lima",
+      "Oyon",
+      "Yauyos"
+    ],
+    "Loreto": [
+      "Alto Amazonas",
+      "Datem del Maranon",
+      "Loreto",
+      "Mariscal Ramon Castilla",
+      "Maynas",
+      "Putumayo",
+      "Requena",
+      "Ucayali"
+    ],
+    "Madre de Dios": [
+      "Manu",
+      "Tahuamanu",
+      "Tambopata"
+    ],
+    "Moquegua": [
+      "General Sanchez Cerro",
+      "Ilo",
+      "Mariscal Nieto"
+    ],
+    "Pasco": [
+      "Daniel Alcides Carrion",
+      "Oxapampa",
+      "Pasco"
+    ],
+    "Piura": [
+      "Ayabaca",
+      "Huancabamba",
+      "Morropon",
+      "Paita",
+      "Piura",
+      "Sechura",
+      "Sullana",
+      "Talara"
+    ],
+    "Puno": [
+      "Azangaro",
+      "Carabaya",
+      "Chucuito",
+      "El Collao",
+      "Huancane",
+      "Lampa",
+      "Melgar",
+      "Moho",
+      "Puno",
+      "San Antonio de Putina",
+      "San Roman",
+      "Sandia",
+      "Yunguyo"
+    ],
+    "San Martin": [
+      "Bellavista",
+      "El Dorado",
+      "Huallaga",
+      "Lamas",
+      "Mariscal Caceres",
+      "Moyobamba",
+      "Picota",
+      "Rioja",
+      "San Martin",
+      "Tocache"
+    ],
+    "Tacna": [
+      "Candarave",
+      "Jorge Basadre",
+      "Tacna",
+      "Tarata"
+    ],
+    "Tumbes": [
+      "Contralmirante Villar",
+      "Tumbes",
+      "Zarumilla"
+    ],
+    "Ucayali": [
+      "Atalaya",
+      "Coronel Portillo",
+      "Padre Abad",
+      "Purus"
+    ]
+  },
+  "districtsByDepartmentProvince": {
+    "Amazonas": {
+      "Chachapoyas": [
+        {
+          "name": "Asuncion",
+          "postalCode": "010102"
+        },
+        {
+          "name": "Balsas",
+          "postalCode": "010103"
+        },
+        {
+          "name": "Chachapoyas",
+          "postalCode": "010101"
+        },
+        {
+          "name": "Cheto",
+          "postalCode": "010104"
+        },
+        {
+          "name": "Chiliquin",
+          "postalCode": "010105"
+        },
+        {
+          "name": "Chuquibamba",
+          "postalCode": "010106"
+        },
+        {
+          "name": "Granada",
+          "postalCode": "010107"
+        },
+        {
+          "name": "Huancas",
+          "postalCode": "010108"
+        },
+        {
+          "name": "La Jalca",
+          "postalCode": "010109"
+        },
+        {
+          "name": "Leimebamba",
+          "postalCode": "010110"
+        },
+        {
+          "name": "Levanto",
+          "postalCode": "010111"
+        },
+        {
+          "name": "Magdalena",
+          "postalCode": "010112"
+        },
+        {
+          "name": "Mariscal Castilla",
+          "postalCode": "010113"
+        },
+        {
+          "name": "Molinopampa",
+          "postalCode": "010114"
+        },
+        {
+          "name": "Montevideo",
+          "postalCode": "010115"
+        },
+        {
+          "name": "Olleros",
+          "postalCode": "010116"
+        },
+        {
+          "name": "Quinjalca",
+          "postalCode": "010117"
+        },
+        {
+          "name": "San Francisco de Daguas",
+          "postalCode": "010118"
+        },
+        {
+          "name": "San Isidro de Maino",
+          "postalCode": "010119"
+        },
+        {
+          "name": "Soloco",
+          "postalCode": "010120"
+        },
+        {
+          "name": "Sonche",
+          "postalCode": "010121"
+        }
+      ],
+      "Bagua": [
+        {
+          "name": "Aramango",
+          "postalCode": "010202"
+        },
+        {
+          "name": "Bagua",
+          "postalCode": "010201"
+        },
+        {
+          "name": "Copallin",
+          "postalCode": "010203"
+        },
+        {
+          "name": "El Parco",
+          "postalCode": "010204"
+        },
+        {
+          "name": "Imaza",
+          "postalCode": "010205"
+        },
+        {
+          "name": "La Peca",
+          "postalCode": "010206"
+        }
+      ],
+      "Bongara": [
+        {
+          "name": "Chisquilla",
+          "postalCode": "010302"
+        },
+        {
+          "name": "Churuja",
+          "postalCode": "010303"
+        },
+        {
+          "name": "Corosha",
+          "postalCode": "010304"
+        },
+        {
+          "name": "Cuispes",
+          "postalCode": "010305"
+        },
+        {
+          "name": "Florida",
+          "postalCode": "010306"
+        },
+        {
+          "name": "Jazan",
+          "postalCode": "010307"
+        },
+        {
+          "name": "Jumbilla",
+          "postalCode": "010301"
+        },
+        {
+          "name": "Recta",
+          "postalCode": "010308"
+        },
+        {
+          "name": "San Carlos",
+          "postalCode": "010309"
+        },
+        {
+          "name": "Shipasbamba",
+          "postalCode": "010310"
+        },
+        {
+          "name": "Valera",
+          "postalCode": "010311"
+        },
+        {
+          "name": "Yambrasbamba",
+          "postalCode": "010312"
+        }
+      ],
+      "Condorcanqui": [
+        {
+          "name": "El Cenepa",
+          "postalCode": "010402"
+        },
+        {
+          "name": "Nieva",
+          "postalCode": "010401"
+        },
+        {
+          "name": "Rio Santiago",
+          "postalCode": "010403"
+        }
+      ],
+      "Luya": [
+        {
+          "name": "Camporredondo",
+          "postalCode": "010502"
+        },
+        {
+          "name": "Cocabamba",
+          "postalCode": "010503"
+        },
+        {
+          "name": "Colcamar",
+          "postalCode": "010504"
+        },
+        {
+          "name": "Conila",
+          "postalCode": "010505"
+        },
+        {
+          "name": "Inguilpata",
+          "postalCode": "010506"
+        },
+        {
+          "name": "Lamud",
+          "postalCode": "010501"
+        },
+        {
+          "name": "Longuita",
+          "postalCode": "010507"
+        },
+        {
+          "name": "Lonya Chico",
+          "postalCode": "010508"
+        },
+        {
+          "name": "Luya",
+          "postalCode": "010509"
+        },
+        {
+          "name": "Luya Viejo",
+          "postalCode": "010510"
+        },
+        {
+          "name": "Maria",
+          "postalCode": "010511"
+        },
+        {
+          "name": "Ocalli",
+          "postalCode": "010512"
+        },
+        {
+          "name": "Ocumal",
+          "postalCode": "010513"
+        },
+        {
+          "name": "Pisuquia",
+          "postalCode": "010514"
+        },
+        {
+          "name": "Providencia",
+          "postalCode": "010515"
+        },
+        {
+          "name": "San Cristobal",
+          "postalCode": "010516"
+        },
+        {
+          "name": "San Francisco de Yeso",
+          "postalCode": "010517"
+        },
+        {
+          "name": "San Jeronimo",
+          "postalCode": "010518"
+        },
+        {
+          "name": "San Juan de Lopecancha",
+          "postalCode": "010519"
+        },
+        {
+          "name": "Santa Catalina",
+          "postalCode": "010520"
+        },
+        {
+          "name": "Santo Tomas",
+          "postalCode": "010521"
+        },
+        {
+          "name": "Tingo",
+          "postalCode": "010522"
+        },
+        {
+          "name": "Trita",
+          "postalCode": "010523"
+        }
+      ],
+      "Rodriguez de Mendoza": [
+        {
+          "name": "Chirimoto",
+          "postalCode": "010602"
+        },
+        {
+          "name": "Cochamal",
+          "postalCode": "010603"
+        },
+        {
+          "name": "Huambo",
+          "postalCode": "010604"
+        },
+        {
+          "name": "Limabamba",
+          "postalCode": "010605"
+        },
+        {
+          "name": "Longar",
+          "postalCode": "010606"
+        },
+        {
+          "name": "Mariscal Benavides",
+          "postalCode": "010607"
+        },
+        {
+          "name": "Milpuc",
+          "postalCode": "010608"
+        },
+        {
+          "name": "Omia",
+          "postalCode": "010609"
+        },
+        {
+          "name": "San Nicolas",
+          "postalCode": "010601"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "010610"
+        },
+        {
+          "name": "Totora",
+          "postalCode": "010611"
+        },
+        {
+          "name": "Vista Alegre",
+          "postalCode": "010612"
+        }
+      ],
+      "Utcubamba": [
+        {
+          "name": "Bagua Grande",
+          "postalCode": "010701"
+        },
+        {
+          "name": "Cajaruro",
+          "postalCode": "010702"
+        },
+        {
+          "name": "Cumba",
+          "postalCode": "010703"
+        },
+        {
+          "name": "El Milagro",
+          "postalCode": "010704"
+        },
+        {
+          "name": "Jamalca",
+          "postalCode": "010705"
+        },
+        {
+          "name": "Lonya Grande",
+          "postalCode": "010706"
+        },
+        {
+          "name": "Yamon",
+          "postalCode": "010707"
+        }
+      ]
+    },
+    "Ancash": {
+      "Huaraz": [
+        {
+          "name": "Cochabamba",
+          "postalCode": "020102"
+        },
+        {
+          "name": "Colcabamba",
+          "postalCode": "020103"
+        },
+        {
+          "name": "Huanchay",
+          "postalCode": "020104"
+        },
+        {
+          "name": "Huaraz",
+          "postalCode": "020101"
+        },
+        {
+          "name": "Independencia",
+          "postalCode": "020105"
+        },
+        {
+          "name": "Jangas",
+          "postalCode": "020106"
+        },
+        {
+          "name": "La Libertad",
+          "postalCode": "020107"
+        },
+        {
+          "name": "Olleros",
+          "postalCode": "020108"
+        },
+        {
+          "name": "Pampas Grande",
+          "postalCode": "020109"
+        },
+        {
+          "name": "Pariacoto",
+          "postalCode": "020110"
+        },
+        {
+          "name": "Pira",
+          "postalCode": "020111"
+        },
+        {
+          "name": "Tarica",
+          "postalCode": "020112"
+        }
+      ],
+      "Aija": [
+        {
+          "name": "Aija",
+          "postalCode": "020201"
+        },
+        {
+          "name": "Coris",
+          "postalCode": "020202"
+        },
+        {
+          "name": "Huacllan",
+          "postalCode": "020203"
+        },
+        {
+          "name": "La Merced",
+          "postalCode": "020204"
+        },
+        {
+          "name": "Succha",
+          "postalCode": "020205"
+        }
+      ],
+      "Antonio Raymondi": [
+        {
+          "name": "Aczo",
+          "postalCode": "020302"
+        },
+        {
+          "name": "Chaccho",
+          "postalCode": "020303"
+        },
+        {
+          "name": "Chingas",
+          "postalCode": "020304"
+        },
+        {
+          "name": "Llamellin",
+          "postalCode": "020301"
+        },
+        {
+          "name": "Mirgas",
+          "postalCode": "020305"
+        },
+        {
+          "name": "San Juan de Rontoy",
+          "postalCode": "020306"
+        }
+      ],
+      "Asuncion": [
+        {
+          "name": "Acochaca",
+          "postalCode": "020402"
+        },
+        {
+          "name": "Chacas",
+          "postalCode": "020401"
+        }
+      ],
+      "Bolognesi": [
+        {
+          "name": "Abelardo Pardo Lezameta",
+          "postalCode": "020502"
+        },
+        {
+          "name": "Antonio Raymondi",
+          "postalCode": "020503"
+        },
+        {
+          "name": "Aquia",
+          "postalCode": "020504"
+        },
+        {
+          "name": "Cajacay",
+          "postalCode": "020505"
+        },
+        {
+          "name": "Canis",
+          "postalCode": "020506"
+        },
+        {
+          "name": "Chiquian",
+          "postalCode": "020501"
+        },
+        {
+          "name": "Colquioc",
+          "postalCode": "020507"
+        },
+        {
+          "name": "Huallanca",
+          "postalCode": "020508"
+        },
+        {
+          "name": "Huasta",
+          "postalCode": "020509"
+        },
+        {
+          "name": "Huayllacayan",
+          "postalCode": "020510"
+        },
+        {
+          "name": "La Primavera",
+          "postalCode": "020511"
+        },
+        {
+          "name": "Mangas",
+          "postalCode": "020512"
+        },
+        {
+          "name": "Pacllon",
+          "postalCode": "020513"
+        },
+        {
+          "name": "San Miguel de Corpanqui",
+          "postalCode": "020514"
+        },
+        {
+          "name": "Ticllos",
+          "postalCode": "020515"
+        }
+      ],
+      "Carhuaz": [
+        {
+          "name": "Acopampa",
+          "postalCode": "020602"
+        },
+        {
+          "name": "Amashca",
+          "postalCode": "020603"
+        },
+        {
+          "name": "Anta",
+          "postalCode": "020604"
+        },
+        {
+          "name": "Ataquero",
+          "postalCode": "020605"
+        },
+        {
+          "name": "Carhuaz",
+          "postalCode": "020601"
+        },
+        {
+          "name": "Marcara",
+          "postalCode": "020606"
+        },
+        {
+          "name": "Pariahuanca",
+          "postalCode": "020607"
+        },
+        {
+          "name": "San Miguel de Aco",
+          "postalCode": "020608"
+        },
+        {
+          "name": "Shilla",
+          "postalCode": "020609"
+        },
+        {
+          "name": "Tinco",
+          "postalCode": "020610"
+        },
+        {
+          "name": "Yungar",
+          "postalCode": "020611"
+        }
+      ],
+      "Carlos Fermin Fitzcarrald": [
+        {
+          "name": "San Luis",
+          "postalCode": "020701"
+        },
+        {
+          "name": "San Nicolas",
+          "postalCode": "020702"
+        },
+        {
+          "name": "Yauya",
+          "postalCode": "020703"
+        }
+      ],
+      "Casma": [
+        {
+          "name": "Buena Vista Alta",
+          "postalCode": "020802"
+        },
+        {
+          "name": "Casma",
+          "postalCode": "020801"
+        },
+        {
+          "name": "Comandante Noel",
+          "postalCode": "020803"
+        },
+        {
+          "name": "Yautan",
+          "postalCode": "020804"
+        }
+      ],
+      "Corongo": [
+        {
+          "name": "Aco",
+          "postalCode": "020902"
+        },
+        {
+          "name": "Bambas",
+          "postalCode": "020903"
+        },
+        {
+          "name": "Corongo",
+          "postalCode": "020901"
+        },
+        {
+          "name": "Cusca",
+          "postalCode": "020904"
+        },
+        {
+          "name": "La Pampa",
+          "postalCode": "020905"
+        },
+        {
+          "name": "Yanac",
+          "postalCode": "020906"
+        },
+        {
+          "name": "Yupan",
+          "postalCode": "020907"
+        }
+      ],
+      "Huari": [
+        {
+          "name": "Anra",
+          "postalCode": "021002"
+        },
+        {
+          "name": "Cajay",
+          "postalCode": "021003"
+        },
+        {
+          "name": "Chavin de Huantar",
+          "postalCode": "021004"
+        },
+        {
+          "name": "Huacachi",
+          "postalCode": "021005"
+        },
+        {
+          "name": "Huacchis",
+          "postalCode": "021006"
+        },
+        {
+          "name": "Huachis",
+          "postalCode": "021007"
+        },
+        {
+          "name": "Huantar",
+          "postalCode": "021008"
+        },
+        {
+          "name": "Huari",
+          "postalCode": "021001"
+        },
+        {
+          "name": "Masin",
+          "postalCode": "021009"
+        },
+        {
+          "name": "Paucas",
+          "postalCode": "021010"
+        },
+        {
+          "name": "Ponto",
+          "postalCode": "021011"
+        },
+        {
+          "name": "Rahuapampa",
+          "postalCode": "021012"
+        },
+        {
+          "name": "Rapayan",
+          "postalCode": "021013"
+        },
+        {
+          "name": "San Marcos",
+          "postalCode": "021014"
+        },
+        {
+          "name": "San Pedro de Chana",
+          "postalCode": "021015"
+        },
+        {
+          "name": "Uco",
+          "postalCode": "021016"
+        }
+      ],
+      "Huarmey": [
+        {
+          "name": "Cochapeti",
+          "postalCode": "021102"
+        },
+        {
+          "name": "Culebras",
+          "postalCode": "021103"
+        },
+        {
+          "name": "Huarmey",
+          "postalCode": "021101"
+        },
+        {
+          "name": "Huayan",
+          "postalCode": "021104"
+        },
+        {
+          "name": "Malvas",
+          "postalCode": "021105"
+        }
+      ],
+      "Huaylas": [
+        {
+          "name": "Caraz",
+          "postalCode": "021201"
+        },
+        {
+          "name": "Huallanca",
+          "postalCode": "021202"
+        },
+        {
+          "name": "Huata",
+          "postalCode": "021203"
+        },
+        {
+          "name": "Huaylas",
+          "postalCode": "021204"
+        },
+        {
+          "name": "Mato",
+          "postalCode": "021205"
+        },
+        {
+          "name": "Pamparomas",
+          "postalCode": "021206"
+        },
+        {
+          "name": "Pueblo Libre",
+          "postalCode": "021207"
+        },
+        {
+          "name": "Santa Cruz",
+          "postalCode": "021208"
+        },
+        {
+          "name": "Santo Toribio",
+          "postalCode": "021209"
+        },
+        {
+          "name": "Yuracmarca",
+          "postalCode": "021210"
+        }
+      ],
+      "Mariscal Luzuriaga": [
+        {
+          "name": "Casca",
+          "postalCode": "021302"
+        },
+        {
+          "name": "Eleazar Guzman Barron",
+          "postalCode": "021303"
+        },
+        {
+          "name": "Fidel Olivas Escudero",
+          "postalCode": "021304"
+        },
+        {
+          "name": "Llama",
+          "postalCode": "021305"
+        },
+        {
+          "name": "Llumpa",
+          "postalCode": "021306"
+        },
+        {
+          "name": "Lucma",
+          "postalCode": "021307"
+        },
+        {
+          "name": "Musga",
+          "postalCode": "021308"
+        },
+        {
+          "name": "Piscobamba",
+          "postalCode": "021301"
+        }
+      ],
+      "Ocros": [
+        {
+          "name": "Acas",
+          "postalCode": "021402"
+        },
+        {
+          "name": "Cajamarquilla",
+          "postalCode": "021403"
+        },
+        {
+          "name": "Carhuapampa",
+          "postalCode": "021404"
+        },
+        {
+          "name": "Cochas",
+          "postalCode": "021405"
+        },
+        {
+          "name": "Congas",
+          "postalCode": "021406"
+        },
+        {
+          "name": "Llipa",
+          "postalCode": "021407"
+        },
+        {
+          "name": "Ocros",
+          "postalCode": "021401"
+        },
+        {
+          "name": "San Cristobal de Rajan",
+          "postalCode": "021408"
+        },
+        {
+          "name": "San Pedro",
+          "postalCode": "021409"
+        },
+        {
+          "name": "Santiago de Chilcas",
+          "postalCode": "021410"
+        }
+      ],
+      "Pallasca": [
+        {
+          "name": "Bolognesi",
+          "postalCode": "021502"
+        },
+        {
+          "name": "Cabana",
+          "postalCode": "021501"
+        },
+        {
+          "name": "Conchucos",
+          "postalCode": "021503"
+        },
+        {
+          "name": "Huacaschuque",
+          "postalCode": "021504"
+        },
+        {
+          "name": "Huandoval",
+          "postalCode": "021505"
+        },
+        {
+          "name": "Lacabamba",
+          "postalCode": "021506"
+        },
+        {
+          "name": "Llapo",
+          "postalCode": "021507"
+        },
+        {
+          "name": "Pallasca",
+          "postalCode": "021508"
+        },
+        {
+          "name": "Pampas",
+          "postalCode": "021509"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "021510"
+        },
+        {
+          "name": "Tauca",
+          "postalCode": "021511"
+        }
+      ],
+      "Pomabamba": [
+        {
+          "name": "Huayllan",
+          "postalCode": "021602"
+        },
+        {
+          "name": "Parobamba",
+          "postalCode": "021603"
+        },
+        {
+          "name": "Pomabamba",
+          "postalCode": "021601"
+        },
+        {
+          "name": "Quinuabamba",
+          "postalCode": "021604"
+        }
+      ],
+      "Recuay": [
+        {
+          "name": "Catac",
+          "postalCode": "021702"
+        },
+        {
+          "name": "Cotaparaco",
+          "postalCode": "021703"
+        },
+        {
+          "name": "Huayllapampa",
+          "postalCode": "021704"
+        },
+        {
+          "name": "Llacllin",
+          "postalCode": "021705"
+        },
+        {
+          "name": "Marca",
+          "postalCode": "021706"
+        },
+        {
+          "name": "Pampas Chico",
+          "postalCode": "021707"
+        },
+        {
+          "name": "Pararin",
+          "postalCode": "021708"
+        },
+        {
+          "name": "Recuay",
+          "postalCode": "021701"
+        },
+        {
+          "name": "Tapacocha",
+          "postalCode": "021709"
+        },
+        {
+          "name": "Ticapampa",
+          "postalCode": "021710"
+        }
+      ],
+      "Santa": [
+        {
+          "name": "Caceres del Peru",
+          "postalCode": "021802"
+        },
+        {
+          "name": "Chimbote",
+          "postalCode": "021801"
+        },
+        {
+          "name": "Coishco",
+          "postalCode": "021803"
+        },
+        {
+          "name": "Macate",
+          "postalCode": "021804"
+        },
+        {
+          "name": "Moro",
+          "postalCode": "021805"
+        },
+        {
+          "name": "Nepena",
+          "postalCode": "021806"
+        },
+        {
+          "name": "Nuevo Chimbote",
+          "postalCode": "021809"
+        },
+        {
+          "name": "Samanco",
+          "postalCode": "021807"
+        },
+        {
+          "name": "Santa",
+          "postalCode": "021808"
+        }
+      ],
+      "Sihuas": [
+        {
+          "name": "Acobamba",
+          "postalCode": "021902"
+        },
+        {
+          "name": "Alfonso Ugarte",
+          "postalCode": "021903"
+        },
+        {
+          "name": "Cashapampa",
+          "postalCode": "021904"
+        },
+        {
+          "name": "Chingalpo",
+          "postalCode": "021905"
+        },
+        {
+          "name": "Huayllabamba",
+          "postalCode": "021906"
+        },
+        {
+          "name": "Quiches",
+          "postalCode": "021907"
+        },
+        {
+          "name": "Ragash",
+          "postalCode": "021908"
+        },
+        {
+          "name": "San Juan",
+          "postalCode": "021909"
+        },
+        {
+          "name": "Sicsibamba",
+          "postalCode": "021910"
+        },
+        {
+          "name": "Sihuas",
+          "postalCode": "021901"
+        }
+      ],
+      "Yungay": [
+        {
+          "name": "Cascapara",
+          "postalCode": "022002"
+        },
+        {
+          "name": "Mancos",
+          "postalCode": "022003"
+        },
+        {
+          "name": "Matacoto",
+          "postalCode": "022004"
+        },
+        {
+          "name": "Quillo",
+          "postalCode": "022005"
+        },
+        {
+          "name": "Ranrahirca",
+          "postalCode": "022006"
+        },
+        {
+          "name": "Shupluy",
+          "postalCode": "022007"
+        },
+        {
+          "name": "Yanama",
+          "postalCode": "022008"
+        },
+        {
+          "name": "Yungay",
+          "postalCode": "022001"
+        }
+      ]
+    },
+    "Apurimac": {
+      "Abancay": [
+        {
+          "name": "Abancay",
+          "postalCode": "030101"
+        },
+        {
+          "name": "Chacoche",
+          "postalCode": "030102"
+        },
+        {
+          "name": "Circa",
+          "postalCode": "030103"
+        },
+        {
+          "name": "Curahuasi",
+          "postalCode": "030104"
+        },
+        {
+          "name": "Huanipaca",
+          "postalCode": "030105"
+        },
+        {
+          "name": "Lambrama",
+          "postalCode": "030106"
+        },
+        {
+          "name": "Pichirhua",
+          "postalCode": "030107"
+        },
+        {
+          "name": "San Pedro de Cachora",
+          "postalCode": "030108"
+        },
+        {
+          "name": "Tamburco",
+          "postalCode": "030109"
+        }
+      ],
+      "Andahuaylas": [
+        {
+          "name": "Andahuaylas",
+          "postalCode": "030201"
+        },
+        {
+          "name": "Andarapa",
+          "postalCode": "030202"
+        },
+        {
+          "name": "Chiara",
+          "postalCode": "030203"
+        },
+        {
+          "name": "Huancarama",
+          "postalCode": "030204"
+        },
+        {
+          "name": "Huancaray",
+          "postalCode": "030205"
+        },
+        {
+          "name": "Huayana",
+          "postalCode": "030206"
+        },
+        {
+          "name": "Jose Maria Arguedas",
+          "postalCode": "030220"
+        },
+        {
+          "name": "Kaquiabamba",
+          "postalCode": "030219"
+        },
+        {
+          "name": "Kishuara",
+          "postalCode": "030207"
+        },
+        {
+          "name": "Pacobamba",
+          "postalCode": "030208"
+        },
+        {
+          "name": "Pacucha",
+          "postalCode": "030209"
+        },
+        {
+          "name": "Pampachiri",
+          "postalCode": "030210"
+        },
+        {
+          "name": "Pomacocha",
+          "postalCode": "030211"
+        },
+        {
+          "name": "San Antonio de Cachi",
+          "postalCode": "030212"
+        },
+        {
+          "name": "San Jeronimo",
+          "postalCode": "030213"
+        },
+        {
+          "name": "San Miguel de Chaccrampa",
+          "postalCode": "030214"
+        },
+        {
+          "name": "Santa Maria de Chicmo",
+          "postalCode": "030215"
+        },
+        {
+          "name": "Talavera",
+          "postalCode": "030216"
+        },
+        {
+          "name": "Tumay Huaraca",
+          "postalCode": "030217"
+        },
+        {
+          "name": "Turpo",
+          "postalCode": "030218"
+        }
+      ],
+      "Antabamba": [
+        {
+          "name": "Antabamba",
+          "postalCode": "030301"
+        },
+        {
+          "name": "El Oro",
+          "postalCode": "030302"
+        },
+        {
+          "name": "Huaquirca",
+          "postalCode": "030303"
+        },
+        {
+          "name": "Juan Espinoza Medrano",
+          "postalCode": "030304"
+        },
+        {
+          "name": "Oropesa",
+          "postalCode": "030305"
+        },
+        {
+          "name": "Pachaconas",
+          "postalCode": "030306"
+        },
+        {
+          "name": "Sabaino",
+          "postalCode": "030307"
+        }
+      ],
+      "Aymaraes": [
+        {
+          "name": "Capaya",
+          "postalCode": "030402"
+        },
+        {
+          "name": "Caraybamba",
+          "postalCode": "030403"
+        },
+        {
+          "name": "Chalhuanca",
+          "postalCode": "030401"
+        },
+        {
+          "name": "Chapimarca",
+          "postalCode": "030404"
+        },
+        {
+          "name": "Colcabamba",
+          "postalCode": "030405"
+        },
+        {
+          "name": "Cotaruse",
+          "postalCode": "030406"
+        },
+        {
+          "name": "Ihuayllo",
+          "postalCode": "030407"
+        },
+        {
+          "name": "Justo Apu Sahuaraura",
+          "postalCode": "030408"
+        },
+        {
+          "name": "Lucre",
+          "postalCode": "030409"
+        },
+        {
+          "name": "Pocohuanca",
+          "postalCode": "030410"
+        },
+        {
+          "name": "San Juan de Chacna",
+          "postalCode": "030411"
+        },
+        {
+          "name": "Sanayca",
+          "postalCode": "030412"
+        },
+        {
+          "name": "Soraya",
+          "postalCode": "030413"
+        },
+        {
+          "name": "Tapairihua",
+          "postalCode": "030414"
+        },
+        {
+          "name": "Tintay",
+          "postalCode": "030415"
+        },
+        {
+          "name": "Toraya",
+          "postalCode": "030416"
+        },
+        {
+          "name": "Yanaca",
+          "postalCode": "030417"
+        }
+      ],
+      "Cotabambas": [
+        {
+          "name": "Challhuahuacho",
+          "postalCode": "030506"
+        },
+        {
+          "name": "Cotabambas",
+          "postalCode": "030502"
+        },
+        {
+          "name": "Coyllurqui",
+          "postalCode": "030503"
+        },
+        {
+          "name": "Haquira",
+          "postalCode": "030504"
+        },
+        {
+          "name": "Mara",
+          "postalCode": "030505"
+        },
+        {
+          "name": "Tambobamba",
+          "postalCode": "030501"
+        }
+      ],
+      "Chincheros": [
+        {
+          "name": "Anco_Huallo",
+          "postalCode": "030602"
+        },
+        {
+          "name": "Chincheros",
+          "postalCode": "030601"
+        },
+        {
+          "name": "Cocharcas",
+          "postalCode": "030603"
+        },
+        {
+          "name": "El Porvenir",
+          "postalCode": "030610"
+        },
+        {
+          "name": "Huaccana",
+          "postalCode": "030604"
+        },
+        {
+          "name": "Ocobamba",
+          "postalCode": "030605"
+        },
+        {
+          "name": "Ongoy",
+          "postalCode": "030606"
+        },
+        {
+          "name": "Ranracancha",
+          "postalCode": "030608"
+        },
+        {
+          "name": "Rocchacc",
+          "postalCode": "030609"
+        },
+        {
+          "name": "Uranmarca",
+          "postalCode": "030607"
+        }
+      ],
+      "Grau": [
+        {
+          "name": "Chuquibambilla",
+          "postalCode": "030701"
+        },
+        {
+          "name": "Curasco",
+          "postalCode": "030714"
+        },
+        {
+          "name": "Curpahuasi",
+          "postalCode": "030702"
+        },
+        {
+          "name": "Gamarra",
+          "postalCode": "030703"
+        },
+        {
+          "name": "Huayllati",
+          "postalCode": "030704"
+        },
+        {
+          "name": "Mamara",
+          "postalCode": "030705"
+        },
+        {
+          "name": "Micaela Bastidas",
+          "postalCode": "030706"
+        },
+        {
+          "name": "Pataypampa",
+          "postalCode": "030707"
+        },
+        {
+          "name": "Progreso",
+          "postalCode": "030708"
+        },
+        {
+          "name": "San Antonio",
+          "postalCode": "030709"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "030710"
+        },
+        {
+          "name": "Turpay",
+          "postalCode": "030711"
+        },
+        {
+          "name": "Vilcabamba",
+          "postalCode": "030712"
+        },
+        {
+          "name": "Virundo",
+          "postalCode": "030713"
+        }
+      ]
+    },
+    "Arequipa": {
+      "Arequipa": [
+        {
+          "name": "Alto Selva Alegre",
+          "postalCode": "040102"
+        },
+        {
+          "name": "Arequipa",
+          "postalCode": "040101"
+        },
+        {
+          "name": "Cayma",
+          "postalCode": "040103"
+        },
+        {
+          "name": "Cerro Colorado",
+          "postalCode": "040104"
+        },
+        {
+          "name": "Characato",
+          "postalCode": "040105"
+        },
+        {
+          "name": "Chiguata",
+          "postalCode": "040106"
+        },
+        {
+          "name": "Jacobo Hunter",
+          "postalCode": "040107"
+        },
+        {
+          "name": "Jose Luis Bustamante Y Rivero",
+          "postalCode": "040129"
+        },
+        {
+          "name": "La Joya",
+          "postalCode": "040108"
+        },
+        {
+          "name": "Mariano Melgar",
+          "postalCode": "040109"
+        },
+        {
+          "name": "Miraflores",
+          "postalCode": "040110"
+        },
+        {
+          "name": "Mollebaya",
+          "postalCode": "040111"
+        },
+        {
+          "name": "Paucarpata",
+          "postalCode": "040112"
+        },
+        {
+          "name": "Pocsi",
+          "postalCode": "040113"
+        },
+        {
+          "name": "Polobaya",
+          "postalCode": "040114"
+        },
+        {
+          "name": "Quequena",
+          "postalCode": "040115"
+        },
+        {
+          "name": "Sabandia",
+          "postalCode": "040116"
+        },
+        {
+          "name": "Sachaca",
+          "postalCode": "040117"
+        },
+        {
+          "name": "San Juan de Siguas",
+          "postalCode": "040118"
+        },
+        {
+          "name": "San Juan de Tarucani",
+          "postalCode": "040119"
+        },
+        {
+          "name": "Santa Isabel de Siguas",
+          "postalCode": "040120"
+        },
+        {
+          "name": "Santa Rita de Siguas",
+          "postalCode": "040121"
+        },
+        {
+          "name": "Socabaya",
+          "postalCode": "040122"
+        },
+        {
+          "name": "Tiabaya",
+          "postalCode": "040123"
+        },
+        {
+          "name": "Uchumayo",
+          "postalCode": "040124"
+        },
+        {
+          "name": "Vitor",
+          "postalCode": "040125"
+        },
+        {
+          "name": "Yanahuara",
+          "postalCode": "040126"
+        },
+        {
+          "name": "Yarabamba",
+          "postalCode": "040127"
+        },
+        {
+          "name": "Yura",
+          "postalCode": "040128"
+        }
+      ],
+      "Camana": [
+        {
+          "name": "Camana",
+          "postalCode": "040201"
+        },
+        {
+          "name": "Jose Maria Quimper",
+          "postalCode": "040202"
+        },
+        {
+          "name": "Mariano Nicolas Valcarcel",
+          "postalCode": "040203"
+        },
+        {
+          "name": "Mariscal Caceres",
+          "postalCode": "040204"
+        },
+        {
+          "name": "Nicolas de Pierola",
+          "postalCode": "040205"
+        },
+        {
+          "name": "Ocona",
+          "postalCode": "040206"
+        },
+        {
+          "name": "Quilca",
+          "postalCode": "040207"
+        },
+        {
+          "name": "Samuel Pastor",
+          "postalCode": "040208"
+        }
+      ],
+      "Caraveli": [
+        {
+          "name": "Acari",
+          "postalCode": "040302"
+        },
+        {
+          "name": "Atico",
+          "postalCode": "040303"
+        },
+        {
+          "name": "Atiquipa",
+          "postalCode": "040304"
+        },
+        {
+          "name": "Bella Union",
+          "postalCode": "040305"
+        },
+        {
+          "name": "Cahuacho",
+          "postalCode": "040306"
+        },
+        {
+          "name": "Caraveli",
+          "postalCode": "040301"
+        },
+        {
+          "name": "Chala",
+          "postalCode": "040307"
+        },
+        {
+          "name": "Chaparra",
+          "postalCode": "040308"
+        },
+        {
+          "name": "Huanuhuanu",
+          "postalCode": "040309"
+        },
+        {
+          "name": "Jaqui",
+          "postalCode": "040310"
+        },
+        {
+          "name": "Lomas",
+          "postalCode": "040311"
+        },
+        {
+          "name": "Quicacha",
+          "postalCode": "040312"
+        },
+        {
+          "name": "Yauca",
+          "postalCode": "040313"
+        }
+      ],
+      "Castilla": [
+        {
+          "name": "Andagua",
+          "postalCode": "040402"
+        },
+        {
+          "name": "Aplao",
+          "postalCode": "040401"
+        },
+        {
+          "name": "Ayo",
+          "postalCode": "040403"
+        },
+        {
+          "name": "Chachas",
+          "postalCode": "040404"
+        },
+        {
+          "name": "Chilcaymarca",
+          "postalCode": "040405"
+        },
+        {
+          "name": "Choco",
+          "postalCode": "040406"
+        },
+        {
+          "name": "Huancarqui",
+          "postalCode": "040407"
+        },
+        {
+          "name": "Machaguay",
+          "postalCode": "040408"
+        },
+        {
+          "name": "Orcopampa",
+          "postalCode": "040409"
+        },
+        {
+          "name": "Pampacolca",
+          "postalCode": "040410"
+        },
+        {
+          "name": "Tipan",
+          "postalCode": "040411"
+        },
+        {
+          "name": "Unon",
+          "postalCode": "040412"
+        },
+        {
+          "name": "Uraca",
+          "postalCode": "040413"
+        },
+        {
+          "name": "Viraco",
+          "postalCode": "040414"
+        }
+      ],
+      "Caylloma": [
+        {
+          "name": "Achoma",
+          "postalCode": "040502"
+        },
+        {
+          "name": "Cabanaconde",
+          "postalCode": "040503"
+        },
+        {
+          "name": "Callalli",
+          "postalCode": "040504"
+        },
+        {
+          "name": "Caylloma",
+          "postalCode": "040505"
+        },
+        {
+          "name": "Chivay",
+          "postalCode": "040501"
+        },
+        {
+          "name": "Coporaque",
+          "postalCode": "040506"
+        },
+        {
+          "name": "Huambo",
+          "postalCode": "040507"
+        },
+        {
+          "name": "Huanca",
+          "postalCode": "040508"
+        },
+        {
+          "name": "Ichupampa",
+          "postalCode": "040509"
+        },
+        {
+          "name": "Lari",
+          "postalCode": "040510"
+        },
+        {
+          "name": "Lluta",
+          "postalCode": "040511"
+        },
+        {
+          "name": "Maca",
+          "postalCode": "040512"
+        },
+        {
+          "name": "Madrigal",
+          "postalCode": "040513"
+        },
+        {
+          "name": "Majes",
+          "postalCode": "040520"
+        },
+        {
+          "name": "San Antonio de Chuca",
+          "postalCode": "040514"
+        },
+        {
+          "name": "Sibayo",
+          "postalCode": "040515"
+        },
+        {
+          "name": "Tapay",
+          "postalCode": "040516"
+        },
+        {
+          "name": "Tisco",
+          "postalCode": "040517"
+        },
+        {
+          "name": "Tuti",
+          "postalCode": "040518"
+        },
+        {
+          "name": "Yanque",
+          "postalCode": "040519"
+        }
+      ],
+      "Condesuyos": [
+        {
+          "name": "Andaray",
+          "postalCode": "040602"
+        },
+        {
+          "name": "Cayarani",
+          "postalCode": "040603"
+        },
+        {
+          "name": "Chichas",
+          "postalCode": "040604"
+        },
+        {
+          "name": "Chuquibamba",
+          "postalCode": "040601"
+        },
+        {
+          "name": "Iray",
+          "postalCode": "040605"
+        },
+        {
+          "name": "Rio Grande",
+          "postalCode": "040606"
+        },
+        {
+          "name": "Salamanca",
+          "postalCode": "040607"
+        },
+        {
+          "name": "Yanaquihua",
+          "postalCode": "040608"
+        }
+      ],
+      "Islay": [
+        {
+          "name": "Cocachacra",
+          "postalCode": "040702"
+        },
+        {
+          "name": "Dean Valdivia",
+          "postalCode": "040703"
+        },
+        {
+          "name": "Islay",
+          "postalCode": "040704"
+        },
+        {
+          "name": "Mejia",
+          "postalCode": "040705"
+        },
+        {
+          "name": "Mollendo",
+          "postalCode": "040701"
+        },
+        {
+          "name": "Punta de Bombon",
+          "postalCode": "040706"
+        }
+      ],
+      "La Union": [
+        {
+          "name": "Alca",
+          "postalCode": "040802"
+        },
+        {
+          "name": "Charcana",
+          "postalCode": "040803"
+        },
+        {
+          "name": "Cotahuasi",
+          "postalCode": "040801"
+        },
+        {
+          "name": "Huaynacotas",
+          "postalCode": "040804"
+        },
+        {
+          "name": "Pampamarca",
+          "postalCode": "040805"
+        },
+        {
+          "name": "Puyca",
+          "postalCode": "040806"
+        },
+        {
+          "name": "Quechualla",
+          "postalCode": "040807"
+        },
+        {
+          "name": "Sayla",
+          "postalCode": "040808"
+        },
+        {
+          "name": "Tauria",
+          "postalCode": "040809"
+        },
+        {
+          "name": "Tomepampa",
+          "postalCode": "040810"
+        },
+        {
+          "name": "Toro",
+          "postalCode": "040811"
+        }
+      ]
+    },
+    "Ayacucho": {
+      "Huamanga": [
+        {
+          "name": "Acocro",
+          "postalCode": "050102"
+        },
+        {
+          "name": "Acos Vinchos",
+          "postalCode": "050103"
+        },
+        {
+          "name": "Andres Avelino Caceres Dorregaray",
+          "postalCode": "050116"
+        },
+        {
+          "name": "Ayacucho",
+          "postalCode": "050101"
+        },
+        {
+          "name": "Carmen Alto",
+          "postalCode": "050104"
+        },
+        {
+          "name": "Chiara",
+          "postalCode": "050105"
+        },
+        {
+          "name": "Jesus Nazareno",
+          "postalCode": "050115"
+        },
+        {
+          "name": "Ocros",
+          "postalCode": "050106"
+        },
+        {
+          "name": "Pacaycasa",
+          "postalCode": "050107"
+        },
+        {
+          "name": "Quinua",
+          "postalCode": "050108"
+        },
+        {
+          "name": "San Jose de Ticllas",
+          "postalCode": "050109"
+        },
+        {
+          "name": "San Juan Bautista",
+          "postalCode": "050110"
+        },
+        {
+          "name": "Santiago de Pischa",
+          "postalCode": "050111"
+        },
+        {
+          "name": "Socos",
+          "postalCode": "050112"
+        },
+        {
+          "name": "Tambillo",
+          "postalCode": "050113"
+        },
+        {
+          "name": "Vinchos",
+          "postalCode": "050114"
+        }
+      ],
+      "Cangallo": [
+        {
+          "name": "Cangallo",
+          "postalCode": "050201"
+        },
+        {
+          "name": "Chuschi",
+          "postalCode": "050202"
+        },
+        {
+          "name": "Los Morochucos",
+          "postalCode": "050203"
+        },
+        {
+          "name": "Maria Parado de Bellido",
+          "postalCode": "050204"
+        },
+        {
+          "name": "Paras",
+          "postalCode": "050205"
+        },
+        {
+          "name": "Totos",
+          "postalCode": "050206"
+        }
+      ],
+      "Huanca Sancos": [
+        {
+          "name": "Carapo",
+          "postalCode": "050302"
+        },
+        {
+          "name": "Sacsamarca",
+          "postalCode": "050303"
+        },
+        {
+          "name": "Sancos",
+          "postalCode": "050301"
+        },
+        {
+          "name": "Santiago de Lucanamarca",
+          "postalCode": "050304"
+        }
+      ],
+      "Huanta": [
+        {
+          "name": "Ayahuanco",
+          "postalCode": "050402"
+        },
+        {
+          "name": "Canayre",
+          "postalCode": "050409"
+        },
+        {
+          "name": "Chaca",
+          "postalCode": "050412"
+        },
+        {
+          "name": "Huamanguilla",
+          "postalCode": "050403"
+        },
+        {
+          "name": "Huanta",
+          "postalCode": "050401"
+        },
+        {
+          "name": "Iguain",
+          "postalCode": "050404"
+        },
+        {
+          "name": "Llochegua",
+          "postalCode": "050408"
+        },
+        {
+          "name": "Luricocha",
+          "postalCode": "050405"
+        },
+        {
+          "name": "Pucacolpa",
+          "postalCode": "050411"
+        },
+        {
+          "name": "Santillana",
+          "postalCode": "050406"
+        },
+        {
+          "name": "Sivia",
+          "postalCode": "050407"
+        },
+        {
+          "name": "Uchuraccay",
+          "postalCode": "050410"
+        }
+      ],
+      "La Mar": [
+        {
+          "name": "Anchihuay",
+          "postalCode": "050510"
+        },
+        {
+          "name": "Anco",
+          "postalCode": "050502"
+        },
+        {
+          "name": "Ayna",
+          "postalCode": "050503"
+        },
+        {
+          "name": "Chilcas",
+          "postalCode": "050504"
+        },
+        {
+          "name": "Chungui",
+          "postalCode": "050505"
+        },
+        {
+          "name": "Luis Carranza",
+          "postalCode": "050506"
+        },
+        {
+          "name": "Samugari",
+          "postalCode": "050509"
+        },
+        {
+          "name": "San Miguel",
+          "postalCode": "050501"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "050507"
+        },
+        {
+          "name": "Tambo",
+          "postalCode": "050508"
+        }
+      ],
+      "Lucanas": [
+        {
+          "name": "Aucara",
+          "postalCode": "050602"
+        },
+        {
+          "name": "Cabana",
+          "postalCode": "050603"
+        },
+        {
+          "name": "Carmen Salcedo",
+          "postalCode": "050604"
+        },
+        {
+          "name": "Chavina",
+          "postalCode": "050605"
+        },
+        {
+          "name": "Chipao",
+          "postalCode": "050606"
+        },
+        {
+          "name": "Huac Huas",
+          "postalCode": "050607"
+        },
+        {
+          "name": "Laramate",
+          "postalCode": "050608"
+        },
+        {
+          "name": "Leoncio Prado",
+          "postalCode": "050609"
+        },
+        {
+          "name": "Llauta",
+          "postalCode": "050610"
+        },
+        {
+          "name": "Lucanas",
+          "postalCode": "050611"
+        },
+        {
+          "name": "Ocana",
+          "postalCode": "050612"
+        },
+        {
+          "name": "Otoca",
+          "postalCode": "050613"
+        },
+        {
+          "name": "Puquio",
+          "postalCode": "050601"
+        },
+        {
+          "name": "Saisa",
+          "postalCode": "050614"
+        },
+        {
+          "name": "San Cristobal",
+          "postalCode": "050615"
+        },
+        {
+          "name": "San Juan",
+          "postalCode": "050616"
+        },
+        {
+          "name": "San Pedro",
+          "postalCode": "050617"
+        },
+        {
+          "name": "San Pedro de Palco",
+          "postalCode": "050618"
+        },
+        {
+          "name": "Sancos",
+          "postalCode": "050619"
+        },
+        {
+          "name": "Santa Ana de Huaycahuacho",
+          "postalCode": "050620"
+        },
+        {
+          "name": "Santa Lucia",
+          "postalCode": "050621"
+        }
+      ],
+      "Parinacochas": [
+        {
+          "name": "Chumpi",
+          "postalCode": "050702"
+        },
+        {
+          "name": "Coracora",
+          "postalCode": "050701"
+        },
+        {
+          "name": "Coronel Castaneda",
+          "postalCode": "050703"
+        },
+        {
+          "name": "Pacapausa",
+          "postalCode": "050704"
+        },
+        {
+          "name": "Pullo",
+          "postalCode": "050705"
+        },
+        {
+          "name": "Puyusca",
+          "postalCode": "050706"
+        },
+        {
+          "name": "San Francisco de Ravacayco",
+          "postalCode": "050707"
+        },
+        {
+          "name": "Upahuacho",
+          "postalCode": "050708"
+        }
+      ],
+      "Paucar del Sara Sara": [
+        {
+          "name": "Colta",
+          "postalCode": "050802"
+        },
+        {
+          "name": "Corculla",
+          "postalCode": "050803"
+        },
+        {
+          "name": "Lampa",
+          "postalCode": "050804"
+        },
+        {
+          "name": "Marcabamba",
+          "postalCode": "050805"
+        },
+        {
+          "name": "Oyolo",
+          "postalCode": "050806"
+        },
+        {
+          "name": "Pararca",
+          "postalCode": "050807"
+        },
+        {
+          "name": "Pausa",
+          "postalCode": "050801"
+        },
+        {
+          "name": "San Javier de Alpabamba",
+          "postalCode": "050808"
+        },
+        {
+          "name": "San Jose de Ushua",
+          "postalCode": "050809"
+        },
+        {
+          "name": "Sara Sara",
+          "postalCode": "050810"
+        }
+      ],
+      "Sucre": [
+        {
+          "name": "Belen",
+          "postalCode": "050902"
+        },
+        {
+          "name": "Chalcos",
+          "postalCode": "050903"
+        },
+        {
+          "name": "Chilcayoc",
+          "postalCode": "050904"
+        },
+        {
+          "name": "Huacana",
+          "postalCode": "050905"
+        },
+        {
+          "name": "Morcolla",
+          "postalCode": "050906"
+        },
+        {
+          "name": "Paico",
+          "postalCode": "050907"
+        },
+        {
+          "name": "Querobamba",
+          "postalCode": "050901"
+        },
+        {
+          "name": "San Pedro de Larcay",
+          "postalCode": "050908"
+        },
+        {
+          "name": "San Salvador de Quije",
+          "postalCode": "050909"
+        },
+        {
+          "name": "Santiago de Paucaray",
+          "postalCode": "050910"
+        },
+        {
+          "name": "Soras",
+          "postalCode": "050911"
+        }
+      ],
+      "Victor Fajardo": [
+        {
+          "name": "Alcamenca",
+          "postalCode": "051002"
+        },
+        {
+          "name": "Apongo",
+          "postalCode": "051003"
+        },
+        {
+          "name": "Asquipata",
+          "postalCode": "051004"
+        },
+        {
+          "name": "Canaria",
+          "postalCode": "051005"
+        },
+        {
+          "name": "Cayara",
+          "postalCode": "051006"
+        },
+        {
+          "name": "Colca",
+          "postalCode": "051007"
+        },
+        {
+          "name": "Huamanquiquia",
+          "postalCode": "051008"
+        },
+        {
+          "name": "Huancapi",
+          "postalCode": "051001"
+        },
+        {
+          "name": "Huancaraylla",
+          "postalCode": "051009"
+        },
+        {
+          "name": "Huaya",
+          "postalCode": "051010"
+        },
+        {
+          "name": "Sarhua",
+          "postalCode": "051011"
+        },
+        {
+          "name": "Vilcanchos",
+          "postalCode": "051012"
+        }
+      ],
+      "Vilcas Huaman": [
+        {
+          "name": "Accomarca",
+          "postalCode": "051102"
+        },
+        {
+          "name": "Carhuanca",
+          "postalCode": "051103"
+        },
+        {
+          "name": "Concepcion",
+          "postalCode": "051104"
+        },
+        {
+          "name": "Huambalpa",
+          "postalCode": "051105"
+        },
+        {
+          "name": "Independencia",
+          "postalCode": "051106"
+        },
+        {
+          "name": "Saurama",
+          "postalCode": "051107"
+        },
+        {
+          "name": "Vilcas Huaman",
+          "postalCode": "051101"
+        },
+        {
+          "name": "Vischongo",
+          "postalCode": "051108"
+        }
+      ]
+    },
+    "Cajamarca": {
+      "Cajamarca": [
+        {
+          "name": "Asuncion",
+          "postalCode": "060102"
+        },
+        {
+          "name": "Cajamarca",
+          "postalCode": "060101"
+        },
+        {
+          "name": "Chetilla",
+          "postalCode": "060103"
+        },
+        {
+          "name": "Cospan",
+          "postalCode": "060104"
+        },
+        {
+          "name": "Encanada",
+          "postalCode": "060105"
+        },
+        {
+          "name": "Jesus",
+          "postalCode": "060106"
+        },
+        {
+          "name": "Llacanora",
+          "postalCode": "060107"
+        },
+        {
+          "name": "Los Banos del Inca",
+          "postalCode": "060108"
+        },
+        {
+          "name": "Magdalena",
+          "postalCode": "060109"
+        },
+        {
+          "name": "Matara",
+          "postalCode": "060110"
+        },
+        {
+          "name": "Namora",
+          "postalCode": "060111"
+        },
+        {
+          "name": "San Juan",
+          "postalCode": "060112"
+        }
+      ],
+      "Cajabamba": [
+        {
+          "name": "Cachachi",
+          "postalCode": "060202"
+        },
+        {
+          "name": "Cajabamba",
+          "postalCode": "060201"
+        },
+        {
+          "name": "Condebamba",
+          "postalCode": "060203"
+        },
+        {
+          "name": "Sitacocha",
+          "postalCode": "060204"
+        }
+      ],
+      "Celendin": [
+        {
+          "name": "Celendin",
+          "postalCode": "060301"
+        },
+        {
+          "name": "Chumuch",
+          "postalCode": "060302"
+        },
+        {
+          "name": "Cortegana",
+          "postalCode": "060303"
+        },
+        {
+          "name": "Huasmin",
+          "postalCode": "060304"
+        },
+        {
+          "name": "Jorge Chavez",
+          "postalCode": "060305"
+        },
+        {
+          "name": "Jose Galvez",
+          "postalCode": "060306"
+        },
+        {
+          "name": "La Libertad de Pallan",
+          "postalCode": "060312"
+        },
+        {
+          "name": "Miguel Iglesias",
+          "postalCode": "060307"
+        },
+        {
+          "name": "Oxamarca",
+          "postalCode": "060308"
+        },
+        {
+          "name": "Sorochuco",
+          "postalCode": "060309"
+        },
+        {
+          "name": "Sucre",
+          "postalCode": "060310"
+        },
+        {
+          "name": "Utco",
+          "postalCode": "060311"
+        }
+      ],
+      "Chota": [
+        {
+          "name": "Anguia",
+          "postalCode": "060402"
+        },
+        {
+          "name": "Chadin",
+          "postalCode": "060403"
+        },
+        {
+          "name": "Chalamarca",
+          "postalCode": "060419"
+        },
+        {
+          "name": "Chiguirip",
+          "postalCode": "060404"
+        },
+        {
+          "name": "Chimban",
+          "postalCode": "060405"
+        },
+        {
+          "name": "Choropampa",
+          "postalCode": "060406"
+        },
+        {
+          "name": "Chota",
+          "postalCode": "060401"
+        },
+        {
+          "name": "Cochabamba",
+          "postalCode": "060407"
+        },
+        {
+          "name": "Conchan",
+          "postalCode": "060408"
+        },
+        {
+          "name": "Huambos",
+          "postalCode": "060409"
+        },
+        {
+          "name": "Lajas",
+          "postalCode": "060410"
+        },
+        {
+          "name": "Llama",
+          "postalCode": "060411"
+        },
+        {
+          "name": "Miracosta",
+          "postalCode": "060412"
+        },
+        {
+          "name": "Paccha",
+          "postalCode": "060413"
+        },
+        {
+          "name": "Pion",
+          "postalCode": "060414"
+        },
+        {
+          "name": "Querocoto",
+          "postalCode": "060415"
+        },
+        {
+          "name": "San Juan de Licupis",
+          "postalCode": "060416"
+        },
+        {
+          "name": "Tacabamba",
+          "postalCode": "060417"
+        },
+        {
+          "name": "Tocmoche",
+          "postalCode": "060418"
+        }
+      ],
+      "Contumaza": [
+        {
+          "name": "Chilete",
+          "postalCode": "060502"
+        },
+        {
+          "name": "Contumaza",
+          "postalCode": "060501"
+        },
+        {
+          "name": "Cupisnique",
+          "postalCode": "060503"
+        },
+        {
+          "name": "Guzmango",
+          "postalCode": "060504"
+        },
+        {
+          "name": "San Benito",
+          "postalCode": "060505"
+        },
+        {
+          "name": "Santa Cruz de Toledo",
+          "postalCode": "060506"
+        },
+        {
+          "name": "Tantarica",
+          "postalCode": "060507"
+        },
+        {
+          "name": "Yonan",
+          "postalCode": "060508"
+        }
+      ],
+      "Cutervo": [
+        {
+          "name": "Callayuc",
+          "postalCode": "060602"
+        },
+        {
+          "name": "Choros",
+          "postalCode": "060603"
+        },
+        {
+          "name": "Cujillo",
+          "postalCode": "060604"
+        },
+        {
+          "name": "Cutervo",
+          "postalCode": "060601"
+        },
+        {
+          "name": "La Ramada",
+          "postalCode": "060605"
+        },
+        {
+          "name": "Pimpingos",
+          "postalCode": "060606"
+        },
+        {
+          "name": "Querocotillo",
+          "postalCode": "060607"
+        },
+        {
+          "name": "San Andres de Cutervo",
+          "postalCode": "060608"
+        },
+        {
+          "name": "San Juan de Cutervo",
+          "postalCode": "060609"
+        },
+        {
+          "name": "San Luis de Lucma",
+          "postalCode": "060610"
+        },
+        {
+          "name": "Santa Cruz",
+          "postalCode": "060611"
+        },
+        {
+          "name": "Santo Domingo de la Capilla",
+          "postalCode": "060612"
+        },
+        {
+          "name": "Santo Tomas",
+          "postalCode": "060613"
+        },
+        {
+          "name": "Socota",
+          "postalCode": "060614"
+        },
+        {
+          "name": "Toribio Casanova",
+          "postalCode": "060615"
+        }
+      ],
+      "Hualgayoc": [
+        {
+          "name": "Bambamarca",
+          "postalCode": "060701"
+        },
+        {
+          "name": "Chugur",
+          "postalCode": "060702"
+        },
+        {
+          "name": "Hualgayoc",
+          "postalCode": "060703"
+        }
+      ],
+      "Jaen": [
+        {
+          "name": "Bellavista",
+          "postalCode": "060802"
+        },
+        {
+          "name": "Chontali",
+          "postalCode": "060803"
+        },
+        {
+          "name": "Colasay",
+          "postalCode": "060804"
+        },
+        {
+          "name": "Huabal",
+          "postalCode": "060805"
+        },
+        {
+          "name": "Jaen",
+          "postalCode": "060801"
+        },
+        {
+          "name": "Las Pirias",
+          "postalCode": "060806"
+        },
+        {
+          "name": "Pomahuaca",
+          "postalCode": "060807"
+        },
+        {
+          "name": "Pucara",
+          "postalCode": "060808"
+        },
+        {
+          "name": "Sallique",
+          "postalCode": "060809"
+        },
+        {
+          "name": "San Felipe",
+          "postalCode": "060810"
+        },
+        {
+          "name": "San Jose del Alto",
+          "postalCode": "060811"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "060812"
+        }
+      ],
+      "San Ignacio": [
+        {
+          "name": "Chirinos",
+          "postalCode": "060902"
+        },
+        {
+          "name": "Huarango",
+          "postalCode": "060903"
+        },
+        {
+          "name": "La Coipa",
+          "postalCode": "060904"
+        },
+        {
+          "name": "Namballe",
+          "postalCode": "060905"
+        },
+        {
+          "name": "San Ignacio",
+          "postalCode": "060901"
+        },
+        {
+          "name": "San Jose de Lourdes",
+          "postalCode": "060906"
+        },
+        {
+          "name": "Tabaconas",
+          "postalCode": "060907"
+        }
+      ],
+      "San Marcos": [
+        {
+          "name": "Chancay",
+          "postalCode": "061002"
+        },
+        {
+          "name": "Eduardo Villanueva",
+          "postalCode": "061003"
+        },
+        {
+          "name": "Gregorio Pita",
+          "postalCode": "061004"
+        },
+        {
+          "name": "Ichocan",
+          "postalCode": "061005"
+        },
+        {
+          "name": "Jose Manuel Quiroz",
+          "postalCode": "061006"
+        },
+        {
+          "name": "Jose Sabogal",
+          "postalCode": "061007"
+        },
+        {
+          "name": "Pedro Galvez",
+          "postalCode": "061001"
+        }
+      ],
+      "San Miguel": [
+        {
+          "name": "Bolivar",
+          "postalCode": "061102"
+        },
+        {
+          "name": "Calquis",
+          "postalCode": "061103"
+        },
+        {
+          "name": "Catilluc",
+          "postalCode": "061104"
+        },
+        {
+          "name": "El Prado",
+          "postalCode": "061105"
+        },
+        {
+          "name": "La Florida",
+          "postalCode": "061106"
+        },
+        {
+          "name": "Llapa",
+          "postalCode": "061107"
+        },
+        {
+          "name": "Nanchoc",
+          "postalCode": "061108"
+        },
+        {
+          "name": "Niepos",
+          "postalCode": "061109"
+        },
+        {
+          "name": "San Gregorio",
+          "postalCode": "061110"
+        },
+        {
+          "name": "San Miguel",
+          "postalCode": "061101"
+        },
+        {
+          "name": "San Silvestre de Cochan",
+          "postalCode": "061111"
+        },
+        {
+          "name": "Tongod",
+          "postalCode": "061112"
+        },
+        {
+          "name": "Union Agua Blanca",
+          "postalCode": "061113"
+        }
+      ],
+      "San Pablo": [
+        {
+          "name": "San Bernardino",
+          "postalCode": "061202"
+        },
+        {
+          "name": "San Luis",
+          "postalCode": "061203"
+        },
+        {
+          "name": "San Pablo",
+          "postalCode": "061201"
+        },
+        {
+          "name": "Tumbaden",
+          "postalCode": "061204"
+        }
+      ],
+      "Santa Cruz": [
+        {
+          "name": "Andabamba",
+          "postalCode": "061302"
+        },
+        {
+          "name": "Catache",
+          "postalCode": "061303"
+        },
+        {
+          "name": "Chancaybanos",
+          "postalCode": "061304"
+        },
+        {
+          "name": "La Esperanza",
+          "postalCode": "061305"
+        },
+        {
+          "name": "Ninabamba",
+          "postalCode": "061306"
+        },
+        {
+          "name": "Pulan",
+          "postalCode": "061307"
+        },
+        {
+          "name": "Santa Cruz",
+          "postalCode": "061301"
+        },
+        {
+          "name": "Saucepampa",
+          "postalCode": "061308"
+        },
+        {
+          "name": "Sexi",
+          "postalCode": "061309"
+        },
+        {
+          "name": "Uticyacu",
+          "postalCode": "061310"
+        },
+        {
+          "name": "Yauyucan",
+          "postalCode": "061311"
+        }
+      ]
+    },
+    "Callao": {
+      "Prov Const del Callao": [
+        {
+          "name": "Bellavista",
+          "postalCode": "070102"
+        },
+        {
+          "name": "Callao",
+          "postalCode": "070101"
+        },
+        {
+          "name": "Carmen de la Legua Reynoso",
+          "postalCode": "070103"
+        },
+        {
+          "name": "La Perla",
+          "postalCode": "070104"
+        },
+        {
+          "name": "La Punta",
+          "postalCode": "070105"
+        },
+        {
+          "name": "Mi Peru",
+          "postalCode": "070107"
+        },
+        {
+          "name": "Ventanilla",
+          "postalCode": "070106"
+        }
+      ]
+    },
+    "Cusco": {
+      "Cusco": [
+        {
+          "name": "Ccorca",
+          "postalCode": "080102"
+        },
+        {
+          "name": "Cusco",
+          "postalCode": "080101"
+        },
+        {
+          "name": "Poroy",
+          "postalCode": "080103"
+        },
+        {
+          "name": "San Jeronimo",
+          "postalCode": "080104"
+        },
+        {
+          "name": "San Sebastian",
+          "postalCode": "080105"
+        },
+        {
+          "name": "Santiago",
+          "postalCode": "080106"
+        },
+        {
+          "name": "Saylla",
+          "postalCode": "080107"
+        },
+        {
+          "name": "Wanchaq",
+          "postalCode": "080108"
+        }
+      ],
+      "Acomayo": [
+        {
+          "name": "Acomayo",
+          "postalCode": "080201"
+        },
+        {
+          "name": "Acopia",
+          "postalCode": "080202"
+        },
+        {
+          "name": "Acos",
+          "postalCode": "080203"
+        },
+        {
+          "name": "Mosoc Llacta",
+          "postalCode": "080204"
+        },
+        {
+          "name": "Pomacanchi",
+          "postalCode": "080205"
+        },
+        {
+          "name": "Rondocan",
+          "postalCode": "080206"
+        },
+        {
+          "name": "Sangarara",
+          "postalCode": "080207"
+        }
+      ],
+      "Anta": [
+        {
+          "name": "Ancahuasi",
+          "postalCode": "080302"
+        },
+        {
+          "name": "Anta",
+          "postalCode": "080301"
+        },
+        {
+          "name": "Cachimayo",
+          "postalCode": "080303"
+        },
+        {
+          "name": "Chinchaypujio",
+          "postalCode": "080304"
+        },
+        {
+          "name": "Huarocondo",
+          "postalCode": "080305"
+        },
+        {
+          "name": "Limatambo",
+          "postalCode": "080306"
+        },
+        {
+          "name": "Mollepata",
+          "postalCode": "080307"
+        },
+        {
+          "name": "Pucyura",
+          "postalCode": "080308"
+        },
+        {
+          "name": "Zurite",
+          "postalCode": "080309"
+        }
+      ],
+      "Calca": [
+        {
+          "name": "Calca",
+          "postalCode": "080401"
+        },
+        {
+          "name": "Coya",
+          "postalCode": "080402"
+        },
+        {
+          "name": "Lamay",
+          "postalCode": "080403"
+        },
+        {
+          "name": "Lares",
+          "postalCode": "080404"
+        },
+        {
+          "name": "Pisac",
+          "postalCode": "080405"
+        },
+        {
+          "name": "San Salvador",
+          "postalCode": "080406"
+        },
+        {
+          "name": "Taray",
+          "postalCode": "080407"
+        },
+        {
+          "name": "Yanatile",
+          "postalCode": "080408"
+        }
+      ],
+      "Canas": [
+        {
+          "name": "Checca",
+          "postalCode": "080502"
+        },
+        {
+          "name": "Kunturkanki",
+          "postalCode": "080503"
+        },
+        {
+          "name": "Langui",
+          "postalCode": "080504"
+        },
+        {
+          "name": "Layo",
+          "postalCode": "080505"
+        },
+        {
+          "name": "Pampamarca",
+          "postalCode": "080506"
+        },
+        {
+          "name": "Quehue",
+          "postalCode": "080507"
+        },
+        {
+          "name": "Tupac Amaru",
+          "postalCode": "080508"
+        },
+        {
+          "name": "Yanaoca",
+          "postalCode": "080501"
+        }
+      ],
+      "Canchis": [
+        {
+          "name": "Checacupe",
+          "postalCode": "080602"
+        },
+        {
+          "name": "Combapata",
+          "postalCode": "080603"
+        },
+        {
+          "name": "Marangani",
+          "postalCode": "080604"
+        },
+        {
+          "name": "Pitumarca",
+          "postalCode": "080605"
+        },
+        {
+          "name": "San Pablo",
+          "postalCode": "080606"
+        },
+        {
+          "name": "San Pedro",
+          "postalCode": "080607"
+        },
+        {
+          "name": "Sicuani",
+          "postalCode": "080601"
+        },
+        {
+          "name": "Tinta",
+          "postalCode": "080608"
+        }
+      ],
+      "Chumbivilcas": [
+        {
+          "name": "Capacmarca",
+          "postalCode": "080702"
+        },
+        {
+          "name": "Chamaca",
+          "postalCode": "080703"
+        },
+        {
+          "name": "Colquemarca",
+          "postalCode": "080704"
+        },
+        {
+          "name": "Livitaca",
+          "postalCode": "080705"
+        },
+        {
+          "name": "Llusco",
+          "postalCode": "080706"
+        },
+        {
+          "name": "Quinota",
+          "postalCode": "080707"
+        },
+        {
+          "name": "Santo Tomas",
+          "postalCode": "080701"
+        },
+        {
+          "name": "Velille",
+          "postalCode": "080708"
+        }
+      ],
+      "Espinar": [
+        {
+          "name": "Alto Pichigua",
+          "postalCode": "080808"
+        },
+        {
+          "name": "Condoroma",
+          "postalCode": "080802"
+        },
+        {
+          "name": "Coporaque",
+          "postalCode": "080803"
+        },
+        {
+          "name": "Espinar",
+          "postalCode": "080801"
+        },
+        {
+          "name": "Ocoruro",
+          "postalCode": "080804"
+        },
+        {
+          "name": "Pallpata",
+          "postalCode": "080805"
+        },
+        {
+          "name": "Pichigua",
+          "postalCode": "080806"
+        },
+        {
+          "name": "Suyckutambo",
+          "postalCode": "080807"
+        }
+      ],
+      "La Convencion": [
+        {
+          "name": "Echarate",
+          "postalCode": "080902"
+        },
+        {
+          "name": "Huayopata",
+          "postalCode": "080903"
+        },
+        {
+          "name": "Inkawasi",
+          "postalCode": "080911"
+        },
+        {
+          "name": "Kimbiri",
+          "postalCode": "080907"
+        },
+        {
+          "name": "Maranura",
+          "postalCode": "080904"
+        },
+        {
+          "name": "Ocobamba",
+          "postalCode": "080905"
+        },
+        {
+          "name": "Pichari",
+          "postalCode": "080910"
+        },
+        {
+          "name": "Quellouno",
+          "postalCode": "080906"
+        },
+        {
+          "name": "Santa Ana",
+          "postalCode": "080901"
+        },
+        {
+          "name": "Santa Teresa",
+          "postalCode": "080908"
+        },
+        {
+          "name": "Vilcabamba",
+          "postalCode": "080909"
+        },
+        {
+          "name": "Villa Kintiarina",
+          "postalCode": "080913"
+        },
+        {
+          "name": "Villa Virgen",
+          "postalCode": "080912"
+        }
+      ],
+      "Paruro": [
+        {
+          "name": "Accha",
+          "postalCode": "081002"
+        },
+        {
+          "name": "Ccapi",
+          "postalCode": "081003"
+        },
+        {
+          "name": "Colcha",
+          "postalCode": "081004"
+        },
+        {
+          "name": "Huanoquite",
+          "postalCode": "081005"
+        },
+        {
+          "name": "Omacha",
+          "postalCode": "081006"
+        },
+        {
+          "name": "Paccaritambo",
+          "postalCode": "081007"
+        },
+        {
+          "name": "Paruro",
+          "postalCode": "081001"
+        },
+        {
+          "name": "Pillpinto",
+          "postalCode": "081008"
+        },
+        {
+          "name": "Yaurisque",
+          "postalCode": "081009"
+        }
+      ],
+      "Paucartambo": [
+        {
+          "name": "Caicay",
+          "postalCode": "081102"
+        },
+        {
+          "name": "Challabamba",
+          "postalCode": "081103"
+        },
+        {
+          "name": "Colquepata",
+          "postalCode": "081104"
+        },
+        {
+          "name": "Huancarani",
+          "postalCode": "081105"
+        },
+        {
+          "name": "Kosnipata",
+          "postalCode": "081106"
+        },
+        {
+          "name": "Paucartambo",
+          "postalCode": "081101"
+        }
+      ],
+      "Quispicanchi": [
+        {
+          "name": "Andahuaylillas",
+          "postalCode": "081202"
+        },
+        {
+          "name": "Camanti",
+          "postalCode": "081203"
+        },
+        {
+          "name": "Ccarhuayo",
+          "postalCode": "081204"
+        },
+        {
+          "name": "Ccatca",
+          "postalCode": "081205"
+        },
+        {
+          "name": "Cusipata",
+          "postalCode": "081206"
+        },
+        {
+          "name": "Huaro",
+          "postalCode": "081207"
+        },
+        {
+          "name": "Lucre",
+          "postalCode": "081208"
+        },
+        {
+          "name": "Marcapata",
+          "postalCode": "081209"
+        },
+        {
+          "name": "Ocongate",
+          "postalCode": "081210"
+        },
+        {
+          "name": "Oropesa",
+          "postalCode": "081211"
+        },
+        {
+          "name": "Quiquijana",
+          "postalCode": "081212"
+        },
+        {
+          "name": "Urcos",
+          "postalCode": "081201"
+        }
+      ],
+      "Urubamba": [
+        {
+          "name": "Chinchero",
+          "postalCode": "081302"
+        },
+        {
+          "name": "Huayllabamba",
+          "postalCode": "081303"
+        },
+        {
+          "name": "Machupicchu",
+          "postalCode": "081304"
+        },
+        {
+          "name": "Maras",
+          "postalCode": "081305"
+        },
+        {
+          "name": "Ollantaytambo",
+          "postalCode": "081306"
+        },
+        {
+          "name": "Urubamba",
+          "postalCode": "081301"
+        },
+        {
+          "name": "Yucay",
+          "postalCode": "081307"
+        }
+      ]
+    },
+    "Huancavelica": {
+      "Huancavelica": [
+        {
+          "name": "Acobambilla",
+          "postalCode": "090102"
+        },
+        {
+          "name": "Acoria",
+          "postalCode": "090103"
+        },
+        {
+          "name": "Ascension",
+          "postalCode": "090118"
+        },
+        {
+          "name": "Conayca",
+          "postalCode": "090104"
+        },
+        {
+          "name": "Cuenca",
+          "postalCode": "090105"
+        },
+        {
+          "name": "Huachocolpa",
+          "postalCode": "090106"
+        },
+        {
+          "name": "Huancavelica",
+          "postalCode": "090101"
+        },
+        {
+          "name": "Huando",
+          "postalCode": "090119"
+        },
+        {
+          "name": "Huayllahuara",
+          "postalCode": "090107"
+        },
+        {
+          "name": "Izcuchaca",
+          "postalCode": "090108"
+        },
+        {
+          "name": "Laria",
+          "postalCode": "090109"
+        },
+        {
+          "name": "Manta",
+          "postalCode": "090110"
+        },
+        {
+          "name": "Mariscal Caceres",
+          "postalCode": "090111"
+        },
+        {
+          "name": "Moya",
+          "postalCode": "090112"
+        },
+        {
+          "name": "Nuevo Occoro",
+          "postalCode": "090113"
+        },
+        {
+          "name": "Palca",
+          "postalCode": "090114"
+        },
+        {
+          "name": "Pilchaca",
+          "postalCode": "090115"
+        },
+        {
+          "name": "Vilca",
+          "postalCode": "090116"
+        },
+        {
+          "name": "Yauli",
+          "postalCode": "090117"
+        }
+      ],
+      "Acobamba": [
+        {
+          "name": "Acobamba",
+          "postalCode": "090201"
+        },
+        {
+          "name": "Andabamba",
+          "postalCode": "090202"
+        },
+        {
+          "name": "Anta",
+          "postalCode": "090203"
+        },
+        {
+          "name": "Caja",
+          "postalCode": "090204"
+        },
+        {
+          "name": "Marcas",
+          "postalCode": "090205"
+        },
+        {
+          "name": "Paucara",
+          "postalCode": "090206"
+        },
+        {
+          "name": "Pomacocha",
+          "postalCode": "090207"
+        },
+        {
+          "name": "Rosario",
+          "postalCode": "090208"
+        }
+      ],
+      "Angaraes": [
+        {
+          "name": "Anchonga",
+          "postalCode": "090302"
+        },
+        {
+          "name": "Callanmarca",
+          "postalCode": "090303"
+        },
+        {
+          "name": "Ccochaccasa",
+          "postalCode": "090304"
+        },
+        {
+          "name": "Chincho",
+          "postalCode": "090305"
+        },
+        {
+          "name": "Congalla",
+          "postalCode": "090306"
+        },
+        {
+          "name": "Huanca Huanca",
+          "postalCode": "090307"
+        },
+        {
+          "name": "Huayllay Grande",
+          "postalCode": "090308"
+        },
+        {
+          "name": "Julcamarca",
+          "postalCode": "090309"
+        },
+        {
+          "name": "Lircay",
+          "postalCode": "090301"
+        },
+        {
+          "name": "San Antonio de Antaparco",
+          "postalCode": "090310"
+        },
+        {
+          "name": "Santo Tomas de Pata",
+          "postalCode": "090311"
+        },
+        {
+          "name": "Secclla",
+          "postalCode": "090312"
+        }
+      ],
+      "Castrovirreyna": [
+        {
+          "name": "Arma",
+          "postalCode": "090402"
+        },
+        {
+          "name": "Aurahua",
+          "postalCode": "090403"
+        },
+        {
+          "name": "Capillas",
+          "postalCode": "090404"
+        },
+        {
+          "name": "Castrovirreyna",
+          "postalCode": "090401"
+        },
+        {
+          "name": "Chupamarca",
+          "postalCode": "090405"
+        },
+        {
+          "name": "Cocas",
+          "postalCode": "090406"
+        },
+        {
+          "name": "Huachos",
+          "postalCode": "090407"
+        },
+        {
+          "name": "Huamatambo",
+          "postalCode": "090408"
+        },
+        {
+          "name": "Mollepampa",
+          "postalCode": "090409"
+        },
+        {
+          "name": "San Juan",
+          "postalCode": "090410"
+        },
+        {
+          "name": "Santa Ana",
+          "postalCode": "090411"
+        },
+        {
+          "name": "Tantara",
+          "postalCode": "090412"
+        },
+        {
+          "name": "Ticrapo",
+          "postalCode": "090413"
+        }
+      ],
+      "Churcampa": [
+        {
+          "name": "Anco",
+          "postalCode": "090502"
+        },
+        {
+          "name": "Chinchihuasi",
+          "postalCode": "090503"
+        },
+        {
+          "name": "Churcampa",
+          "postalCode": "090501"
+        },
+        {
+          "name": "Cosme",
+          "postalCode": "090511"
+        },
+        {
+          "name": "El Carmen",
+          "postalCode": "090504"
+        },
+        {
+          "name": "La Merced",
+          "postalCode": "090505"
+        },
+        {
+          "name": "Locroja",
+          "postalCode": "090506"
+        },
+        {
+          "name": "Pachamarca",
+          "postalCode": "090510"
+        },
+        {
+          "name": "Paucarbamba",
+          "postalCode": "090507"
+        },
+        {
+          "name": "San Miguel de Mayocc",
+          "postalCode": "090508"
+        },
+        {
+          "name": "San Pedro de Coris",
+          "postalCode": "090509"
+        }
+      ],
+      "Huaytara": [
+        {
+          "name": "Ayavi",
+          "postalCode": "090602"
+        },
+        {
+          "name": "Cordova",
+          "postalCode": "090603"
+        },
+        {
+          "name": "Huayacundo Arma",
+          "postalCode": "090604"
+        },
+        {
+          "name": "Huaytara",
+          "postalCode": "090601"
+        },
+        {
+          "name": "Laramarca",
+          "postalCode": "090605"
+        },
+        {
+          "name": "Ocoyo",
+          "postalCode": "090606"
+        },
+        {
+          "name": "Pilpichaca",
+          "postalCode": "090607"
+        },
+        {
+          "name": "Querco",
+          "postalCode": "090608"
+        },
+        {
+          "name": "Quito Arma",
+          "postalCode": "090609"
+        },
+        {
+          "name": "San Antonio de Cusicancha",
+          "postalCode": "090610"
+        },
+        {
+          "name": "San Francisco de Sangayaico",
+          "postalCode": "090611"
+        },
+        {
+          "name": "San Isidro",
+          "postalCode": "090612"
+        },
+        {
+          "name": "Santiago de Chocorvos",
+          "postalCode": "090613"
+        },
+        {
+          "name": "Santiago de Quirahuara",
+          "postalCode": "090614"
+        },
+        {
+          "name": "Santo Domingo de Capillas",
+          "postalCode": "090615"
+        },
+        {
+          "name": "Tambo",
+          "postalCode": "090616"
+        }
+      ],
+      "Tayacaja": [
+        {
+          "name": "Acostambo",
+          "postalCode": "090702"
+        },
+        {
+          "name": "Acraquia",
+          "postalCode": "090703"
+        },
+        {
+          "name": "Ahuaycha",
+          "postalCode": "090704"
+        },
+        {
+          "name": "Andaymarca",
+          "postalCode": "090720"
+        },
+        {
+          "name": "Colcabamba",
+          "postalCode": "090705"
+        },
+        {
+          "name": "Daniel Hernandez",
+          "postalCode": "090706"
+        },
+        {
+          "name": "Huachocolpa",
+          "postalCode": "090707"
+        },
+        {
+          "name": "Huaribamba",
+          "postalCode": "090709"
+        },
+        {
+          "name": "Nahuimpuquio",
+          "postalCode": "090710"
+        },
+        {
+          "name": "Pampas",
+          "postalCode": "090701"
+        },
+        {
+          "name": "Pazos",
+          "postalCode": "090711"
+        },
+        {
+          "name": "Pichos",
+          "postalCode": "090722"
+        },
+        {
+          "name": "Quichuas",
+          "postalCode": "090719"
+        },
+        {
+          "name": "Quishuar",
+          "postalCode": "090713"
+        },
+        {
+          "name": "Roble",
+          "postalCode": "090721"
+        },
+        {
+          "name": "Salcabamba",
+          "postalCode": "090714"
+        },
+        {
+          "name": "Salcahuasi",
+          "postalCode": "090715"
+        },
+        {
+          "name": "San Marcos de Rocchac",
+          "postalCode": "090716"
+        },
+        {
+          "name": "Surcubamba",
+          "postalCode": "090717"
+        },
+        {
+          "name": "Tintay Puncu",
+          "postalCode": "090718"
+        }
+      ]
+    },
+    "Huanuco": {
+      "Huanuco": [
+        {
+          "name": "Amarilis",
+          "postalCode": "100102"
+        },
+        {
+          "name": "Chinchao",
+          "postalCode": "100103"
+        },
+        {
+          "name": "Churubamba",
+          "postalCode": "100104"
+        },
+        {
+          "name": "Huanuco",
+          "postalCode": "100101"
+        },
+        {
+          "name": "Margos",
+          "postalCode": "100105"
+        },
+        {
+          "name": "Pillco Marca",
+          "postalCode": "100111"
+        },
+        {
+          "name": "Quisqui Kichki",
+          "postalCode": "100106"
+        },
+        {
+          "name": "San Francisco de Cayran",
+          "postalCode": "100107"
+        },
+        {
+          "name": "San Pablo de Pillao",
+          "postalCode": "100113"
+        },
+        {
+          "name": "San Pedro de Chaulan",
+          "postalCode": "100108"
+        },
+        {
+          "name": "Santa Maria del Valle",
+          "postalCode": "100109"
+        },
+        {
+          "name": "Yacus",
+          "postalCode": "100112"
+        },
+        {
+          "name": "Yarumayo",
+          "postalCode": "100110"
+        }
+      ],
+      "Ambo": [
+        {
+          "name": "Ambo",
+          "postalCode": "100201"
+        },
+        {
+          "name": "Cayna",
+          "postalCode": "100202"
+        },
+        {
+          "name": "Colpas",
+          "postalCode": "100203"
+        },
+        {
+          "name": "Conchamarca",
+          "postalCode": "100204"
+        },
+        {
+          "name": "Huacar",
+          "postalCode": "100205"
+        },
+        {
+          "name": "San Francisco",
+          "postalCode": "100206"
+        },
+        {
+          "name": "San Rafael",
+          "postalCode": "100207"
+        },
+        {
+          "name": "Tomay Kichwa",
+          "postalCode": "100208"
+        }
+      ],
+      "Dos de Mayo": [
+        {
+          "name": "Chuquis",
+          "postalCode": "100307"
+        },
+        {
+          "name": "La Union",
+          "postalCode": "100301"
+        },
+        {
+          "name": "Marias",
+          "postalCode": "100311"
+        },
+        {
+          "name": "Pachas",
+          "postalCode": "100313"
+        },
+        {
+          "name": "Quivilla",
+          "postalCode": "100316"
+        },
+        {
+          "name": "Ripan",
+          "postalCode": "100317"
+        },
+        {
+          "name": "Shunqui",
+          "postalCode": "100321"
+        },
+        {
+          "name": "Sillapata",
+          "postalCode": "100322"
+        },
+        {
+          "name": "Yanas",
+          "postalCode": "100323"
+        }
+      ],
+      "Huacaybamba": [
+        {
+          "name": "Canchabamba",
+          "postalCode": "100402"
+        },
+        {
+          "name": "Cochabamba",
+          "postalCode": "100403"
+        },
+        {
+          "name": "Huacaybamba",
+          "postalCode": "100401"
+        },
+        {
+          "name": "Pinra",
+          "postalCode": "100404"
+        }
+      ],
+      "Huamalies": [
+        {
+          "name": "Arancay",
+          "postalCode": "100502"
+        },
+        {
+          "name": "Chavin de Pariarca",
+          "postalCode": "100503"
+        },
+        {
+          "name": "Jacas Grande",
+          "postalCode": "100504"
+        },
+        {
+          "name": "Jircan",
+          "postalCode": "100505"
+        },
+        {
+          "name": "Llata",
+          "postalCode": "100501"
+        },
+        {
+          "name": "Miraflores",
+          "postalCode": "100506"
+        },
+        {
+          "name": "Monzon",
+          "postalCode": "100507"
+        },
+        {
+          "name": "Punchao",
+          "postalCode": "100508"
+        },
+        {
+          "name": "Punos",
+          "postalCode": "100509"
+        },
+        {
+          "name": "Singa",
+          "postalCode": "100510"
+        },
+        {
+          "name": "Tantamayo",
+          "postalCode": "100511"
+        }
+      ],
+      "Leoncio Prado": [
+        {
+          "name": "Castillo Grande",
+          "postalCode": "100608"
+        },
+        {
+          "name": "Daniel Alomia Robles",
+          "postalCode": "100602"
+        },
+        {
+          "name": "Hermilio Valdizan",
+          "postalCode": "100603"
+        },
+        {
+          "name": "Jose Crespo y Castillo",
+          "postalCode": "100604"
+        },
+        {
+          "name": "Luyando",
+          "postalCode": "100605"
+        },
+        {
+          "name": "Mariano Damaso Beraun",
+          "postalCode": "100606"
+        },
+        {
+          "name": "Pucayacu",
+          "postalCode": "100607"
+        },
+        {
+          "name": "Rupa Rupa",
+          "postalCode": "100601"
+        }
+      ],
+      "Maranon": [
+        {
+          "name": "Cholon",
+          "postalCode": "100702"
+        },
+        {
+          "name": "Huacrachuco",
+          "postalCode": "100701"
+        },
+        {
+          "name": "La Morada",
+          "postalCode": "100704"
+        },
+        {
+          "name": "San Buenaventura",
+          "postalCode": "100703"
+        },
+        {
+          "name": "Santa Rosa de Alto Yanajanca",
+          "postalCode": "100705"
+        }
+      ],
+      "Pachitea": [
+        {
+          "name": "Chaglla",
+          "postalCode": "100802"
+        },
+        {
+          "name": "Molino",
+          "postalCode": "100803"
+        },
+        {
+          "name": "Panao",
+          "postalCode": "100801"
+        },
+        {
+          "name": "Umari",
+          "postalCode": "100804"
+        }
+      ],
+      "Puerto Inca": [
+        {
+          "name": "Codo del Pozuzo",
+          "postalCode": "100902"
+        },
+        {
+          "name": "Honoria",
+          "postalCode": "100903"
+        },
+        {
+          "name": "Puerto Inca",
+          "postalCode": "100901"
+        },
+        {
+          "name": "Tournavista",
+          "postalCode": "100904"
+        },
+        {
+          "name": "Yuyapichis",
+          "postalCode": "100905"
+        }
+      ],
+      "Lauricocha": [
+        {
+          "name": "Banos",
+          "postalCode": "101002"
+        },
+        {
+          "name": "Jesus",
+          "postalCode": "101001"
+        },
+        {
+          "name": "Jivia",
+          "postalCode": "101003"
+        },
+        {
+          "name": "Queropalca",
+          "postalCode": "101004"
+        },
+        {
+          "name": "Rondos",
+          "postalCode": "101005"
+        },
+        {
+          "name": "San Francisco de Asis",
+          "postalCode": "101006"
+        },
+        {
+          "name": "San Miguel de Cauri",
+          "postalCode": "101007"
+        }
+      ],
+      "Yarowilca": [
+        {
+          "name": "Aparicio Pomares",
+          "postalCode": "101104"
+        },
+        {
+          "name": "Cahuac",
+          "postalCode": "101102"
+        },
+        {
+          "name": "Chacabamba",
+          "postalCode": "101103"
+        },
+        {
+          "name": "Chavinillo",
+          "postalCode": "101101"
+        },
+        {
+          "name": "Choras",
+          "postalCode": "101108"
+        },
+        {
+          "name": "Jacas Chico",
+          "postalCode": "101105"
+        },
+        {
+          "name": "Obas",
+          "postalCode": "101106"
+        },
+        {
+          "name": "Pampamarca",
+          "postalCode": "101107"
+        }
+      ]
+    },
+    "Ica": {
+      "Ica": [
+        {
+          "name": "Ica",
+          "postalCode": "110101"
+        },
+        {
+          "name": "La Tinguina",
+          "postalCode": "110102"
+        },
+        {
+          "name": "Los Aquijes",
+          "postalCode": "110103"
+        },
+        {
+          "name": "Ocucaje",
+          "postalCode": "110104"
+        },
+        {
+          "name": "Pachacutec",
+          "postalCode": "110105"
+        },
+        {
+          "name": "Parcona",
+          "postalCode": "110106"
+        },
+        {
+          "name": "Pueblo Nuevo",
+          "postalCode": "110107"
+        },
+        {
+          "name": "Salas",
+          "postalCode": "110108"
+        },
+        {
+          "name": "San Jose de Los Molinos",
+          "postalCode": "110109"
+        },
+        {
+          "name": "San Juan Bautista",
+          "postalCode": "110110"
+        },
+        {
+          "name": "Santiago",
+          "postalCode": "110111"
+        },
+        {
+          "name": "Subtanjalla",
+          "postalCode": "110112"
+        },
+        {
+          "name": "Tate",
+          "postalCode": "110113"
+        },
+        {
+          "name": "Yauca del Rosario",
+          "postalCode": "110114"
+        }
+      ],
+      "Chincha": [
+        {
+          "name": "Alto Laran",
+          "postalCode": "110202"
+        },
+        {
+          "name": "Chavin",
+          "postalCode": "110203"
+        },
+        {
+          "name": "Chincha Alta",
+          "postalCode": "110201"
+        },
+        {
+          "name": "Chincha Baja",
+          "postalCode": "110204"
+        },
+        {
+          "name": "El Carmen",
+          "postalCode": "110205"
+        },
+        {
+          "name": "Grocio Prado",
+          "postalCode": "110206"
+        },
+        {
+          "name": "Pueblo Nuevo",
+          "postalCode": "110207"
+        },
+        {
+          "name": "San Juan de Yanac",
+          "postalCode": "110208"
+        },
+        {
+          "name": "San Pedro de Huacarpana",
+          "postalCode": "110209"
+        },
+        {
+          "name": "Sunampe",
+          "postalCode": "110210"
+        },
+        {
+          "name": "Tambo de Mora",
+          "postalCode": "110211"
+        }
+      ],
+      "Nasca": [
+        {
+          "name": "Changuillo",
+          "postalCode": "110302"
+        },
+        {
+          "name": "El Ingenio",
+          "postalCode": "110303"
+        },
+        {
+          "name": "Marcona",
+          "postalCode": "110304"
+        },
+        {
+          "name": "Nasca",
+          "postalCode": "110301"
+        },
+        {
+          "name": "Vista Alegre",
+          "postalCode": "110305"
+        }
+      ],
+      "Palpa": [
+        {
+          "name": "Llipata",
+          "postalCode": "110402"
+        },
+        {
+          "name": "Palpa",
+          "postalCode": "110401"
+        },
+        {
+          "name": "Rio Grande",
+          "postalCode": "110403"
+        },
+        {
+          "name": "Santa Cruz",
+          "postalCode": "110404"
+        },
+        {
+          "name": "Tibillo",
+          "postalCode": "110405"
+        }
+      ],
+      "Pisco": [
+        {
+          "name": "Huancano",
+          "postalCode": "110502"
+        },
+        {
+          "name": "Humay",
+          "postalCode": "110503"
+        },
+        {
+          "name": "Independencia",
+          "postalCode": "110504"
+        },
+        {
+          "name": "Paracas",
+          "postalCode": "110505"
+        },
+        {
+          "name": "Pisco",
+          "postalCode": "110501"
+        },
+        {
+          "name": "San Andres",
+          "postalCode": "110506"
+        },
+        {
+          "name": "San Clemente",
+          "postalCode": "110507"
+        },
+        {
+          "name": "Tupac Amaru Inca",
+          "postalCode": "110508"
+        }
+      ]
+    },
+    "Junin": {
+      "Huancayo": [
+        {
+          "name": "Carhuacallanga",
+          "postalCode": "120104"
+        },
+        {
+          "name": "Chacapampa",
+          "postalCode": "120105"
+        },
+        {
+          "name": "Chicche",
+          "postalCode": "120106"
+        },
+        {
+          "name": "Chilca",
+          "postalCode": "120107"
+        },
+        {
+          "name": "Chongos Alto",
+          "postalCode": "120108"
+        },
+        {
+          "name": "Chupuro",
+          "postalCode": "120111"
+        },
+        {
+          "name": "Colca",
+          "postalCode": "120112"
+        },
+        {
+          "name": "Cullhuas",
+          "postalCode": "120113"
+        },
+        {
+          "name": "El Tambo",
+          "postalCode": "120114"
+        },
+        {
+          "name": "Huacrapuquio",
+          "postalCode": "120116"
+        },
+        {
+          "name": "Hualhuas",
+          "postalCode": "120117"
+        },
+        {
+          "name": "Huancan",
+          "postalCode": "120119"
+        },
+        {
+          "name": "Huancayo",
+          "postalCode": "120101"
+        },
+        {
+          "name": "Huasicancha",
+          "postalCode": "120120"
+        },
+        {
+          "name": "Huayucachi",
+          "postalCode": "120121"
+        },
+        {
+          "name": "Ingenio",
+          "postalCode": "120122"
+        },
+        {
+          "name": "Pariahuanca",
+          "postalCode": "120124"
+        },
+        {
+          "name": "Pilcomayo",
+          "postalCode": "120125"
+        },
+        {
+          "name": "Pucara",
+          "postalCode": "120126"
+        },
+        {
+          "name": "Quichuay",
+          "postalCode": "120127"
+        },
+        {
+          "name": "Quilcas",
+          "postalCode": "120128"
+        },
+        {
+          "name": "San Agustin",
+          "postalCode": "120129"
+        },
+        {
+          "name": "San Jeronimo de Tunan",
+          "postalCode": "120130"
+        },
+        {
+          "name": "Sano",
+          "postalCode": "120132"
+        },
+        {
+          "name": "Santo Domingo de Acobamba",
+          "postalCode": "120135"
+        },
+        {
+          "name": "Sapallanga",
+          "postalCode": "120133"
+        },
+        {
+          "name": "Sicaya",
+          "postalCode": "120134"
+        },
+        {
+          "name": "Viques",
+          "postalCode": "120136"
+        }
+      ],
+      "Concepcion": [
+        {
+          "name": "Aco",
+          "postalCode": "120202"
+        },
+        {
+          "name": "Andamarca",
+          "postalCode": "120203"
+        },
+        {
+          "name": "Chambara",
+          "postalCode": "120204"
+        },
+        {
+          "name": "Cochas",
+          "postalCode": "120205"
+        },
+        {
+          "name": "Comas",
+          "postalCode": "120206"
+        },
+        {
+          "name": "Concepcion",
+          "postalCode": "120201"
+        },
+        {
+          "name": "Heroinas Toledo",
+          "postalCode": "120207"
+        },
+        {
+          "name": "Manzanares",
+          "postalCode": "120208"
+        },
+        {
+          "name": "Mariscal Castilla",
+          "postalCode": "120209"
+        },
+        {
+          "name": "Matahuasi",
+          "postalCode": "120210"
+        },
+        {
+          "name": "Mito",
+          "postalCode": "120211"
+        },
+        {
+          "name": "Nueve de Julio",
+          "postalCode": "120212"
+        },
+        {
+          "name": "Orcotuna",
+          "postalCode": "120213"
+        },
+        {
+          "name": "San Jose de Quero",
+          "postalCode": "120214"
+        },
+        {
+          "name": "Santa Rosa de Ocopa",
+          "postalCode": "120215"
+        }
+      ],
+      "Chanchamayo": [
+        {
+          "name": "Chanchamayo",
+          "postalCode": "120301"
+        },
+        {
+          "name": "Perene",
+          "postalCode": "120302"
+        },
+        {
+          "name": "Pichanaqui",
+          "postalCode": "120303"
+        },
+        {
+          "name": "San Luis de Shuaro",
+          "postalCode": "120304"
+        },
+        {
+          "name": "San Ramon",
+          "postalCode": "120305"
+        },
+        {
+          "name": "Vitoc",
+          "postalCode": "120306"
+        }
+      ],
+      "Jauja": [
+        {
+          "name": "Acolla",
+          "postalCode": "120402"
+        },
+        {
+          "name": "Apata",
+          "postalCode": "120403"
+        },
+        {
+          "name": "Ataura",
+          "postalCode": "120404"
+        },
+        {
+          "name": "Canchayllo",
+          "postalCode": "120405"
+        },
+        {
+          "name": "Curicaca",
+          "postalCode": "120406"
+        },
+        {
+          "name": "El Mantaro",
+          "postalCode": "120407"
+        },
+        {
+          "name": "Huamali",
+          "postalCode": "120408"
+        },
+        {
+          "name": "Huaripampa",
+          "postalCode": "120409"
+        },
+        {
+          "name": "Huertas",
+          "postalCode": "120410"
+        },
+        {
+          "name": "Janjaillo",
+          "postalCode": "120411"
+        },
+        {
+          "name": "Jauja",
+          "postalCode": "120401"
+        },
+        {
+          "name": "Julcan",
+          "postalCode": "120412"
+        },
+        {
+          "name": "Leonor Ordonez",
+          "postalCode": "120413"
+        },
+        {
+          "name": "Llocllapampa",
+          "postalCode": "120414"
+        },
+        {
+          "name": "Marco",
+          "postalCode": "120415"
+        },
+        {
+          "name": "Masma",
+          "postalCode": "120416"
+        },
+        {
+          "name": "Masma Chicche",
+          "postalCode": "120417"
+        },
+        {
+          "name": "Molinos",
+          "postalCode": "120418"
+        },
+        {
+          "name": "Monobamba",
+          "postalCode": "120419"
+        },
+        {
+          "name": "Muqui",
+          "postalCode": "120420"
+        },
+        {
+          "name": "Muquiyauyo",
+          "postalCode": "120421"
+        },
+        {
+          "name": "Paca",
+          "postalCode": "120422"
+        },
+        {
+          "name": "Paccha",
+          "postalCode": "120423"
+        },
+        {
+          "name": "Pancan",
+          "postalCode": "120424"
+        },
+        {
+          "name": "Parco",
+          "postalCode": "120425"
+        },
+        {
+          "name": "Pomacancha",
+          "postalCode": "120426"
+        },
+        {
+          "name": "Ricran",
+          "postalCode": "120427"
+        },
+        {
+          "name": "San Lorenzo",
+          "postalCode": "120428"
+        },
+        {
+          "name": "San Pedro de Chunan",
+          "postalCode": "120429"
+        },
+        {
+          "name": "Sausa",
+          "postalCode": "120430"
+        },
+        {
+          "name": "Sincos",
+          "postalCode": "120431"
+        },
+        {
+          "name": "Tunan Marca",
+          "postalCode": "120432"
+        },
+        {
+          "name": "Yauli",
+          "postalCode": "120433"
+        },
+        {
+          "name": "Yauyos",
+          "postalCode": "120434"
+        }
+      ],
+      "Junin": [
+        {
+          "name": "Carhuamayo",
+          "postalCode": "120502"
+        },
+        {
+          "name": "Junin",
+          "postalCode": "120501"
+        },
+        {
+          "name": "Ondores",
+          "postalCode": "120503"
+        },
+        {
+          "name": "Ulcumayo",
+          "postalCode": "120504"
+        }
+      ],
+      "Satipo": [
+        {
+          "name": "Coviriali",
+          "postalCode": "120602"
+        },
+        {
+          "name": "Llaylla",
+          "postalCode": "120603"
+        },
+        {
+          "name": "Mazamari",
+          "postalCode": "120604"
+        },
+        {
+          "name": "Pampa Hermosa",
+          "postalCode": "120605"
+        },
+        {
+          "name": "Pangoa",
+          "postalCode": "120606"
+        },
+        {
+          "name": "Rio Negro",
+          "postalCode": "120607"
+        },
+        {
+          "name": "Rio Tambo",
+          "postalCode": "120608"
+        },
+        {
+          "name": "Satipo",
+          "postalCode": "120601"
+        },
+        {
+          "name": "Vizcatan del Ene",
+          "postalCode": "120609"
+        }
+      ],
+      "Tarma": [
+        {
+          "name": "Acobamba",
+          "postalCode": "120702"
+        },
+        {
+          "name": "Huaricolca",
+          "postalCode": "120703"
+        },
+        {
+          "name": "Huasahuasi",
+          "postalCode": "120704"
+        },
+        {
+          "name": "La Union",
+          "postalCode": "120705"
+        },
+        {
+          "name": "Palca",
+          "postalCode": "120706"
+        },
+        {
+          "name": "Palcamayo",
+          "postalCode": "120707"
+        },
+        {
+          "name": "San Pedro de Cajas",
+          "postalCode": "120708"
+        },
+        {
+          "name": "Tapo",
+          "postalCode": "120709"
+        },
+        {
+          "name": "Tarma",
+          "postalCode": "120701"
+        }
+      ],
+      "Yauli": [
+        {
+          "name": "Chacapalpa",
+          "postalCode": "120802"
+        },
+        {
+          "name": "Huay Huay",
+          "postalCode": "120803"
+        },
+        {
+          "name": "La Oroya",
+          "postalCode": "120801"
+        },
+        {
+          "name": "Marcapomacocha",
+          "postalCode": "120804"
+        },
+        {
+          "name": "Morococha",
+          "postalCode": "120805"
+        },
+        {
+          "name": "Paccha",
+          "postalCode": "120806"
+        },
+        {
+          "name": "Santa Barbara de Carhuacayan",
+          "postalCode": "120807"
+        },
+        {
+          "name": "Santa Rosa de Sacco",
+          "postalCode": "120808"
+        },
+        {
+          "name": "Suitucancha",
+          "postalCode": "120809"
+        },
+        {
+          "name": "Yauli",
+          "postalCode": "120810"
+        }
+      ],
+      "Chupaca": [
+        {
+          "name": "Ahuac",
+          "postalCode": "120902"
+        },
+        {
+          "name": "Chongos Bajo",
+          "postalCode": "120903"
+        },
+        {
+          "name": "Chupaca",
+          "postalCode": "120901"
+        },
+        {
+          "name": "Huachac",
+          "postalCode": "120904"
+        },
+        {
+          "name": "Huamancaca Chico",
+          "postalCode": "120905"
+        },
+        {
+          "name": "San Juan de Iscos",
+          "postalCode": "120906"
+        },
+        {
+          "name": "San Juan de Jarpa",
+          "postalCode": "120907"
+        },
+        {
+          "name": "Tres de Diciembre",
+          "postalCode": "120908"
+        },
+        {
+          "name": "Yanacancha",
+          "postalCode": "120909"
+        }
+      ]
+    },
+    "La Libertad": {
+      "Trujillo": [
+        {
+          "name": "El Porvenir",
+          "postalCode": "130102"
+        },
+        {
+          "name": "Florencia de Mora",
+          "postalCode": "130103"
+        },
+        {
+          "name": "Huanchaco",
+          "postalCode": "130104"
+        },
+        {
+          "name": "La Esperanza",
+          "postalCode": "130105"
+        },
+        {
+          "name": "Laredo",
+          "postalCode": "130106"
+        },
+        {
+          "name": "Moche",
+          "postalCode": "130107"
+        },
+        {
+          "name": "Poroto",
+          "postalCode": "130108"
+        },
+        {
+          "name": "Salaverry",
+          "postalCode": "130109"
+        },
+        {
+          "name": "Simbal",
+          "postalCode": "130110"
+        },
+        {
+          "name": "Trujillo",
+          "postalCode": "130101"
+        },
+        {
+          "name": "Victor Larco Herrera",
+          "postalCode": "130111"
+        }
+      ],
+      "Ascope": [
+        {
+          "name": "Ascope",
+          "postalCode": "130201"
+        },
+        {
+          "name": "Casa Grande",
+          "postalCode": "130208"
+        },
+        {
+          "name": "Chicama",
+          "postalCode": "130202"
+        },
+        {
+          "name": "Chocope",
+          "postalCode": "130203"
+        },
+        {
+          "name": "Magdalena de Cao",
+          "postalCode": "130204"
+        },
+        {
+          "name": "Paijan",
+          "postalCode": "130205"
+        },
+        {
+          "name": "Razuri",
+          "postalCode": "130206"
+        },
+        {
+          "name": "Santiago de Cao",
+          "postalCode": "130207"
+        }
+      ],
+      "Bolivar": [
+        {
+          "name": "Bambamarca",
+          "postalCode": "130302"
+        },
+        {
+          "name": "Bolivar",
+          "postalCode": "130301"
+        },
+        {
+          "name": "Condormarca",
+          "postalCode": "130303"
+        },
+        {
+          "name": "Longotea",
+          "postalCode": "130304"
+        },
+        {
+          "name": "Uchumarca",
+          "postalCode": "130305"
+        },
+        {
+          "name": "Ucuncha",
+          "postalCode": "130306"
+        }
+      ],
+      "Chepen": [
+        {
+          "name": "Chepen",
+          "postalCode": "130401"
+        },
+        {
+          "name": "Pacanga",
+          "postalCode": "130402"
+        },
+        {
+          "name": "Pueblo Nuevo",
+          "postalCode": "130403"
+        }
+      ],
+      "Julcan": [
+        {
+          "name": "Calamarca",
+          "postalCode": "130502"
+        },
+        {
+          "name": "Carabamba",
+          "postalCode": "130503"
+        },
+        {
+          "name": "Huaso",
+          "postalCode": "130504"
+        },
+        {
+          "name": "Julcan",
+          "postalCode": "130501"
+        }
+      ],
+      "Otuzco": [
+        {
+          "name": "Agallpampa",
+          "postalCode": "130602"
+        },
+        {
+          "name": "Charat",
+          "postalCode": "130604"
+        },
+        {
+          "name": "Huaranchal",
+          "postalCode": "130605"
+        },
+        {
+          "name": "La Cuesta",
+          "postalCode": "130606"
+        },
+        {
+          "name": "Mache",
+          "postalCode": "130608"
+        },
+        {
+          "name": "Otuzco",
+          "postalCode": "130601"
+        },
+        {
+          "name": "Paranday",
+          "postalCode": "130610"
+        },
+        {
+          "name": "Salpo",
+          "postalCode": "130611"
+        },
+        {
+          "name": "Sinsicap",
+          "postalCode": "130613"
+        },
+        {
+          "name": "Usquil",
+          "postalCode": "130614"
+        }
+      ],
+      "Pacasmayo": [
+        {
+          "name": "Guadalupe",
+          "postalCode": "130702"
+        },
+        {
+          "name": "Jequetepeque",
+          "postalCode": "130703"
+        },
+        {
+          "name": "Pacasmayo",
+          "postalCode": "130704"
+        },
+        {
+          "name": "San Jose",
+          "postalCode": "130705"
+        },
+        {
+          "name": "San Pedro de Lloc",
+          "postalCode": "130701"
+        }
+      ],
+      "Pataz": [
+        {
+          "name": "Buldibuyo",
+          "postalCode": "130802"
+        },
+        {
+          "name": "Chillia",
+          "postalCode": "130803"
+        },
+        {
+          "name": "Huancaspata",
+          "postalCode": "130804"
+        },
+        {
+          "name": "Huaylillas",
+          "postalCode": "130805"
+        },
+        {
+          "name": "Huayo",
+          "postalCode": "130806"
+        },
+        {
+          "name": "Ongon",
+          "postalCode": "130807"
+        },
+        {
+          "name": "Parcoy",
+          "postalCode": "130808"
+        },
+        {
+          "name": "Pataz",
+          "postalCode": "130809"
+        },
+        {
+          "name": "Pias",
+          "postalCode": "130810"
+        },
+        {
+          "name": "Santiago de Challas",
+          "postalCode": "130811"
+        },
+        {
+          "name": "Taurija",
+          "postalCode": "130812"
+        },
+        {
+          "name": "Tayabamba",
+          "postalCode": "130801"
+        },
+        {
+          "name": "Urpay",
+          "postalCode": "130813"
+        }
+      ],
+      "Sanchez Carrion": [
+        {
+          "name": "Chugay",
+          "postalCode": "130902"
+        },
+        {
+          "name": "Cochorco",
+          "postalCode": "130903"
+        },
+        {
+          "name": "Curgos",
+          "postalCode": "130904"
+        },
+        {
+          "name": "Huamachuco",
+          "postalCode": "130901"
+        },
+        {
+          "name": "Marcabal",
+          "postalCode": "130905"
+        },
+        {
+          "name": "Sanagoran",
+          "postalCode": "130906"
+        },
+        {
+          "name": "Sarin",
+          "postalCode": "130907"
+        },
+        {
+          "name": "Sartimbamba",
+          "postalCode": "130908"
+        }
+      ],
+      "Santiago de Chuco": [
+        {
+          "name": "Angasmarca",
+          "postalCode": "131002"
+        },
+        {
+          "name": "Cachicadan",
+          "postalCode": "131003"
+        },
+        {
+          "name": "Mollebamba",
+          "postalCode": "131004"
+        },
+        {
+          "name": "Mollepata",
+          "postalCode": "131005"
+        },
+        {
+          "name": "Quiruvilca",
+          "postalCode": "131006"
+        },
+        {
+          "name": "Santa Cruz de Chuca",
+          "postalCode": "131007"
+        },
+        {
+          "name": "Santiago de Chuco",
+          "postalCode": "131001"
+        },
+        {
+          "name": "Sitabamba",
+          "postalCode": "131008"
+        }
+      ],
+      "Gran Chimu": [
+        {
+          "name": "Cascas",
+          "postalCode": "131101"
+        },
+        {
+          "name": "Lucma",
+          "postalCode": "131102"
+        },
+        {
+          "name": "Marmot",
+          "postalCode": "131103"
+        },
+        {
+          "name": "Sayapullo",
+          "postalCode": "131104"
+        }
+      ],
+      "Viru": [
+        {
+          "name": "Chao",
+          "postalCode": "131202"
+        },
+        {
+          "name": "Guadalupito",
+          "postalCode": "131203"
+        },
+        {
+          "name": "Viru",
+          "postalCode": "131201"
+        }
+      ]
+    },
+    "Lambayeque": {
+      "Chiclayo": [
+        {
+          "name": "Cayalti",
+          "postalCode": "140116"
+        },
+        {
+          "name": "Chiclayo",
+          "postalCode": "140101"
+        },
+        {
+          "name": "Chongoyape",
+          "postalCode": "140102"
+        },
+        {
+          "name": "Eten",
+          "postalCode": "140103"
+        },
+        {
+          "name": "Eten Puerto",
+          "postalCode": "140104"
+        },
+        {
+          "name": "Jose Leonardo Ortiz",
+          "postalCode": "140105"
+        },
+        {
+          "name": "La Victoria",
+          "postalCode": "140106"
+        },
+        {
+          "name": "Lagunas",
+          "postalCode": "140107"
+        },
+        {
+          "name": "Monsefu",
+          "postalCode": "140108"
+        },
+        {
+          "name": "Nueva Arica",
+          "postalCode": "140109"
+        },
+        {
+          "name": "Oyotun",
+          "postalCode": "140110"
+        },
+        {
+          "name": "Patapo",
+          "postalCode": "140117"
+        },
+        {
+          "name": "Picsi",
+          "postalCode": "140111"
+        },
+        {
+          "name": "Pimentel",
+          "postalCode": "140112"
+        },
+        {
+          "name": "Pomalca",
+          "postalCode": "140118"
+        },
+        {
+          "name": "Pucala",
+          "postalCode": "140119"
+        },
+        {
+          "name": "Reque",
+          "postalCode": "140113"
+        },
+        {
+          "name": "Sana",
+          "postalCode": "140115"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "140114"
+        },
+        {
+          "name": "Tuman",
+          "postalCode": "140120"
+        }
+      ],
+      "Ferrenafe": [
+        {
+          "name": "Canaris",
+          "postalCode": "140202"
+        },
+        {
+          "name": "Ferrenafe",
+          "postalCode": "140201"
+        },
+        {
+          "name": "Incahuasi",
+          "postalCode": "140203"
+        },
+        {
+          "name": "Manuel Antonio Mesones Muro",
+          "postalCode": "140204"
+        },
+        {
+          "name": "Pitipo",
+          "postalCode": "140205"
+        },
+        {
+          "name": "Pueblo Nuevo",
+          "postalCode": "140206"
+        }
+      ],
+      "Lambayeque": [
+        {
+          "name": "Chochope",
+          "postalCode": "140302"
+        },
+        {
+          "name": "Illimo",
+          "postalCode": "140303"
+        },
+        {
+          "name": "Jayanca",
+          "postalCode": "140304"
+        },
+        {
+          "name": "Lambayeque",
+          "postalCode": "140301"
+        },
+        {
+          "name": "Mochumi",
+          "postalCode": "140305"
+        },
+        {
+          "name": "Morrope",
+          "postalCode": "140306"
+        },
+        {
+          "name": "Motupe",
+          "postalCode": "140307"
+        },
+        {
+          "name": "Olmos",
+          "postalCode": "140308"
+        },
+        {
+          "name": "Pacora",
+          "postalCode": "140309"
+        },
+        {
+          "name": "Salas",
+          "postalCode": "140310"
+        },
+        {
+          "name": "San Jose",
+          "postalCode": "140311"
+        },
+        {
+          "name": "Tucume",
+          "postalCode": "140312"
+        }
+      ]
+    },
+    "Lima": {
+      "Lima": [
+        {
+          "name": "Ancon",
+          "postalCode": "150102"
+        },
+        {
+          "name": "Ate",
+          "postalCode": "150103"
+        },
+        {
+          "name": "Barranco",
+          "postalCode": "150104"
+        },
+        {
+          "name": "Brena",
+          "postalCode": "150105"
+        },
+        {
+          "name": "Carabayllo",
+          "postalCode": "150106"
+        },
+        {
+          "name": "Chaclacayo",
+          "postalCode": "150107"
+        },
+        {
+          "name": "Chorrillos",
+          "postalCode": "150108"
+        },
+        {
+          "name": "Cieneguilla",
+          "postalCode": "150109"
+        },
+        {
+          "name": "Comas",
+          "postalCode": "150110"
+        },
+        {
+          "name": "El Agustino",
+          "postalCode": "150111"
+        },
+        {
+          "name": "Independencia",
+          "postalCode": "150112"
+        },
+        {
+          "name": "Jesus Maria",
+          "postalCode": "150113"
+        },
+        {
+          "name": "La Molina",
+          "postalCode": "150114"
+        },
+        {
+          "name": "La Victoria",
+          "postalCode": "150115"
+        },
+        {
+          "name": "Lima",
+          "postalCode": "150101"
+        },
+        {
+          "name": "Lince",
+          "postalCode": "150116"
+        },
+        {
+          "name": "Los Olivos",
+          "postalCode": "150117"
+        },
+        {
+          "name": "Lurigancho",
+          "postalCode": "150118"
+        },
+        {
+          "name": "Lurin",
+          "postalCode": "150119"
+        },
+        {
+          "name": "Magdalena del Mar",
+          "postalCode": "150120"
+        },
+        {
+          "name": "Miraflores",
+          "postalCode": "150122"
+        },
+        {
+          "name": "Pachacamac",
+          "postalCode": "150123"
+        },
+        {
+          "name": "Pucusana",
+          "postalCode": "150124"
+        },
+        {
+          "name": "Pueblo Libre",
+          "postalCode": "150121"
+        },
+        {
+          "name": "Puente Piedra",
+          "postalCode": "150125"
+        },
+        {
+          "name": "Punta Hermosa",
+          "postalCode": "150126"
+        },
+        {
+          "name": "Punta Negra",
+          "postalCode": "150127"
+        },
+        {
+          "name": "Rimac",
+          "postalCode": "150128"
+        },
+        {
+          "name": "San Bartolo",
+          "postalCode": "150129"
+        },
+        {
+          "name": "San Borja",
+          "postalCode": "150130"
+        },
+        {
+          "name": "San Isidro",
+          "postalCode": "150131"
+        },
+        {
+          "name": "San Juan de Lurigancho",
+          "postalCode": "150132"
+        },
+        {
+          "name": "San Juan de Miraflores",
+          "postalCode": "150133"
+        },
+        {
+          "name": "San Luis",
+          "postalCode": "150134"
+        },
+        {
+          "name": "San Martin de Porres",
+          "postalCode": "150135"
+        },
+        {
+          "name": "San Miguel",
+          "postalCode": "150136"
+        },
+        {
+          "name": "Santa Anita",
+          "postalCode": "150137"
+        },
+        {
+          "name": "Santa Maria del Mar",
+          "postalCode": "150138"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "150139"
+        },
+        {
+          "name": "Santiago de Surco",
+          "postalCode": "150140"
+        },
+        {
+          "name": "Surquillo",
+          "postalCode": "150141"
+        },
+        {
+          "name": "Villa El Salvador",
+          "postalCode": "150142"
+        },
+        {
+          "name": "Villa Maria del Triunfo",
+          "postalCode": "150143"
+        }
+      ],
+      "Barranca": [
+        {
+          "name": "Barranca",
+          "postalCode": "150201"
+        },
+        {
+          "name": "Paramonga",
+          "postalCode": "150202"
+        },
+        {
+          "name": "Pativilca",
+          "postalCode": "150203"
+        },
+        {
+          "name": "Supe",
+          "postalCode": "150204"
+        },
+        {
+          "name": "Supe Puerto",
+          "postalCode": "150205"
+        }
+      ],
+      "Cajatambo": [
+        {
+          "name": "Cajatambo",
+          "postalCode": "150301"
+        },
+        {
+          "name": "Copa",
+          "postalCode": "150302"
+        },
+        {
+          "name": "Gorgor",
+          "postalCode": "150303"
+        },
+        {
+          "name": "Huancapon",
+          "postalCode": "150304"
+        },
+        {
+          "name": "Manas",
+          "postalCode": "150305"
+        }
+      ],
+      "Canta": [
+        {
+          "name": "Arahuay",
+          "postalCode": "150402"
+        },
+        {
+          "name": "Canta",
+          "postalCode": "150401"
+        },
+        {
+          "name": "Huamantanga",
+          "postalCode": "150403"
+        },
+        {
+          "name": "Huaros",
+          "postalCode": "150404"
+        },
+        {
+          "name": "Lachaqui",
+          "postalCode": "150405"
+        },
+        {
+          "name": "San Buenaventura",
+          "postalCode": "150406"
+        },
+        {
+          "name": "Santa Rosa de Quives",
+          "postalCode": "150407"
+        }
+      ],
+      "Canete": [
+        {
+          "name": "Asia",
+          "postalCode": "150502"
+        },
+        {
+          "name": "Calango",
+          "postalCode": "150503"
+        },
+        {
+          "name": "Cerro Azul",
+          "postalCode": "150504"
+        },
+        {
+          "name": "Chilca",
+          "postalCode": "150505"
+        },
+        {
+          "name": "Coayllo",
+          "postalCode": "150506"
+        },
+        {
+          "name": "Imperial",
+          "postalCode": "150507"
+        },
+        {
+          "name": "Lunahuana",
+          "postalCode": "150508"
+        },
+        {
+          "name": "Mala",
+          "postalCode": "150509"
+        },
+        {
+          "name": "Nuevo Imperial",
+          "postalCode": "150510"
+        },
+        {
+          "name": "Pacaran",
+          "postalCode": "150511"
+        },
+        {
+          "name": "Quilmana",
+          "postalCode": "150512"
+        },
+        {
+          "name": "San Antonio",
+          "postalCode": "150513"
+        },
+        {
+          "name": "San Luis",
+          "postalCode": "150514"
+        },
+        {
+          "name": "San Vicente de Canete",
+          "postalCode": "150501"
+        },
+        {
+          "name": "Santa Cruz de Flores",
+          "postalCode": "150515"
+        },
+        {
+          "name": "Zuniga",
+          "postalCode": "150516"
+        }
+      ],
+      "Huaral": [
+        {
+          "name": "Atavillos Alto",
+          "postalCode": "150602"
+        },
+        {
+          "name": "Atavillos Bajo",
+          "postalCode": "150603"
+        },
+        {
+          "name": "Aucallama",
+          "postalCode": "150604"
+        },
+        {
+          "name": "Chancay",
+          "postalCode": "150605"
+        },
+        {
+          "name": "Huaral",
+          "postalCode": "150601"
+        },
+        {
+          "name": "Ihuari",
+          "postalCode": "150606"
+        },
+        {
+          "name": "Lampian",
+          "postalCode": "150607"
+        },
+        {
+          "name": "Pacaraos",
+          "postalCode": "150608"
+        },
+        {
+          "name": "San Miguel de Acos",
+          "postalCode": "150609"
+        },
+        {
+          "name": "Santa Cruz de Andamarca",
+          "postalCode": "150610"
+        },
+        {
+          "name": "Sumbilca",
+          "postalCode": "150611"
+        },
+        {
+          "name": "Veintisiete de Noviembre",
+          "postalCode": "150612"
+        }
+      ],
+      "Huarochiri": [
+        {
+          "name": "Antioquia",
+          "postalCode": "150702"
+        },
+        {
+          "name": "Callahuanca",
+          "postalCode": "150703"
+        },
+        {
+          "name": "Carampoma",
+          "postalCode": "150704"
+        },
+        {
+          "name": "Chicla",
+          "postalCode": "150705"
+        },
+        {
+          "name": "Cuenca",
+          "postalCode": "150706"
+        },
+        {
+          "name": "Huachupampa",
+          "postalCode": "150707"
+        },
+        {
+          "name": "Huanza",
+          "postalCode": "150708"
+        },
+        {
+          "name": "Huarochiri",
+          "postalCode": "150709"
+        },
+        {
+          "name": "Lahuaytambo",
+          "postalCode": "150710"
+        },
+        {
+          "name": "Langa",
+          "postalCode": "150711"
+        },
+        {
+          "name": "Laraos",
+          "postalCode": "150712"
+        },
+        {
+          "name": "Mariatana",
+          "postalCode": "150713"
+        },
+        {
+          "name": "Matucana",
+          "postalCode": "150701"
+        },
+        {
+          "name": "Ricardo Palma",
+          "postalCode": "150714"
+        },
+        {
+          "name": "San Andres de Tupicocha",
+          "postalCode": "150715"
+        },
+        {
+          "name": "San Antonio",
+          "postalCode": "150716"
+        },
+        {
+          "name": "San Bartolome",
+          "postalCode": "150717"
+        },
+        {
+          "name": "San Damian",
+          "postalCode": "150718"
+        },
+        {
+          "name": "San Juan de Iris",
+          "postalCode": "150719"
+        },
+        {
+          "name": "San Juan de Tantaranche",
+          "postalCode": "150720"
+        },
+        {
+          "name": "San Lorenzo de Quinti",
+          "postalCode": "150721"
+        },
+        {
+          "name": "San Mateo",
+          "postalCode": "150722"
+        },
+        {
+          "name": "San Mateo de Otao",
+          "postalCode": "150723"
+        },
+        {
+          "name": "San Pedro de Casta",
+          "postalCode": "150724"
+        },
+        {
+          "name": "San Pedro de Huancayre",
+          "postalCode": "150725"
+        },
+        {
+          "name": "Sangallaya",
+          "postalCode": "150726"
+        },
+        {
+          "name": "Santa Cruz de Cocachacra",
+          "postalCode": "150727"
+        },
+        {
+          "name": "Santa Eulalia",
+          "postalCode": "150728"
+        },
+        {
+          "name": "Santiago de Anchucaya",
+          "postalCode": "150729"
+        },
+        {
+          "name": "Santiago de Tuna",
+          "postalCode": "150730"
+        },
+        {
+          "name": "Santo Domingo de Los Olleros",
+          "postalCode": "150731"
+        },
+        {
+          "name": "Surco",
+          "postalCode": "150732"
+        }
+      ],
+      "Huaura": [
+        {
+          "name": "Ambar",
+          "postalCode": "150802"
+        },
+        {
+          "name": "Caleta de Carquin",
+          "postalCode": "150803"
+        },
+        {
+          "name": "Checras",
+          "postalCode": "150804"
+        },
+        {
+          "name": "Huacho",
+          "postalCode": "150801"
+        },
+        {
+          "name": "Hualmay",
+          "postalCode": "150805"
+        },
+        {
+          "name": "Huaura",
+          "postalCode": "150806"
+        },
+        {
+          "name": "Leoncio Prado",
+          "postalCode": "150807"
+        },
+        {
+          "name": "Paccho",
+          "postalCode": "150808"
+        },
+        {
+          "name": "Santa Leonor",
+          "postalCode": "150809"
+        },
+        {
+          "name": "Santa Maria",
+          "postalCode": "150810"
+        },
+        {
+          "name": "Sayan",
+          "postalCode": "150811"
+        },
+        {
+          "name": "Vegueta",
+          "postalCode": "150812"
+        }
+      ],
+      "Oyon": [
+        {
+          "name": "Andajes",
+          "postalCode": "150902"
+        },
+        {
+          "name": "Caujul",
+          "postalCode": "150903"
+        },
+        {
+          "name": "Cochamarca",
+          "postalCode": "150904"
+        },
+        {
+          "name": "Navan",
+          "postalCode": "150905"
+        },
+        {
+          "name": "Oyon",
+          "postalCode": "150901"
+        },
+        {
+          "name": "Pachangara",
+          "postalCode": "150906"
+        }
+      ],
+      "Yauyos": [
+        {
+          "name": "Alis",
+          "postalCode": "151002"
+        },
+        {
+          "name": "Allauca",
+          "postalCode": "151003"
+        },
+        {
+          "name": "Ayaviri",
+          "postalCode": "151004"
+        },
+        {
+          "name": "Azangaro",
+          "postalCode": "151005"
+        },
+        {
+          "name": "Cacra",
+          "postalCode": "151006"
+        },
+        {
+          "name": "Carania",
+          "postalCode": "151007"
+        },
+        {
+          "name": "Catahuasi",
+          "postalCode": "151008"
+        },
+        {
+          "name": "Chocos",
+          "postalCode": "151009"
+        },
+        {
+          "name": "Cochas",
+          "postalCode": "151010"
+        },
+        {
+          "name": "Colonia",
+          "postalCode": "151011"
+        },
+        {
+          "name": "Hongos",
+          "postalCode": "151012"
+        },
+        {
+          "name": "Huampara",
+          "postalCode": "151013"
+        },
+        {
+          "name": "Huancaya",
+          "postalCode": "151014"
+        },
+        {
+          "name": "Huanec",
+          "postalCode": "151017"
+        },
+        {
+          "name": "Huangascar",
+          "postalCode": "151015"
+        },
+        {
+          "name": "Huantan",
+          "postalCode": "151016"
+        },
+        {
+          "name": "Laraos",
+          "postalCode": "151018"
+        },
+        {
+          "name": "Lincha",
+          "postalCode": "151019"
+        },
+        {
+          "name": "Madean",
+          "postalCode": "151020"
+        },
+        {
+          "name": "Miraflores",
+          "postalCode": "151021"
+        },
+        {
+          "name": "Omas",
+          "postalCode": "151022"
+        },
+        {
+          "name": "Putinza",
+          "postalCode": "151023"
+        },
+        {
+          "name": "Quinches",
+          "postalCode": "151024"
+        },
+        {
+          "name": "Quinocay",
+          "postalCode": "151025"
+        },
+        {
+          "name": "San Joaquin",
+          "postalCode": "151026"
+        },
+        {
+          "name": "San Pedro de Pilas",
+          "postalCode": "151027"
+        },
+        {
+          "name": "Tanta",
+          "postalCode": "151028"
+        },
+        {
+          "name": "Tauripampa",
+          "postalCode": "151029"
+        },
+        {
+          "name": "Tomas",
+          "postalCode": "151030"
+        },
+        {
+          "name": "Tupe",
+          "postalCode": "151031"
+        },
+        {
+          "name": "Vinac",
+          "postalCode": "151032"
+        },
+        {
+          "name": "Vitis",
+          "postalCode": "151033"
+        },
+        {
+          "name": "Yauyos",
+          "postalCode": "151001"
+        }
+      ]
+    },
+    "Loreto": {
+      "Maynas": [
+        {
+          "name": "Alto Nanay",
+          "postalCode": "160102"
+        },
+        {
+          "name": "Belen",
+          "postalCode": "160112"
+        },
+        {
+          "name": "Fernando Lores",
+          "postalCode": "160103"
+        },
+        {
+          "name": "Indiana",
+          "postalCode": "160104"
+        },
+        {
+          "name": "Iquitos",
+          "postalCode": "160101"
+        },
+        {
+          "name": "Las Amazonas",
+          "postalCode": "160105"
+        },
+        {
+          "name": "Mazan",
+          "postalCode": "160106"
+        },
+        {
+          "name": "Napo",
+          "postalCode": "160107"
+        },
+        {
+          "name": "Punchana",
+          "postalCode": "160108"
+        },
+        {
+          "name": "San Juan Bautista",
+          "postalCode": "160113"
+        },
+        {
+          "name": "Torres Causana",
+          "postalCode": "160110"
+        }
+      ],
+      "Alto Amazonas": [
+        {
+          "name": "Balsapuerto",
+          "postalCode": "160202"
+        },
+        {
+          "name": "Jeberos",
+          "postalCode": "160205"
+        },
+        {
+          "name": "Lagunas",
+          "postalCode": "160206"
+        },
+        {
+          "name": "Santa Cruz",
+          "postalCode": "160210"
+        },
+        {
+          "name": "Teniente Cesar Lopez Rojas",
+          "postalCode": "160211"
+        },
+        {
+          "name": "Yurimaguas",
+          "postalCode": "160201"
+        }
+      ],
+      "Loreto": [
+        {
+          "name": "Nauta",
+          "postalCode": "160301"
+        },
+        {
+          "name": "Parinari",
+          "postalCode": "160302"
+        },
+        {
+          "name": "Tigre",
+          "postalCode": "160303"
+        },
+        {
+          "name": "Trompeteros",
+          "postalCode": "160304"
+        },
+        {
+          "name": "Urarinas",
+          "postalCode": "160305"
+        }
+      ],
+      "Mariscal Ramon Castilla": [
+        {
+          "name": "Pebas",
+          "postalCode": "160402"
+        },
+        {
+          "name": "Ramon Castilla",
+          "postalCode": "160401"
+        },
+        {
+          "name": "San Pablo",
+          "postalCode": "160404"
+        },
+        {
+          "name": "Yavari",
+          "postalCode": "160403"
+        }
+      ],
+      "Requena": [
+        {
+          "name": "Alto Tapiche",
+          "postalCode": "160502"
+        },
+        {
+          "name": "Capelo",
+          "postalCode": "160503"
+        },
+        {
+          "name": "Emilio San Martin",
+          "postalCode": "160504"
+        },
+        {
+          "name": "Jenaro Herrera",
+          "postalCode": "160510"
+        },
+        {
+          "name": "Maquia",
+          "postalCode": "160505"
+        },
+        {
+          "name": "Puinahua",
+          "postalCode": "160506"
+        },
+        {
+          "name": "Requena",
+          "postalCode": "160501"
+        },
+        {
+          "name": "Saquena",
+          "postalCode": "160507"
+        },
+        {
+          "name": "Soplin",
+          "postalCode": "160508"
+        },
+        {
+          "name": "Tapiche",
+          "postalCode": "160509"
+        },
+        {
+          "name": "Yaquerana",
+          "postalCode": "160511"
+        }
+      ],
+      "Ucayali": [
+        {
+          "name": "Contamana",
+          "postalCode": "160601"
+        },
+        {
+          "name": "Inahuaya",
+          "postalCode": "160602"
+        },
+        {
+          "name": "Padre Marquez",
+          "postalCode": "160603"
+        },
+        {
+          "name": "Pampa Hermosa",
+          "postalCode": "160604"
+        },
+        {
+          "name": "Sarayacu",
+          "postalCode": "160605"
+        },
+        {
+          "name": "Vargas Guerra",
+          "postalCode": "160606"
+        }
+      ],
+      "Datem del Maranon": [
+        {
+          "name": "Andoas",
+          "postalCode": "160706"
+        },
+        {
+          "name": "Barranca",
+          "postalCode": "160701"
+        },
+        {
+          "name": "Cahuapanas",
+          "postalCode": "160702"
+        },
+        {
+          "name": "Manseriche",
+          "postalCode": "160703"
+        },
+        {
+          "name": "Morona",
+          "postalCode": "160704"
+        },
+        {
+          "name": "Pastaza",
+          "postalCode": "160705"
+        }
+      ],
+      "Putumayo": [
+        {
+          "name": "Putumayo",
+          "postalCode": "160801"
+        },
+        {
+          "name": "Rosa Panduro",
+          "postalCode": "160802"
+        },
+        {
+          "name": "Teniente Manuel Clavero",
+          "postalCode": "160803"
+        },
+        {
+          "name": "Yaguas",
+          "postalCode": "160804"
+        }
+      ]
+    },
+    "Madre de Dios": {
+      "Tambopata": [
+        {
+          "name": "Inambari",
+          "postalCode": "170102"
+        },
+        {
+          "name": "Laberinto",
+          "postalCode": "170104"
+        },
+        {
+          "name": "Las Piedras",
+          "postalCode": "170103"
+        },
+        {
+          "name": "Tambopata",
+          "postalCode": "170101"
+        }
+      ],
+      "Manu": [
+        {
+          "name": "Fitzcarrald",
+          "postalCode": "170202"
+        },
+        {
+          "name": "Huepetuhe",
+          "postalCode": "170204"
+        },
+        {
+          "name": "Madre de Dios",
+          "postalCode": "170203"
+        },
+        {
+          "name": "Manu",
+          "postalCode": "170201"
+        }
+      ],
+      "Tahuamanu": [
+        {
+          "name": "Iberia",
+          "postalCode": "170302"
+        },
+        {
+          "name": "Inapari",
+          "postalCode": "170301"
+        },
+        {
+          "name": "Tahuamanu",
+          "postalCode": "170303"
+        }
+      ]
+    },
+    "Moquegua": {
+      "Mariscal Nieto": [
+        {
+          "name": "Carumas",
+          "postalCode": "180102"
+        },
+        {
+          "name": "Cuchumbaya",
+          "postalCode": "180103"
+        },
+        {
+          "name": "Moquegua",
+          "postalCode": "180101"
+        },
+        {
+          "name": "Samegua",
+          "postalCode": "180104"
+        },
+        {
+          "name": "San Cristobal",
+          "postalCode": "180105"
+        },
+        {
+          "name": "Torata",
+          "postalCode": "180106"
+        }
+      ],
+      "General Sanchez Cerro": [
+        {
+          "name": "Chojata",
+          "postalCode": "180202"
+        },
+        {
+          "name": "Coalaque",
+          "postalCode": "180203"
+        },
+        {
+          "name": "Ichuna",
+          "postalCode": "180204"
+        },
+        {
+          "name": "La Capilla",
+          "postalCode": "180205"
+        },
+        {
+          "name": "Lloque",
+          "postalCode": "180206"
+        },
+        {
+          "name": "Matalaque",
+          "postalCode": "180207"
+        },
+        {
+          "name": "Omate",
+          "postalCode": "180201"
+        },
+        {
+          "name": "Puquina",
+          "postalCode": "180208"
+        },
+        {
+          "name": "Quinistaquillas",
+          "postalCode": "180209"
+        },
+        {
+          "name": "Ubinas",
+          "postalCode": "180210"
+        },
+        {
+          "name": "Yunga",
+          "postalCode": "180211"
+        }
+      ],
+      "Ilo": [
+        {
+          "name": "El Algarrobal",
+          "postalCode": "180302"
+        },
+        {
+          "name": "Ilo",
+          "postalCode": "180301"
+        },
+        {
+          "name": "Pacocha",
+          "postalCode": "180303"
+        }
+      ]
+    },
+    "Pasco": {
+      "Pasco": [
+        {
+          "name": "Chaupimarca",
+          "postalCode": "190101"
+        },
+        {
+          "name": "Huachon",
+          "postalCode": "190102"
+        },
+        {
+          "name": "Huariaca",
+          "postalCode": "190103"
+        },
+        {
+          "name": "Huayllay",
+          "postalCode": "190104"
+        },
+        {
+          "name": "Ninacaca",
+          "postalCode": "190105"
+        },
+        {
+          "name": "Pallanchacra",
+          "postalCode": "190106"
+        },
+        {
+          "name": "Paucartambo",
+          "postalCode": "190107"
+        },
+        {
+          "name": "San Francisco de Asis de Yarusyacan",
+          "postalCode": "190108"
+        },
+        {
+          "name": "Simon Bolivar",
+          "postalCode": "190109"
+        },
+        {
+          "name": "Ticlacayan",
+          "postalCode": "190110"
+        },
+        {
+          "name": "Tinyahuarco",
+          "postalCode": "190111"
+        },
+        {
+          "name": "Vicco",
+          "postalCode": "190112"
+        },
+        {
+          "name": "Yanacancha",
+          "postalCode": "190113"
+        }
+      ],
+      "Daniel Alcides Carrion": [
+        {
+          "name": "Chacayan",
+          "postalCode": "190202"
+        },
+        {
+          "name": "Goyllarisquizga",
+          "postalCode": "190203"
+        },
+        {
+          "name": "Paucar",
+          "postalCode": "190204"
+        },
+        {
+          "name": "San Pedro de Pillao",
+          "postalCode": "190205"
+        },
+        {
+          "name": "Santa Ana de Tusi",
+          "postalCode": "190206"
+        },
+        {
+          "name": "Tapuc",
+          "postalCode": "190207"
+        },
+        {
+          "name": "Vilcabamba",
+          "postalCode": "190208"
+        },
+        {
+          "name": "Yanahuanca",
+          "postalCode": "190201"
+        }
+      ],
+      "Oxapampa": [
+        {
+          "name": "Chontabamba",
+          "postalCode": "190302"
+        },
+        {
+          "name": "Constitucion",
+          "postalCode": "190308"
+        },
+        {
+          "name": "Huancabamba",
+          "postalCode": "190303"
+        },
+        {
+          "name": "Oxapampa",
+          "postalCode": "190301"
+        },
+        {
+          "name": "Palcazu",
+          "postalCode": "190304"
+        },
+        {
+          "name": "Pozuzo",
+          "postalCode": "190305"
+        },
+        {
+          "name": "Puerto Bermudez",
+          "postalCode": "190306"
+        },
+        {
+          "name": "Villa Rica",
+          "postalCode": "190307"
+        }
+      ]
+    },
+    "Piura": {
+      "Piura": [
+        {
+          "name": "Castilla",
+          "postalCode": "200104"
+        },
+        {
+          "name": "Catacaos",
+          "postalCode": "200105"
+        },
+        {
+          "name": "Cura Mori",
+          "postalCode": "200107"
+        },
+        {
+          "name": "El Tallan",
+          "postalCode": "200108"
+        },
+        {
+          "name": "La Arena",
+          "postalCode": "200109"
+        },
+        {
+          "name": "La Union",
+          "postalCode": "200110"
+        },
+        {
+          "name": "Las Lomas",
+          "postalCode": "200111"
+        },
+        {
+          "name": "Piura",
+          "postalCode": "200101"
+        },
+        {
+          "name": "Tambo Grande",
+          "postalCode": "200114"
+        },
+        {
+          "name": "Veintiseis de Octubre",
+          "postalCode": "200115"
+        }
+      ],
+      "Ayabaca": [
+        {
+          "name": "Ayabaca",
+          "postalCode": "200201"
+        },
+        {
+          "name": "Frias",
+          "postalCode": "200202"
+        },
+        {
+          "name": "Jilili",
+          "postalCode": "200203"
+        },
+        {
+          "name": "Lagunas",
+          "postalCode": "200204"
+        },
+        {
+          "name": "Montero",
+          "postalCode": "200205"
+        },
+        {
+          "name": "Pacaipampa",
+          "postalCode": "200206"
+        },
+        {
+          "name": "Paimas",
+          "postalCode": "200207"
+        },
+        {
+          "name": "Sapillica",
+          "postalCode": "200208"
+        },
+        {
+          "name": "Sicchez",
+          "postalCode": "200209"
+        },
+        {
+          "name": "Suyo",
+          "postalCode": "200210"
+        }
+      ],
+      "Huancabamba": [
+        {
+          "name": "Canchaque",
+          "postalCode": "200302"
+        },
+        {
+          "name": "El Carmen de la Frontera",
+          "postalCode": "200303"
+        },
+        {
+          "name": "Huancabamba",
+          "postalCode": "200301"
+        },
+        {
+          "name": "Huarmaca",
+          "postalCode": "200304"
+        },
+        {
+          "name": "Lalaquiz",
+          "postalCode": "200305"
+        },
+        {
+          "name": "San Miguel de El Faique",
+          "postalCode": "200306"
+        },
+        {
+          "name": "Sondor",
+          "postalCode": "200307"
+        },
+        {
+          "name": "Sondorillo",
+          "postalCode": "200308"
+        }
+      ],
+      "Morropon": [
+        {
+          "name": "Buenos Aires",
+          "postalCode": "200402"
+        },
+        {
+          "name": "Chalaco",
+          "postalCode": "200403"
+        },
+        {
+          "name": "Chulucanas",
+          "postalCode": "200401"
+        },
+        {
+          "name": "La Matanza",
+          "postalCode": "200404"
+        },
+        {
+          "name": "Morropon",
+          "postalCode": "200405"
+        },
+        {
+          "name": "Salitral",
+          "postalCode": "200406"
+        },
+        {
+          "name": "San Juan de Bigote",
+          "postalCode": "200407"
+        },
+        {
+          "name": "Santa Catalina de Mossa",
+          "postalCode": "200408"
+        },
+        {
+          "name": "Santo Domingo",
+          "postalCode": "200409"
+        },
+        {
+          "name": "Yamango",
+          "postalCode": "200410"
+        }
+      ],
+      "Paita": [
+        {
+          "name": "Amotape",
+          "postalCode": "200502"
+        },
+        {
+          "name": "Arenal",
+          "postalCode": "200503"
+        },
+        {
+          "name": "Colan",
+          "postalCode": "200504"
+        },
+        {
+          "name": "La Huaca",
+          "postalCode": "200505"
+        },
+        {
+          "name": "Paita",
+          "postalCode": "200501"
+        },
+        {
+          "name": "Tamarindo",
+          "postalCode": "200506"
+        },
+        {
+          "name": "Vichayal",
+          "postalCode": "200507"
+        }
+      ],
+      "Sullana": [
+        {
+          "name": "Bellavista",
+          "postalCode": "200602"
+        },
+        {
+          "name": "Ignacio Escudero",
+          "postalCode": "200603"
+        },
+        {
+          "name": "Lancones",
+          "postalCode": "200604"
+        },
+        {
+          "name": "Marcavelica",
+          "postalCode": "200605"
+        },
+        {
+          "name": "Miguel Checa",
+          "postalCode": "200606"
+        },
+        {
+          "name": "Querecotillo",
+          "postalCode": "200607"
+        },
+        {
+          "name": "Salitral",
+          "postalCode": "200608"
+        },
+        {
+          "name": "Sullana",
+          "postalCode": "200601"
+        }
+      ],
+      "Talara": [
+        {
+          "name": "El Alto",
+          "postalCode": "200702"
+        },
+        {
+          "name": "La Brea",
+          "postalCode": "200703"
+        },
+        {
+          "name": "Lobitos",
+          "postalCode": "200704"
+        },
+        {
+          "name": "Los Organos",
+          "postalCode": "200705"
+        },
+        {
+          "name": "Mancora",
+          "postalCode": "200706"
+        },
+        {
+          "name": "Parinas",
+          "postalCode": "200701"
+        }
+      ],
+      "Sechura": [
+        {
+          "name": "Bellavista de la Union",
+          "postalCode": "200802"
+        },
+        {
+          "name": "Bernal",
+          "postalCode": "200803"
+        },
+        {
+          "name": "Cristo Nos Valga",
+          "postalCode": "200804"
+        },
+        {
+          "name": "Rinconada Llicuar",
+          "postalCode": "200806"
+        },
+        {
+          "name": "Sechura",
+          "postalCode": "200801"
+        },
+        {
+          "name": "Vice",
+          "postalCode": "200805"
+        }
+      ]
+    },
+    "Puno": {
+      "Puno": [
+        {
+          "name": "Acora",
+          "postalCode": "210102"
+        },
+        {
+          "name": "Amantani",
+          "postalCode": "210103"
+        },
+        {
+          "name": "Atuncolla",
+          "postalCode": "210104"
+        },
+        {
+          "name": "Capachica",
+          "postalCode": "210105"
+        },
+        {
+          "name": "Chucuito",
+          "postalCode": "210106"
+        },
+        {
+          "name": "Coata",
+          "postalCode": "210107"
+        },
+        {
+          "name": "Huata",
+          "postalCode": "210108"
+        },
+        {
+          "name": "Manazo",
+          "postalCode": "210109"
+        },
+        {
+          "name": "Paucarcolla",
+          "postalCode": "210110"
+        },
+        {
+          "name": "Pichacani",
+          "postalCode": "210111"
+        },
+        {
+          "name": "Plateria",
+          "postalCode": "210112"
+        },
+        {
+          "name": "Puno",
+          "postalCode": "210101"
+        },
+        {
+          "name": "San Antonio",
+          "postalCode": "210113"
+        },
+        {
+          "name": "Tiquillaca",
+          "postalCode": "210114"
+        },
+        {
+          "name": "Vilque",
+          "postalCode": "210115"
+        }
+      ],
+      "Azangaro": [
+        {
+          "name": "Achaya",
+          "postalCode": "210202"
+        },
+        {
+          "name": "Arapa",
+          "postalCode": "210203"
+        },
+        {
+          "name": "Asillo",
+          "postalCode": "210204"
+        },
+        {
+          "name": "Azangaro",
+          "postalCode": "210201"
+        },
+        {
+          "name": "Caminaca",
+          "postalCode": "210205"
+        },
+        {
+          "name": "Chupa",
+          "postalCode": "210206"
+        },
+        {
+          "name": "Jose Domingo Choquehuanca",
+          "postalCode": "210207"
+        },
+        {
+          "name": "Munani",
+          "postalCode": "210208"
+        },
+        {
+          "name": "Potoni",
+          "postalCode": "210209"
+        },
+        {
+          "name": "Saman",
+          "postalCode": "210210"
+        },
+        {
+          "name": "San Anton",
+          "postalCode": "210211"
+        },
+        {
+          "name": "San Jose",
+          "postalCode": "210212"
+        },
+        {
+          "name": "San Juan de Salinas",
+          "postalCode": "210213"
+        },
+        {
+          "name": "Santiago de Pupuja",
+          "postalCode": "210214"
+        },
+        {
+          "name": "Tirapata",
+          "postalCode": "210215"
+        }
+      ],
+      "Carabaya": [
+        {
+          "name": "Ajoyani",
+          "postalCode": "210302"
+        },
+        {
+          "name": "Ayapata",
+          "postalCode": "210303"
+        },
+        {
+          "name": "Coasa",
+          "postalCode": "210304"
+        },
+        {
+          "name": "Corani",
+          "postalCode": "210305"
+        },
+        {
+          "name": "Crucero",
+          "postalCode": "210306"
+        },
+        {
+          "name": "Ituata",
+          "postalCode": "210307"
+        },
+        {
+          "name": "Macusani",
+          "postalCode": "210301"
+        },
+        {
+          "name": "Ollachea",
+          "postalCode": "210308"
+        },
+        {
+          "name": "San Gaban",
+          "postalCode": "210309"
+        },
+        {
+          "name": "Usicayos",
+          "postalCode": "210310"
+        }
+      ],
+      "Chucuito": [
+        {
+          "name": "Desaguadero",
+          "postalCode": "210402"
+        },
+        {
+          "name": "Huacullani",
+          "postalCode": "210403"
+        },
+        {
+          "name": "Juli",
+          "postalCode": "210401"
+        },
+        {
+          "name": "Kelluyo",
+          "postalCode": "210404"
+        },
+        {
+          "name": "Pisacoma",
+          "postalCode": "210405"
+        },
+        {
+          "name": "Pomata",
+          "postalCode": "210406"
+        },
+        {
+          "name": "Zepita",
+          "postalCode": "210407"
+        }
+      ],
+      "El Collao": [
+        {
+          "name": "Capazo",
+          "postalCode": "210502"
+        },
+        {
+          "name": "Conduriri",
+          "postalCode": "210505"
+        },
+        {
+          "name": "Ilave",
+          "postalCode": "210501"
+        },
+        {
+          "name": "Pilcuyo",
+          "postalCode": "210503"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "210504"
+        }
+      ],
+      "Huancane": [
+        {
+          "name": "Cojata",
+          "postalCode": "210602"
+        },
+        {
+          "name": "Huancane",
+          "postalCode": "210601"
+        },
+        {
+          "name": "Huatasani",
+          "postalCode": "210603"
+        },
+        {
+          "name": "Inchupalla",
+          "postalCode": "210604"
+        },
+        {
+          "name": "Pusi",
+          "postalCode": "210605"
+        },
+        {
+          "name": "Rosaspata",
+          "postalCode": "210606"
+        },
+        {
+          "name": "Taraco",
+          "postalCode": "210607"
+        },
+        {
+          "name": "Vilque Chico",
+          "postalCode": "210608"
+        }
+      ],
+      "Lampa": [
+        {
+          "name": "Cabanilla",
+          "postalCode": "210702"
+        },
+        {
+          "name": "Calapuja",
+          "postalCode": "210703"
+        },
+        {
+          "name": "Lampa",
+          "postalCode": "210701"
+        },
+        {
+          "name": "Nicasio",
+          "postalCode": "210704"
+        },
+        {
+          "name": "Ocuviri",
+          "postalCode": "210705"
+        },
+        {
+          "name": "Palca",
+          "postalCode": "210706"
+        },
+        {
+          "name": "Paratia",
+          "postalCode": "210707"
+        },
+        {
+          "name": "Pucara",
+          "postalCode": "210708"
+        },
+        {
+          "name": "Santa Lucia",
+          "postalCode": "210709"
+        },
+        {
+          "name": "Vilavila",
+          "postalCode": "210710"
+        }
+      ],
+      "Melgar": [
+        {
+          "name": "Antauta",
+          "postalCode": "210802"
+        },
+        {
+          "name": "Ayaviri",
+          "postalCode": "210801"
+        },
+        {
+          "name": "Cupi",
+          "postalCode": "210803"
+        },
+        {
+          "name": "Llalli",
+          "postalCode": "210804"
+        },
+        {
+          "name": "Macari",
+          "postalCode": "210805"
+        },
+        {
+          "name": "Nunoa",
+          "postalCode": "210806"
+        },
+        {
+          "name": "Orurillo",
+          "postalCode": "210807"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "210808"
+        },
+        {
+          "name": "Umachiri",
+          "postalCode": "210809"
+        }
+      ],
+      "Moho": [
+        {
+          "name": "Conima",
+          "postalCode": "210902"
+        },
+        {
+          "name": "Huayrapata",
+          "postalCode": "210903"
+        },
+        {
+          "name": "Moho",
+          "postalCode": "210901"
+        },
+        {
+          "name": "Tilali",
+          "postalCode": "210904"
+        }
+      ],
+      "San Antonio de Putina": [
+        {
+          "name": "Ananea",
+          "postalCode": "211002"
+        },
+        {
+          "name": "Pedro Vilca Apaza",
+          "postalCode": "211003"
+        },
+        {
+          "name": "Putina",
+          "postalCode": "211001"
+        },
+        {
+          "name": "Quilcapuncu",
+          "postalCode": "211004"
+        },
+        {
+          "name": "Sina",
+          "postalCode": "211005"
+        }
+      ],
+      "San Roman": [
+        {
+          "name": "Cabana",
+          "postalCode": "211102"
+        },
+        {
+          "name": "Cabanillas",
+          "postalCode": "211103"
+        },
+        {
+          "name": "Caracoto",
+          "postalCode": "211104"
+        },
+        {
+          "name": "Juliaca",
+          "postalCode": "211101"
+        }
+      ],
+      "Sandia": [
+        {
+          "name": "Alto Inambari",
+          "postalCode": "211209"
+        },
+        {
+          "name": "Cuyocuyo",
+          "postalCode": "211202"
+        },
+        {
+          "name": "Limbani",
+          "postalCode": "211203"
+        },
+        {
+          "name": "Patambuco",
+          "postalCode": "211204"
+        },
+        {
+          "name": "Phara",
+          "postalCode": "211205"
+        },
+        {
+          "name": "Quiaca",
+          "postalCode": "211206"
+        },
+        {
+          "name": "San Juan del Oro",
+          "postalCode": "211207"
+        },
+        {
+          "name": "San Pedro de Putina Punco",
+          "postalCode": "211210"
+        },
+        {
+          "name": "Sandia",
+          "postalCode": "211201"
+        },
+        {
+          "name": "Yanahuaya",
+          "postalCode": "211208"
+        }
+      ],
+      "Yunguyo": [
+        {
+          "name": "Anapia",
+          "postalCode": "211302"
+        },
+        {
+          "name": "Copani",
+          "postalCode": "211303"
+        },
+        {
+          "name": "Cuturapi",
+          "postalCode": "211304"
+        },
+        {
+          "name": "Ollaraya",
+          "postalCode": "211305"
+        },
+        {
+          "name": "Tinicachi",
+          "postalCode": "211306"
+        },
+        {
+          "name": "Unicachi",
+          "postalCode": "211307"
+        },
+        {
+          "name": "Yunguyo",
+          "postalCode": "211301"
+        }
+      ]
+    },
+    "San Martin": {
+      "Moyobamba": [
+        {
+          "name": "Calzada",
+          "postalCode": "220102"
+        },
+        {
+          "name": "Habana",
+          "postalCode": "220103"
+        },
+        {
+          "name": "Jepelacio",
+          "postalCode": "220104"
+        },
+        {
+          "name": "Moyobamba",
+          "postalCode": "220101"
+        },
+        {
+          "name": "Soritor",
+          "postalCode": "220105"
+        },
+        {
+          "name": "Yantalo",
+          "postalCode": "220106"
+        }
+      ],
+      "Bellavista": [
+        {
+          "name": "Alto Biavo",
+          "postalCode": "220202"
+        },
+        {
+          "name": "Bajo Biavo",
+          "postalCode": "220203"
+        },
+        {
+          "name": "Bellavista",
+          "postalCode": "220201"
+        },
+        {
+          "name": "Huallaga",
+          "postalCode": "220204"
+        },
+        {
+          "name": "San Pablo",
+          "postalCode": "220205"
+        },
+        {
+          "name": "San Rafael",
+          "postalCode": "220206"
+        }
+      ],
+      "El Dorado": [
+        {
+          "name": "Agua Blanca",
+          "postalCode": "220302"
+        },
+        {
+          "name": "San Jose de Sisa",
+          "postalCode": "220301"
+        },
+        {
+          "name": "San Martin",
+          "postalCode": "220303"
+        },
+        {
+          "name": "Santa Rosa",
+          "postalCode": "220304"
+        },
+        {
+          "name": "Shatoja",
+          "postalCode": "220305"
+        }
+      ],
+      "Huallaga": [
+        {
+          "name": "Alto Saposoa",
+          "postalCode": "220402"
+        },
+        {
+          "name": "El Eslabon",
+          "postalCode": "220403"
+        },
+        {
+          "name": "Piscoyacu",
+          "postalCode": "220404"
+        },
+        {
+          "name": "Sacanche",
+          "postalCode": "220405"
+        },
+        {
+          "name": "Saposoa",
+          "postalCode": "220401"
+        },
+        {
+          "name": "Tingo de Saposoa",
+          "postalCode": "220406"
+        }
+      ],
+      "Lamas": [
+        {
+          "name": "Alonso de Alvarado",
+          "postalCode": "220502"
+        },
+        {
+          "name": "Barranquita",
+          "postalCode": "220503"
+        },
+        {
+          "name": "Caynarachi",
+          "postalCode": "220504"
+        },
+        {
+          "name": "Cunumbuqui",
+          "postalCode": "220505"
+        },
+        {
+          "name": "Lamas",
+          "postalCode": "220501"
+        },
+        {
+          "name": "Pinto Recodo",
+          "postalCode": "220506"
+        },
+        {
+          "name": "Rumisapa",
+          "postalCode": "220507"
+        },
+        {
+          "name": "San Roque de Cumbaza",
+          "postalCode": "220508"
+        },
+        {
+          "name": "Shanao",
+          "postalCode": "220509"
+        },
+        {
+          "name": "Tabalosos",
+          "postalCode": "220510"
+        },
+        {
+          "name": "Zapatero",
+          "postalCode": "220511"
+        }
+      ],
+      "Mariscal Caceres": [
+        {
+          "name": "Campanilla",
+          "postalCode": "220602"
+        },
+        {
+          "name": "Huicungo",
+          "postalCode": "220603"
+        },
+        {
+          "name": "Juanjui",
+          "postalCode": "220601"
+        },
+        {
+          "name": "Pachiza",
+          "postalCode": "220604"
+        },
+        {
+          "name": "Pajarillo",
+          "postalCode": "220605"
+        }
+      ],
+      "Picota": [
+        {
+          "name": "Buenos Aires",
+          "postalCode": "220702"
+        },
+        {
+          "name": "Caspisapa",
+          "postalCode": "220703"
+        },
+        {
+          "name": "Picota",
+          "postalCode": "220701"
+        },
+        {
+          "name": "Pilluana",
+          "postalCode": "220704"
+        },
+        {
+          "name": "Pucacaca",
+          "postalCode": "220705"
+        },
+        {
+          "name": "San Cristobal",
+          "postalCode": "220706"
+        },
+        {
+          "name": "San Hilarion",
+          "postalCode": "220707"
+        },
+        {
+          "name": "Shamboyacu",
+          "postalCode": "220708"
+        },
+        {
+          "name": "Tingo de Ponasa",
+          "postalCode": "220709"
+        },
+        {
+          "name": "Tres Unidos",
+          "postalCode": "220710"
+        }
+      ],
+      "Rioja": [
+        {
+          "name": "Awajun",
+          "postalCode": "220802"
+        },
+        {
+          "name": "Elias Soplin Vargas",
+          "postalCode": "220803"
+        },
+        {
+          "name": "Nueva Cajamarca",
+          "postalCode": "220804"
+        },
+        {
+          "name": "Pardo Miguel",
+          "postalCode": "220805"
+        },
+        {
+          "name": "Posic",
+          "postalCode": "220806"
+        },
+        {
+          "name": "Rioja",
+          "postalCode": "220801"
+        },
+        {
+          "name": "San Fernando",
+          "postalCode": "220807"
+        },
+        {
+          "name": "Yorongos",
+          "postalCode": "220808"
+        },
+        {
+          "name": "Yuracyacu",
+          "postalCode": "220809"
+        }
+      ],
+      "San Martin": [
+        {
+          "name": "Alberto Leveau",
+          "postalCode": "220902"
+        },
+        {
+          "name": "Cacatachi",
+          "postalCode": "220903"
+        },
+        {
+          "name": "Chazuta",
+          "postalCode": "220904"
+        },
+        {
+          "name": "Chipurana",
+          "postalCode": "220905"
+        },
+        {
+          "name": "El Porvenir",
+          "postalCode": "220906"
+        },
+        {
+          "name": "Huimbayoc",
+          "postalCode": "220907"
+        },
+        {
+          "name": "Juan Guerra",
+          "postalCode": "220908"
+        },
+        {
+          "name": "La Banda de Shilcayo",
+          "postalCode": "220909"
+        },
+        {
+          "name": "Morales",
+          "postalCode": "220910"
+        },
+        {
+          "name": "Papaplaya",
+          "postalCode": "220911"
+        },
+        {
+          "name": "San Antonio",
+          "postalCode": "220912"
+        },
+        {
+          "name": "Sauce",
+          "postalCode": "220913"
+        },
+        {
+          "name": "Shapaja",
+          "postalCode": "220914"
+        },
+        {
+          "name": "Tarapoto",
+          "postalCode": "220901"
+        }
+      ],
+      "Tocache": [
+        {
+          "name": "Nuevo Progreso",
+          "postalCode": "221002"
+        },
+        {
+          "name": "Polvora",
+          "postalCode": "221003"
+        },
+        {
+          "name": "Shunte",
+          "postalCode": "221004"
+        },
+        {
+          "name": "Tocache",
+          "postalCode": "221001"
+        },
+        {
+          "name": "Uchiza",
+          "postalCode": "221005"
+        }
+      ]
+    },
+    "Tacna": {
+      "Tacna": [
+        {
+          "name": "Alto de la Alianza",
+          "postalCode": "230102"
+        },
+        {
+          "name": "Calana",
+          "postalCode": "230103"
+        },
+        {
+          "name": "Ciudad Nueva",
+          "postalCode": "230104"
+        },
+        {
+          "name": "Coronel Gregorio Albarracin Lanchipa",
+          "postalCode": "230110"
+        },
+        {
+          "name": "Inclan",
+          "postalCode": "230105"
+        },
+        {
+          "name": "La Yarada los Palos",
+          "postalCode": "230111"
+        },
+        {
+          "name": "Pachia",
+          "postalCode": "230106"
+        },
+        {
+          "name": "Palca",
+          "postalCode": "230107"
+        },
+        {
+          "name": "Pocollay",
+          "postalCode": "230108"
+        },
+        {
+          "name": "Sama",
+          "postalCode": "230109"
+        },
+        {
+          "name": "Tacna",
+          "postalCode": "230101"
+        }
+      ],
+      "Candarave": [
+        {
+          "name": "Cairani",
+          "postalCode": "230202"
+        },
+        {
+          "name": "Camilaca",
+          "postalCode": "230203"
+        },
+        {
+          "name": "Candarave",
+          "postalCode": "230201"
+        },
+        {
+          "name": "Curibaya",
+          "postalCode": "230204"
+        },
+        {
+          "name": "Huanuara",
+          "postalCode": "230205"
+        },
+        {
+          "name": "Quilahuani",
+          "postalCode": "230206"
+        }
+      ],
+      "Jorge Basadre": [
+        {
+          "name": "Ilabaya",
+          "postalCode": "230302"
+        },
+        {
+          "name": "Ite",
+          "postalCode": "230303"
+        },
+        {
+          "name": "Locumba",
+          "postalCode": "230301"
+        }
+      ],
+      "Tarata": [
+        {
+          "name": "Estique",
+          "postalCode": "230403"
+        },
+        {
+          "name": "Estique Pampa",
+          "postalCode": "230404"
+        },
+        {
+          "name": "Heroes Albarracin",
+          "postalCode": "230402"
+        },
+        {
+          "name": "Sitajara",
+          "postalCode": "230405"
+        },
+        {
+          "name": "Susapaya",
+          "postalCode": "230406"
+        },
+        {
+          "name": "Tarata",
+          "postalCode": "230401"
+        },
+        {
+          "name": "Tarucachi",
+          "postalCode": "230407"
+        },
+        {
+          "name": "Ticaco",
+          "postalCode": "230408"
+        }
+      ]
+    },
+    "Tumbes": {
+      "Tumbes": [
+        {
+          "name": "Corrales",
+          "postalCode": "240102"
+        },
+        {
+          "name": "La Cruz",
+          "postalCode": "240103"
+        },
+        {
+          "name": "Pampas de Hospital",
+          "postalCode": "240104"
+        },
+        {
+          "name": "San Jacinto",
+          "postalCode": "240105"
+        },
+        {
+          "name": "San Juan de la Virgen",
+          "postalCode": "240106"
+        },
+        {
+          "name": "Tumbes",
+          "postalCode": "240101"
+        }
+      ],
+      "Contralmirante Villar": [
+        {
+          "name": "Canoas de Punta Sal",
+          "postalCode": "240203"
+        },
+        {
+          "name": "Casitas",
+          "postalCode": "240202"
+        },
+        {
+          "name": "Zorritos",
+          "postalCode": "240201"
+        }
+      ],
+      "Zarumilla": [
+        {
+          "name": "Aguas Verdes",
+          "postalCode": "240302"
+        },
+        {
+          "name": "Matapalo",
+          "postalCode": "240303"
+        },
+        {
+          "name": "Papayal",
+          "postalCode": "240304"
+        },
+        {
+          "name": "Zarumilla",
+          "postalCode": "240301"
+        }
+      ]
+    },
+    "Ucayali": {
+      "Coronel Portillo": [
+        {
+          "name": "Calleria",
+          "postalCode": "250101"
+        },
+        {
+          "name": "Campoverde",
+          "postalCode": "250102"
+        },
+        {
+          "name": "Iparia",
+          "postalCode": "250103"
+        },
+        {
+          "name": "Manantay",
+          "postalCode": "250107"
+        },
+        {
+          "name": "Masisea",
+          "postalCode": "250104"
+        },
+        {
+          "name": "Nueva Requena",
+          "postalCode": "250106"
+        },
+        {
+          "name": "Yarinacocha",
+          "postalCode": "250105"
+        }
+      ],
+      "Atalaya": [
+        {
+          "name": "Raymondi",
+          "postalCode": "250201"
+        },
+        {
+          "name": "Sepahua",
+          "postalCode": "250202"
+        },
+        {
+          "name": "Tahuania",
+          "postalCode": "250203"
+        },
+        {
+          "name": "Yurua",
+          "postalCode": "250204"
+        }
+      ],
+      "Padre Abad": [
+        {
+          "name": "Alexander Von Humboldt",
+          "postalCode": "250305"
+        },
+        {
+          "name": "Curimana",
+          "postalCode": "250303"
+        },
+        {
+          "name": "Irazola",
+          "postalCode": "250302"
+        },
+        {
+          "name": "Neshuya",
+          "postalCode": "250304"
+        },
+        {
+          "name": "Padre Abad",
+          "postalCode": "250301"
+        }
+      ],
+      "Purus": [
+        {
+          "name": "Purus",
+          "postalCode": "250401"
+        }
+      ]
+    }
+  }
+}
