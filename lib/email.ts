@@ -81,10 +81,37 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
       ? `
       <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
         <tr><td style="background:#f7f7f7;border-radius:8px;padding:14px 18px;">
-          <div style="font-size:14px;font-weight:600;color:#111111;">${address.fullName}</div>
-          <div style="font-size:13px;color:#555555;margin-top:4px;">${address.street}${address.district ? `, ${address.district}` : ""}</div>
+          <div style="font-size:13px;color:#555555;">${address.street}${address.district ? `, ${address.district}` : ""}</div>
           <div style="font-size:13px;color:#555555;">${address.city}, ${address.state} ${address.postalCode}</div>
           <div style="font-size:13px;color:#555555;">${address.country}</div>
+        </td></tr>
+      </table>`
+      : "";
+
+    const customerHtml = address
+      ? `
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+        <tr><td style="background:#f7f7f7;border-radius:8px;padding:14px 18px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="font-size:13px;color:#888888;padding:3px 0;width:120px;">Nombre</td>
+              <td style="font-size:13px;color:#111111;font-weight:600;padding:3px 0;">${address.fullName}</td>
+            </tr>
+            ${address.documentType && address.documentNumber ? `
+            <tr>
+              <td style="font-size:13px;color:#888888;padding:3px 0;">${address.documentType}</td>
+              <td style="font-size:13px;color:#111111;padding:3px 0;">${address.documentNumber}</td>
+            </tr>` : ""}
+            <tr>
+              <td style="font-size:13px;color:#888888;padding:3px 0;">Email</td>
+              <td style="font-size:13px;color:#111111;padding:3px 0;">${recipientEmail}</td>
+            </tr>
+            ${address.phone ? `
+            <tr>
+              <td style="font-size:13px;color:#888888;padding:3px 0;">Teléfono</td>
+              <td style="font-size:13px;color:#111111;padding:3px 0;">${address.phone}</td>
+            </tr>` : ""}
+          </table>
         </td></tr>
       </table>`
       : "";
@@ -161,9 +188,16 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
 
         ${
           address
-            ? `<!-- ADDRESS -->
+            ? `<!-- CUSTOMER -->
         <tr>
-          <td style="background:#ffffff;padding:16px 32px 24px;margin-top:2px;">
+          <td style="background:#ffffff;padding:16px 32px 8px;border-top:1px solid #eeeeee;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888888;margin-bottom:10px;">Datos del cliente</div>
+            ${customerHtml}
+          </td>
+        </tr>
+        <!-- ADDRESS -->
+        <tr>
+          <td style="background:#ffffff;padding:16px 32px 24px;">
             <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888888;margin-bottom:10px;">Dirección de entrega</div>
             ${addressHtml}
           </td>
