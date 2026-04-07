@@ -22,6 +22,7 @@ export type CartItem = {
   stock: number;
   size?: string;
   engravingText?: string;
+  testMode?: boolean;
 };
 
 export type ShippingFormData = {

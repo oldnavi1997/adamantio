@@ -68,6 +68,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
             stock: product.stock,
             quantity: 1,
             size: selectedSize ?? undefined,
+            testMode: product.testMode,
           });
           openDrawer();
         }}

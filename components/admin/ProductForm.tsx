@@ -82,6 +82,7 @@ const productSchema = z.object({
   isActive: z.boolean(),
   engravingEnabled: z.boolean(),
   freeShipping: z.boolean(),
+  testMode: z.boolean(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -119,8 +120,9 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           isActive: product.isActive,
           engravingEnabled: product.engravingEnabled,
           freeShipping: product.freeShipping,
+          testMode: product.testMode,
         }
-      : { isActive: true, engravingEnabled: false, freeShipping: false, stock: "0" },
+      : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, stock: "0" },
   });
 
   const sensors = useSensors(useSensor(PointerSensor));
@@ -428,6 +430,10 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" {...register("freeShipping")} className="accent-[#111111]" />
             <span className="text-sm">Envío gratis</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" {...register("testMode")} className="accent-amber-500" />
+            <span className="text-sm text-amber-600 font-medium">Modo prueba (sin envío ni comisión)</span>
           </label>
         </div>
       </div>

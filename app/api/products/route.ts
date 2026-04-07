@@ -20,6 +20,7 @@ const productCreateSchema = z.object({
   isActive: z.boolean().default(true),
   engravingEnabled: z.boolean().default(false),
   freeShipping: z.boolean().default(false),
+  testMode: z.boolean().default(false),
 });
 
 export async function GET(request: NextRequest) {

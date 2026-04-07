@@ -74,12 +74,13 @@ export async function POST(request: NextRequest) {
       return sum + Number(product.price) * item.quantity;
     }, 0);
 
-    const shippingCost = shipping.courier === "shalom"
+    const isTestMode = products.some((p) => p.testMode);
+    const shippingCost = isTestMode ? 0 : (shipping.courier === "shalom"
       ? SHALOM_PRICE
-      : (OLVA_PRICE_BY_DEPARTMENT[shipping.department] ?? 15);
+      : (OLVA_PRICE_BY_DEPARTMENT[shipping.department] ?? 15));
 
     const beforeCommission = subtotal + shippingCost;
-    const mpCommission = Number((beforeCommission * 0.0329 * 1.18 + 1.18).toFixed(2));
+    const mpCommission = isTestMode ? 0 : Number((beforeCommission * 0.0329 * 1.18 + 1.18).toFixed(2));
     const total = Number((beforeCommission + mpCommission).toFixed(2));
 
     // Resolve userId — guard against stale sessions pointing to deleted users

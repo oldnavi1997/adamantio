@@ -30,6 +30,7 @@ const updateSchema = z.object({
   isActive: z.boolean().optional(),
   engravingEnabled: z.boolean().optional(),
   freeShipping: z.boolean().optional(),
+  testMode: z.boolean().optional(),
 });
 
 export async function PUT(

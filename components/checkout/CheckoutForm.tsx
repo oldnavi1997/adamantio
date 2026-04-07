@@ -52,9 +52,10 @@ interface CheckoutFormProps {
   onSubmit: (data: ShippingFormData) => void;
   loading?: boolean;
   subtotal: number;
+  isTestMode?: boolean;
 }
 
-export function CheckoutForm({ onSubmit, loading, subtotal }: CheckoutFormProps) {
+export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode }: CheckoutFormProps) {
   const [districtSelectValue, setDistrictSelectValue] = useState("");
 
   const {
@@ -78,9 +79,9 @@ export function CheckoutForm({ onSubmit, loading, subtotal }: CheckoutFormProps)
     ? (UBIGEO.districtsByDepartmentProvince[department]?.[province] ?? [])
     : [];
 
-  const shippingCost = courier === "shalom" ? SHALOM_PRICE : (OLVA_PRICE_BY_DEPARTMENT[department] ?? 15);
+  const shippingCost = isTestMode ? 0 : (courier === "shalom" ? SHALOM_PRICE : (OLVA_PRICE_BY_DEPARTMENT[department] ?? 15));
   const beforeCommission = subtotal + shippingCost;
-  const mpCommission = beforeCommission * 0.0329 * 1.18 + 1.18;
+  const mpCommission = isTestMode ? 0 : (beforeCommission * 0.0329 * 1.18 + 1.18);
   const total = beforeCommission + mpCommission;
 
   function handleDepartmentChange(value: string) {
