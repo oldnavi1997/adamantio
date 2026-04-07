@@ -18,13 +18,6 @@ export function HeroSection() {
       `}</style>
       <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-24 md:py-0 w-full flex justify-end">
         <div className="max-w-xl text-right">
-          {/* Pre-title */}
-          <div className="flex items-center justify-end gap-3 mb-8 animate-[fade-in_0.6s_ease-out_both]">
-            <span className="text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.3em]">
-              Joyería Artesanal
-            </span>
-            <div className="h-px w-10 bg-[#111111]/40" />
-          </div>
 
           {/* Main heading */}
           <h1

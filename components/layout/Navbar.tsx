@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useSession, signOut } from "next-auth/react";
-import { ShoppingBag, LogOut, Menu, X, ChevronDown } from "lucide-react";
+import { ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import { SearchBar } from "@/components/search/SearchBar";
 import { useState, useEffect, useRef } from "react";
 import { useCartStore } from "@/stores/cart";
@@ -26,7 +25,6 @@ const LOGO_URL =
   "https://res.cloudinary.com/dzqns7kss/image/upload/v1772665459/adamantio-logo-1024x299_ol5fgy.png";
 
 export function Navbar({ categories }: NavbarProps) {
-  const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -142,9 +140,10 @@ export function Navbar({ categories }: NavbarProps) {
               </div>
             </div>
 
-            {/* Desktop layout: logo | nav */}
-            <div className="hidden md:flex items-center justify-between w-full">
-              <Link href="/">
+            {/* Desktop layout: logo | nav centrado | iconos */}
+            <div className="hidden md:grid w-full items-center" style={{ gridTemplateColumns: "1fr auto 1fr" }}>
+              {/* Logo — izquierda */}
+              <Link href="/" className="justify-self-start">
                 <Image
                   src={LOGO_URL}
                   alt="Adamantio"
@@ -155,7 +154,7 @@ export function Navbar({ categories }: NavbarProps) {
                 />
               </Link>
 
-              {/* Desktop nav */}
+              {/* Nav — centro */}
               <div ref={navRef} className="flex items-center gap-6">
                 {categories.map((cat) =>
                   cat.children.length > 0 ? (
@@ -239,24 +238,15 @@ export function Navbar({ categories }: NavbarProps) {
                   Ver todo
                 </Link>
 
-                <div className="w-px h-4 bg-[#e5e7eb]" />
+              </div>
 
-                {session && (
-                  <button
-                    onClick={() => signOut({ callbackUrl: "/" })}
-                    className="text-[#9ca3af] hover:text-[#111827] transition-colors"
-                    title="Cerrar sesión"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </button>
-                )}
-
+              {/* Iconos — derecha */}
+              <div className="justify-self-end flex items-center gap-4">
                 <SearchBar
                   open={searchOpen}
                   onOpen={() => setSearchOpen(true)}
                   onClose={() => setSearchOpen(false)}
                 />
-
                 <button
                   onClick={() => { openDrawer(); setSearchOpen(false); }}
                   className="relative text-[#374151] hover:text-[#111827] transition-colors"
@@ -401,17 +391,6 @@ export function Navbar({ categories }: NavbarProps) {
           )}
         </nav>
 
-        {session && (
-          <div className="px-4 py-5" style={{ borderTop: "1px solid #e5e7eb" }}>
-            <button
-              onClick={() => { closeMenu(); signOut({ callbackUrl: "/" }); }}
-              className="flex items-center gap-2 text-sm text-[#9ca3af] hover:text-[#111827] transition-colors duration-200"
-            >
-              <LogOut className="h-4 w-4" />
-              Cerrar sesión
-            </button>
-          </div>
-        )}
       </div>
     </>
   );
