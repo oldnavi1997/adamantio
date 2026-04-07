@@ -4,9 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { ImageGallery } from "@/components/product/ImageGallery";
-import { AddToCartButton } from "@/components/product/AddToCartButton";
+import { ProductDetails } from "@/components/product/ProductDetails";
 import { formatPEN } from "@/lib/utils";
-import AccordionItem from "@/components/product/AccordionItem";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -101,48 +100,8 @@ export default async function ProductPage({ params }: Props) {
           {/* Divider */}
           <div className="border-t border-[#111111]/8" />
 
-          {/* Add to cart */}
-          <AddToCartButton product={product} />
-
-          {/* Divider */}
-          <div className="border-t border-[#111111]/8" />
-
-          {/* Accordions */}
-          {product.productDetails && (
-            <AccordionItem title="Detalles del producto">
-              <div
-                className="text-sm text-[#111111]/70 leading-relaxed prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: product.productDetails }}
-              />
-            </AccordionItem>
-          )}
-
-          {product.sizeInfo && (
-            <AccordionItem title="Guía de tallas">
-              <div
-                className="text-sm text-[#111111]/70 leading-relaxed prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: product.sizeInfo }}
-              />
-            </AccordionItem>
-          )}
-
-          <AccordionItem title="Envío">
-            <div className="text-sm text-[#111111]/60 leading-relaxed space-y-3">
-              <p><span className="font-medium text-[#111111]/80">Método de envío:</span> Olva Courier y Shalom.</p>
-              <p><span className="font-medium text-[#111111]/80">Área de envío:</span> Nacional.</p>
-              <div>
-                <p className="font-medium text-[#111111]/80 mb-1">Tarifa de envío:</p>
-                <ul className="space-y-0.5 pl-3">
-                  <li>Shalom: 8 soles.</li>
-                  <li>Olva Courier: 10–18 soles, puede variar según la región destino.</li>
-                </ul>
-              </div>
-              <p><span className="font-medium text-[#111111]/80">Plazo de procesamiento:</span> 1–2 días laborables.</p>
-              <p><span className="font-medium text-[#111111]/80">Plazo de envío:</span> 2–3 días después del procesamiento.</p>
-            </div>
-          </AccordionItem>
-
-          <div className="border-t border-[#dadadd]" />
+          {/* Interactive section: sizes, add to cart, accordions, engraving */}
+          <ProductDetails product={product} />
         </div>
       </div>
     </div>
