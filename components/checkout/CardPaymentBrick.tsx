@@ -226,10 +226,10 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
       )}
 
       {paymentMethod === "yape" && (
-        <div className="relative space-y-4">
+        <div className="relative">
           {loading && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-white/95">
-              <svg className="animate-spin h-10 w-10 text-[#5D2D8C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-10 w-10 text-[#009EE3]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
@@ -237,43 +237,65 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
               <p className="text-xs text-gray-400">No cierres esta ventana</p>
             </div>
           )}
-          <p className="text-sm text-gray-500">Abre Yape, ve a <strong>Cobrar → Pagar por código</strong> y obtén tu código de aprobación.</p>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Número de celular (9 dígitos)</label>
-            <input
-              type="tel"
-              value={yapePhone}
-              onChange={(e) => setYapePhone(e.target.value.replace(/\D/g, "").slice(0, 9))}
-              placeholder="9XXXXXXXX"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Código de aprobación (6 dígitos)</label>
-            <div className="flex gap-2" onPaste={handleOtpPaste}>
-              {yapeOtpDigits.map((digit, i) => (
-                <input
-                  key={i}
-                  ref={(el) => { otpRefs.current[i] = el; }}
-                  type="text"
-                  inputMode="numeric"
-                  value={digit}
-                  maxLength={1}
-                  onChange={(e) => handleOtpChange(i, e.target.value)}
-                  onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                  className="w-10 h-12 text-center text-lg font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111111]"
-                />
-              ))}
+          <div className="yape-card">
+            <div className="yape-header">
+              <img src="https://res.cloudinary.com/dzqns7kss/image/upload/v1772670756/Yape-App-Logo-Vector.svg-_g36q5h.png" alt="Yape" className="yape-logo" width="32" height="32" />
+              <div>
+                <strong className="yape-title">Paga con Yape en pocos segundos</strong>
+                <p className="yape-subtitle">Completa los siguientes datos y confirma tu compra.</p>
+              </div>
             </div>
+
+            <label className="yape-field">
+              <span className="yape-label">Celular asociado a Yape</span>
+              <input
+                type="tel"
+                className="yape-input"
+                value={yapePhone}
+                onChange={(e) => setYapePhone(e.target.value.replace(/\D/g, "").slice(0, 9))}
+                placeholder="Ej.: 999 123 456"
+                maxLength={9}
+              />
+            </label>
+
+            <div className="yape-field">
+              <span className="yape-label">Código de aprobación</span>
+              <div className="yape-otp-row" onPaste={handleOtpPaste}>
+                {yapeOtpDigits.map((digit, i) => (
+                  <input
+                    key={i}
+                    ref={(el) => { otpRefs.current[i] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    className="yape-otp-digit"
+                    value={digit}
+                    onChange={(e) => handleOtpChange(i, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                    maxLength={1}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="yape-info">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7.5" stroke="#009EE3" fill="#E8F4FD"/>
+                <text x="8" y="12" textAnchor="middle" fill="#009EE3" fontSize="11" fontWeight="700">i</text>
+              </svg>
+              <span>Recuerda tener activada la opción &quot;Compras por internet&quot; en Yape y verificar tu límite diario.</span>
+            </div>
+
+            <button
+              type="button"
+              disabled={loading || !yapePhone.trim() || yapeOtp.length !== 6}
+              onClick={handleYapeSubmit}
+              className="yape-submit-btn"
+            >
+              {loading ? "Procesando..." : "Pagar con Yape"}
+            </button>
+
+            <p className="yape-footer">Procesado por Mercado Pago</p>
           </div>
-          <button
-            type="button"
-            onClick={handleYapeSubmit}
-            disabled={loading}
-            className="w-full bg-[#5D2D8C] text-white py-3 rounded-lg font-medium hover:bg-[#4a2470] disabled:opacity-50 transition-colors"
-          >
-            {loading ? "Verificando..." : "Pagar con Yape"}
-          </button>
         </div>
       )}
     </div>

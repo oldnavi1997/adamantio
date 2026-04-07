@@ -81,3 +81,82 @@ h6 { font-size: 1rem;     line-height: 1.25; }
   outline-offset: 3px;
   border-radius: 3px;
 }
+
+/* ── Yape payment block ── */
+.yape-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 24px;
+  background: #fff;
+}
+.yape-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.yape-logo { flex-shrink: 0; }
+.yape-title { font-size: 1.05rem; color: #1a1a1a; display: block; }
+.yape-subtitle { font-size: 0.85rem; color: #737373; margin: 0; }
+.yape-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.yape-label { font-size: 0.85rem; font-weight: 500; color: #333; }
+.yape-input {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.yape-input:focus { border-color: #009ee3; }
+.yape-otp-row { display: flex; gap: 8px; }
+.yape-otp-digit {
+  width: 44px;
+  height: 48px;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.yape-otp-digit:focus { border-color: #009ee3; }
+.yape-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #e8f4fd;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  color: #444;
+  margin-bottom: 20px;
+}
+.yape-submit-btn {
+  width: 100%;
+  background: #009ee3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 13px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.yape-submit-btn:hover:not(:disabled) { background: #0081c2; }
+.yape-submit-btn:disabled { background: #b3ddf2; cursor: not-allowed; }
+.yape-footer {
+  text-align: center;
+  font-size: 0.78rem;
+  color: #999;
+  margin-top: 16px;
+  margin-bottom: 0;
+}
