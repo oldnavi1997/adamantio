@@ -123,6 +123,16 @@ export default function CheckoutPage() {
                   </button>
                 </div>
               )}
+              {/* Tu orden — visible solo en mobile (en desktop está en la columna derecha) */}
+              <div className="lg:hidden">
+                <OrderSummary
+                  items={items}
+                  subtotal={sub}
+                  shippingCost={shippingCost}
+                  mpCommission={mpCommission}
+                  total={total}
+                />
+              </div>
               <CardPaymentBrick
                 total={total}
                 orderId={orderId}
@@ -143,14 +153,19 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        {step !== "result" && (
+        {step === "form" && (
           <div>
+            <OrderSummary items={items} subtotal={sub} />
+          </div>
+        )}
+        {step === "payment" && (
+          <div className="hidden lg:block">
             <OrderSummary
               items={items}
               subtotal={sub}
-              shippingCost={step === "payment" ? shippingCost : undefined}
-              mpCommission={step === "payment" ? mpCommission : undefined}
-              total={step === "payment" ? total : undefined}
+              shippingCost={shippingCost}
+              mpCommission={mpCommission}
+              total={total}
             />
           </div>
         )}
