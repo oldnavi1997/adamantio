@@ -187,9 +187,9 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
       )}
 
       {paymentMethod === "card" && (
-        <div className="relative">
+        <div>
           {loading && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-white/95">
+            <div className="flex flex-col items-center justify-center gap-4 py-12">
               <svg className="animate-spin h-10 w-10 text-[#111111]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -198,6 +198,7 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
               <p className="text-xs text-gray-400">No cierres esta ventana</p>
             </div>
           )}
+          <div style={{ display: loading ? "none" : "block" }}>
           <CardPayment
             initialization={{ amount: total }}
             customization={{ paymentMethods: { maxInstallments: 12 } }}
@@ -222,6 +223,7 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
               onPaymentResult({ status: "error", error: "Error en el formulario de pago" });
             }}
           />
+          </div>
         </div>
       )}
 
