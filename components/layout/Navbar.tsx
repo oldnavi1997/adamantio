@@ -6,6 +6,7 @@ import { ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import { SearchBar } from "@/components/search/SearchBar";
 import { useState, useEffect, useRef } from "react";
 import { useCartStore } from "@/stores/cart";
+import { slugify } from "@/lib/utils";
 
 type NavLeaf = { id: string; name: string };
 
@@ -181,7 +182,7 @@ export function Navbar({ categories }: NavbarProps) {
                           onMouseEnter={() => handleCatEnter(cat.id)}
                         >
                           <Link
-                            href={`/joyas?category=${encodeURIComponent(cat.name)}`}
+                            href={`/joyas?category=${slugify(cat.name)}`}
                             onClick={() => setOpenCatId(null)}
                             className="flex items-center px-4 py-2.5 text-xs font-medium text-[#374151] hover:text-[#111827] hover:bg-[#f3f4f6] transition-colors border-b border-[#e5e7eb] rounded-t-lg"
                           >
@@ -197,7 +198,7 @@ export function Navbar({ categories }: NavbarProps) {
                                   {child.children.map((gc) => (
                                     <Link
                                       key={gc.id}
-                                      href={`/joyas?category=${encodeURIComponent(gc.name)}`}
+                                      href={`/joyas?category=${slugify(gc.name)}`}
                                       onClick={() => setOpenCatId(null)}
                                       className="block pl-2 py-1 text-sm text-[#374151] hover:text-[#111827] transition-colors"
                                     >
@@ -208,7 +209,7 @@ export function Navbar({ categories }: NavbarProps) {
                               ) : (
                                 <Link
                                   key={child.id}
-                                  href={`/joyas?category=${encodeURIComponent(child.name)}`}
+                                  href={`/joyas?category=${slugify(child.name)}`}
                                   onClick={() => setOpenCatId(null)}
                                   className="flex items-center px-4 py-2 text-sm text-[#374151] hover:text-[#111827] hover:bg-[#f3f4f6] transition-colors"
                                 >
@@ -223,7 +224,7 @@ export function Navbar({ categories }: NavbarProps) {
                   ) : (
                     <Link
                       key={cat.id}
-                      href={`/joyas?category=${encodeURIComponent(cat.name)}`}
+                      href={`/joyas?category=${slugify(cat.name)}`}
                       className="text-sm text-[#374151] hover:text-[#111827] transition-colors duration-200"
                     >
                       {cat.name}
@@ -341,7 +342,7 @@ export function Navbar({ categories }: NavbarProps) {
                 {openMobileCatId === cat.id && (
                   <div className="pl-3 pb-1 flex flex-col gap-0.5">
                     <Link
-                      href={`/joyas?category=${encodeURIComponent(cat.name)}`}
+                      href={`/joyas?category=${slugify(cat.name)}`}
                       onClick={closeMenu}
                       className="py-2 text-xs text-[#9ca3af] hover:text-[#111827] transition-colors"
                     >
@@ -356,7 +357,7 @@ export function Navbar({ categories }: NavbarProps) {
                           {child.children.map((gc) => (
                             <Link
                               key={gc.id}
-                              href={`/joyas?category=${encodeURIComponent(gc.name)}`}
+                              href={`/joyas?category=${slugify(gc.name)}`}
                               onClick={closeMenu}
                               className="block pl-3 py-1.5 text-sm text-[#374151] hover:text-[#111827] transition-colors"
                             >
@@ -367,7 +368,7 @@ export function Navbar({ categories }: NavbarProps) {
                       ) : (
                         <Link
                           key={child.id}
-                          href={`/joyas?category=${encodeURIComponent(child.name)}`}
+                          href={`/joyas?category=${slugify(child.name)}`}
                           onClick={closeMenu}
                           className="block py-1.5 text-sm text-[#374151] hover:text-[#111827] transition-colors"
                         >
@@ -381,7 +382,7 @@ export function Navbar({ categories }: NavbarProps) {
             ) : (
               <Link
                 key={cat.id}
-                href={`/joyas?category=${encodeURIComponent(cat.name)}`}
+                href={`/joyas?category=${slugify(cat.name)}`}
                 onClick={closeMenu}
                 className="py-2.5 text-sm text-[#374151] hover:text-[#111827] transition-colors duration-200 border-b border-[#f3f4f6]"
               >

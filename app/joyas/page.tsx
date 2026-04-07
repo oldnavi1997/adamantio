@@ -6,7 +6,7 @@ import { ProductGrid } from "@/components/catalog/ProductGrid";
 import { CatalogToolbar } from "@/components/catalog/CatalogToolbar";
 import { CatalogPagination } from "@/components/catalog/CatalogPagination";
 import { Prisma } from "@/app/generated/prisma/client";
-import { seededShuffle } from "@/lib/utils";
+import { seededShuffle, slugify } from "@/lib/utils";
 
 interface SearchParams {
   category?: string;
@@ -23,7 +23,11 @@ interface SearchParams {
 async function getProducts(params: SearchParams) {
   const where: Prisma.ProductWhereInput = { isActive: true };
 
-  if (params.category) where.category = params.category;
+  if (params.category) {
+    const allCategories = await prisma.category.findMany({ select: { name: true } });
+    const matched = allCategories.find((c) => slugify(c.name) === params.category);
+    where.category = matched?.name ?? params.category;
+  }
   if (params.search) {
     where.OR = [
       { name: { contains: params.search, mode: "insensitive" } },
