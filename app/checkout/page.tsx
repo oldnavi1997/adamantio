@@ -27,6 +27,7 @@ export default function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [paymentResult, setPaymentResult] = useState<PaymentResultData | null>(null);
+  const [savedShipping, setSavedShipping] = useState<ShippingFormData | null>(null);
 
   const sub = subtotal();
   const isTestMode = items.some((i) => i.testMode);
@@ -66,6 +67,7 @@ export default function CheckoutPage() {
       setOrderId(data.orderId);
       setTotal(data.total);
       setEmail(shippingData.email);
+      setSavedShipping(shippingData);
       setStep("payment");
     } catch {
       alert("Error de conexión");
@@ -92,16 +94,36 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {step === "form" && (
-            <CheckoutForm onSubmit={handleShippingSubmit} loading={loadingOrder} subtotal={sub} isTestMode={isTestMode} />
+            <CheckoutForm onSubmit={handleShippingSubmit} loading={loadingOrder} subtotal={sub} isTestMode={isTestMode} defaultValues={savedShipping ?? undefined} />
           )}
 
           {step === "payment" && orderId && (
-            <CardPaymentBrick
-              total={total}
-              orderId={orderId}
-              email={email}
-              onPaymentResult={handlePaymentResult}
-            />
+            <>
+              {savedShipping && (
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-start justify-between gap-4">
+                  <div className="space-y-0.5 text-sm">
+                    <p className="font-medium text-[#111111]">{savedShipping.firstName} {savedShipping.lastName} · {savedShipping.documentType} {savedShipping.documentNumber}</p>
+                    <p className="text-gray-500">{savedShipping.street}, {savedShipping.district}</p>
+                    <p className="text-gray-500">{savedShipping.province}, {savedShipping.department} {savedShipping.postalCode}</p>
+                    <p className="text-gray-500">{savedShipping.email} · {savedShipping.phone}</p>
+                    <p className="text-gray-400 text-xs capitalize">Courier: {savedShipping.courier === "shalom" ? "Shalom" : "Olva"}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setStep("form"); setOrderId(null); }}
+                    className="text-sm text-[#111111] underline underline-offset-2 hover:text-gray-500 transition-colors shrink-0"
+                  >
+                    Editar
+                  </button>
+                </div>
+              )}
+              <CardPaymentBrick
+                total={total}
+                orderId={orderId}
+                email={email}
+                onPaymentResult={handlePaymentResult}
+              />
+            </>
           )}
 
           {step === "result" && paymentResult && (

@@ -53,10 +53,11 @@ interface CheckoutFormProps {
   loading?: boolean;
   subtotal: number;
   isTestMode?: boolean;
+  defaultValues?: Partial<ShippingFormData>;
 }
 
-export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode }: CheckoutFormProps) {
-  const [districtSelectValue, setDistrictSelectValue] = useState("");
+export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, defaultValues }: CheckoutFormProps) {
+  const [districtSelectValue, setDistrictSelectValue] = useState(defaultValues?.district ?? "");
 
   const {
     register,
@@ -66,7 +67,7 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode }: Checko
     formState: { errors },
   } = useForm<ShippingFormData>({
     resolver: zodResolver(shippingSchema),
-    defaultValues: { documentType: "DNI", courier: "shalom" },
+    defaultValues: { documentType: "DNI", courier: "shalom", ...defaultValues },
   });
 
   const department = watch("department");
