@@ -68,6 +68,7 @@ export default function CheckoutPage() {
       setTotal(data.total);
       setEmail(shippingData.email);
       setSavedShipping(shippingData);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       setStep("payment");
     } catch {
       alert("Error de conexión");
