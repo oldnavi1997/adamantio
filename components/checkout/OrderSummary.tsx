@@ -5,12 +5,15 @@ import Image from "next/image";
 interface OrderSummaryProps {
   items: CartItem[];
   subtotal: number;
+  shippingCost?: number;
+  mpCommission?: number;
+  total?: number;
 }
 
-export function OrderSummary({ items, subtotal }: OrderSummaryProps) {
+export function OrderSummary({ items, subtotal, shippingCost, mpCommission, total }: OrderSummaryProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-6">
-      <h2 className="font-semibold text-[#111111] mb-4">Tu pedido</h2>
+      <h3 className="font-semibold text-[#111111] mb-4">Tu orden</h3>
       <div className="space-y-3">
         {items.map((item) => {
           const img = item.image ?? item.imageUrl;
@@ -39,7 +42,24 @@ export function OrderSummary({ items, subtotal }: OrderSummaryProps) {
           <span>Subtotal</span>
           <span>{formatPEN(subtotal)}</span>
         </div>
-        <p className="text-xs text-[#111111]/40">Envío y comisión se calculan en el siguiente paso</p>
+        {total !== undefined ? (
+          <>
+            <div className="flex justify-between text-sm text-[#111111]/60">
+              <span>Envío</span>
+              <span>{shippingCost === 0 ? "Gratis" : formatPEN(shippingCost ?? 0)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-[#111111]/60">
+              <span>Comisión MP</span>
+              <span>{formatPEN(mpCommission ?? 0)}</span>
+            </div>
+            <div className="flex justify-between text-sm font-semibold text-[#111111] border-t border-gray-100 pt-2 mt-1">
+              <span>Total</span>
+              <span>{formatPEN(total)}</span>
+            </div>
+          </>
+        ) : (
+          <p className="text-xs text-[#111111]/40">Envío y comisión se calculan al confirmar tu dirección</p>
+        )}
       </div>
     </div>
   );

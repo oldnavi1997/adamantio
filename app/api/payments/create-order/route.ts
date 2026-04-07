@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ orderId: order.id, total });
+    return NextResponse.json({ orderId: order.id, total, shippingCost, mpCommission });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues[0].message }, { status: 400 });

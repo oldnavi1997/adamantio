@@ -114,7 +114,7 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, defaultV
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Identificación */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-[#111111]">Datos de contacto</h2>
+        <h3 className="font-semibold text-[#111111]">Datos de contacto</h3>
         <Input label="Email *" type="email" error={errors.email?.message} {...register("email")} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input label="Nombres *" error={errors.firstName?.message} {...register("firstName")} />
@@ -139,7 +139,7 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, defaultV
 
       {/* Dirección */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-[#111111]">Dirección de envío</h2>
+        <h3 className="font-semibold text-[#111111]">Dirección de envío</h3>
         <Input label="Dirección (calle y número) *" error={errors.street?.message} {...register("street")} />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
@@ -173,7 +173,7 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, defaultV
 
       {/* Courier */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-[#111111]">Método de envío</h2>
+        <h3 className="font-semibold text-[#111111]">Método de envío</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {(["shalom", "olva"] as const).map((c) => {
             const price = c === "shalom" ? SHALOM_PRICE : (OLVA_PRICE_BY_DEPARTMENT[department] ?? 15);
