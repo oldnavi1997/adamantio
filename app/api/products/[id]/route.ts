@@ -60,6 +60,7 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
+    console.error("Update product error:", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }

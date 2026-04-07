@@ -37,16 +37,6 @@ export default async function OrderConfirmationPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-[#f8f7f4]">
-      {/* Header */}
-      <header className="bg-[#1a1a2e] text-white py-4 px-6">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <span className="text-xl font-bold tracking-widest text-[#c9a84c] uppercase">
-            Adamantio
-          </span>
-          <span className="text-sm text-gray-400">Confirmación de pedido</span>
-        </div>
-      </header>
-
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 space-y-6">
 
         {/* Status badge */}
@@ -141,21 +131,37 @@ export default async function OrderConfirmationPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Shipping address */}
+        {/* Shipping & contact data */}
         {address && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-6 py-5">
-            <h2 className="font-semibold text-[#1a1a2e] mb-3">Dirección de envío</h2>
-            <p className="text-sm font-medium text-gray-700">{address.fullName}</p>
-            <p className="text-sm text-gray-500">
-              {address.street}{address.district ? `, ${address.district}` : ""}
-            </p>
-            <p className="text-sm text-gray-500">
-              {address.city}, {address.state} {address.postalCode}
-            </p>
-            <p className="text-sm text-gray-500">{address.country}</p>
-            {address.phone && (
-              <p className="text-sm text-gray-400 mt-1">{address.phone}</p>
-            )}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100">
+              <h2 className="font-semibold text-[#1a1a2e]">Datos de entrega</h2>
+            </div>
+            <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+              {/* Contacto */}
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Contacto</p>
+                <Row label="Nombre" value={address.fullName} />
+                {recipientEmail && <Row label="Email" value={recipientEmail} />}
+                {address.phone && <Row label="Teléfono" value={address.phone} />}
+                {address.documentType && address.documentNumber && (
+                  <Row label={address.documentType} value={address.documentNumber} />
+                )}
+              </div>
+
+              {/* Dirección */}
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Dirección</p>
+                <Row label="Calle" value={address.street} />
+                {address.district && <Row label="Distrito" value={address.district} />}
+                <Row label="Provincia" value={address.city} />
+                <Row label="Departamento" value={address.state} />
+                <Row label="Código postal" value={address.postalCode} />
+                <Row label="País" value={address.country} />
+              </div>
+
+            </div>
           </div>
         )}
 
@@ -176,6 +182,15 @@ export default async function OrderConfirmationPage({ params }: Props) {
         </div>
 
       </main>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-2 text-sm">
+      <span className="text-gray-400 min-w-[90px] flex-shrink-0">{label}:</span>
+      <span className="text-gray-700 font-medium">{value}</span>
     </div>
   );
 }

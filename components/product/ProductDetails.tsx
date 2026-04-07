@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/Button";
 import { ProductWithCategory } from "@/types";
 import { useCartStore } from "@/stores/cart";
@@ -25,18 +26,10 @@ export function ProductDetails({ product }: Props) {
   const openDrawer = useCartStore((s) => s.openDrawer);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [engravingText, setEngravingText] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [emblaRef] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" });
 
   const hasSizes = product.sizes && product.sizes.length > 0;
   const canAdd = !hasSizes || !!selectedSize;
-
-  const scrollCarousel = (dir: "prev" | "next") => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollBy({
-      left: dir === "next" ? scrollRef.current.offsetWidth : -scrollRef.current.offsetWidth,
-      behavior: "smooth",
-    });
-  };
 
   const handleAddToCart = () => {
     if (!canAdd) return;
@@ -155,17 +148,13 @@ export function ProductDetails({ product }: Props) {
                 Escribe el texto que aparecerá grabado en tu joya. Puedes ver ejemplos a continuación.
               </p>
 
-              {/* Carousel */}
-              <div className="relative">
-                <div
-                  ref={scrollRef}
-                  className="flex gap-2 overflow-x-auto scroll-smooth"
-                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-                >
+              {/* Carousel estilo galería móvil */}
+              <div ref={emblaRef} className="overflow-hidden -mx-4">
+                <div className="flex gap-1 px-4">
                   {ENGRAVING_SAMPLES.map((url, i) => (
                     <div
                       key={i}
-                      className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-[#f0eeeb]"
+                      className="w-[78%] flex-shrink-0 relative aspect-square bg-[#f0eeeb] rounded-lg overflow-hidden"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -177,22 +166,6 @@ export function ProductDetails({ product }: Props) {
                     </div>
                   ))}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => scrollCarousel("prev")}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white shadow text-[#111111]/60 hover:text-[#111111] flex items-center justify-center text-base leading-none"
-                  aria-label="Anterior"
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollCarousel("next")}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white shadow text-[#111111]/60 hover:text-[#111111] flex items-center justify-center text-base leading-none"
-                  aria-label="Siguiente"
-                >
-                  ›
-                </button>
               </div>
 
               {/* Input */}
