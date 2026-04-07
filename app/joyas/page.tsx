@@ -24,9 +24,20 @@ async function getProducts(params: SearchParams) {
   const where: Prisma.ProductWhereInput = { isActive: true };
 
   if (params.category) {
-    const allCategories = await prisma.category.findMany({ select: { name: true } });
+    const allCategories = await prisma.category.findMany({
+      select: { name: true, children: { select: { name: true, children: { select: { name: true } } } } },
+    });
     const matched = allCategories.find((c) => slugify(c.name) === params.category);
-    where.category = matched?.name ?? params.category;
+    if (matched) {
+      const names = [
+        matched.name,
+        ...matched.children.map((c) => c.name),
+        ...matched.children.flatMap((c) => c.children.map((gc) => gc.name)),
+      ];
+      where.category = { in: names };
+    } else {
+      where.category = params.category;
+    }
   }
   if (params.search) {
     where.OR = [
