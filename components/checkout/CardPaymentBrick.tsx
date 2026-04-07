@@ -161,6 +161,18 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
   }
 
   return (
+    <>
+      {/* Full-screen overlay while processing */}
+      {loading && (
+        <div className="checkout-processing-overlay">
+          <div className="checkout-processing-content">
+            <div className="checkout-spinner" />
+            <p>{paymentMethod === "yape" ? "Verificando pago con Yape…" : "Procesando pago…"}</p>
+            <p className="muted">No cierres esta ventana</p>
+          </div>
+        </div>
+      )}
+
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
       <h2 className="font-semibold text-[#111111]">Datos de pago</h2>
 
@@ -188,16 +200,6 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
 
       {paymentMethod === "card" && (
         <div>
-          {loading && (
-            <div className="flex flex-col items-center justify-center gap-4 py-12">
-              <svg className="animate-spin h-10 w-10 text-[#111111]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              <p className="text-sm font-medium text-[#111111]">Procesando pago…</p>
-              <p className="text-xs text-gray-400">No cierres esta ventana</p>
-            </div>
-          )}
           <div style={{ display: loading ? "none" : "block" }}>
           <CardPayment
             initialization={{ amount: total }}
@@ -228,17 +230,7 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
       )}
 
       {paymentMethod === "yape" && (
-        <div className="relative">
-          {loading && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-white/95">
-              <svg className="animate-spin h-10 w-10 text-[#009EE3]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              <p className="text-sm font-medium text-[#111111]">Verificando pago con Yape…</p>
-              <p className="text-xs text-gray-400">No cierres esta ventana</p>
-            </div>
-          )}
+        <div>
           <div className="yape-card">
             <div className="yape-header">
               <img src="https://res.cloudinary.com/dzqns7kss/image/upload/v1772670756/Yape-App-Logo-Vector.svg-_g36q5h.png" alt="Yape" className="yape-logo" width="32" height="32" />
@@ -301,5 +293,6 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
         </div>
       )}
     </div>
+    </>
   );
 }

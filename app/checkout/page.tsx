@@ -78,6 +78,7 @@ export default function CheckoutPage() {
   };
 
   const handlePaymentResult = (result: PaymentResultData) => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     if (result.status === "approved" && orderId) {
       setStep("result"); // prevent the cart-empty useEffect from redirecting to /carrito
       clearCart();
@@ -133,7 +134,7 @@ export default function CheckoutPage() {
               paymentId={paymentResult.paymentId}
               statusDetail={paymentResult.statusDetail}
               error={paymentResult.error}
-              onRetry={() => { setStep("payment"); setPaymentResult(null); }}
+              onRetry={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setStep("payment"); setPaymentResult(null); }}
             />
           )}
         </div>
