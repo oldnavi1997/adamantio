@@ -147,12 +147,22 @@ export function CartDrawer() {
                     {/* Info */}
                     <div className="flex-1 min-w-0 flex flex-col justify-between">
                       <div className="flex items-start justify-between gap-2">
-                        <h6
-                          className="text-[#1e293b] text-[13px] font-light leading-snug line-clamp-2"
-                          style={{ fontFamily: "var(--font-sans, sans-serif)" }}
-                        >
-                          {item.name}
-                        </h6>
+                        <div>
+                          <h6
+                            className="text-[#1e293b] text-[13px] font-light leading-snug line-clamp-2"
+                            style={{ fontFamily: "var(--font-sans, sans-serif)" }}
+                          >
+                            {item.name}
+                          </h6>
+                          {item.size && (
+                            <p className="text-[10px] text-[#334155]/40 mt-0.5">Talla: {item.size}</p>
+                          )}
+                          {item.engravingText && (
+                            <p className="text-[10px] text-[#334155]/40 mt-0.5 italic">
+                              Grabado: &ldquo;{item.engravingText}&rdquo;
+                            </p>
+                          )}
+                        </div>
                         <button
                           onClick={() => removeItem(item.cartKey ?? item.id)}
                           className="flex-shrink-0 p-1 text-[#334155]/30 hover:text-red-500 transition-colors mt-0.5"

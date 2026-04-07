@@ -37,6 +37,14 @@ export function CartItemComponent({ item }: CartItemProps) {
         >
           {item.name}
         </h3>
+        {item.size && (
+          <p className="text-[11px] text-[#111111]/40 mt-0.5">Talla: {item.size}</p>
+        )}
+        {item.engravingText && (
+          <p className="text-[11px] text-[#111111]/40 mt-0.5 italic">
+            Grabado: &ldquo;{item.engravingText}&rdquo;
+          </p>
+        )}
         <p className="text-[#d4af37] text-sm font-semibold mt-1">{formatPEN(item.price)}</p>
 
         {/* Quantity controls */}
