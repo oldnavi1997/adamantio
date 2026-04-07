@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { ImageGallery } from "@/components/product/ImageGallery";
 import { ProductDetails } from "@/components/product/ProductDetails";
@@ -104,6 +103,33 @@ export default async function ProductPage({ params }: Props) {
           <ProductDetails product={product} />
         </div>
       </div>
+
+      {/* Content images */}
+      {product.contentImages.length > 0 && (
+        <div className="mt-6 flex flex-col">
+          {product.contentImages.map((src, i) =>
+            /\.(mp4|webm|mov)(\?|$)/i.test(src) ? (
+              <video
+                key={i}
+                src={src}
+                className="w-full h-auto block"
+                muted
+                loop
+                playsInline
+                controls
+              />
+            ) : (
+              <img
+                key={i}
+                src={src}
+                alt={`${product.name} ${i + 1}`}
+                loading="lazy"
+                className="w-full h-auto block"
+              />
+            )
+          )}
+        </div>
+      )}
     </div>
   );
 }
