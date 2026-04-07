@@ -187,34 +187,56 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
       )}
 
       {paymentMethod === "card" && (
-        <CardPayment
-          initialization={{ amount: total }}
-          customization={{ paymentMethods: { maxInstallments: 12 } }}
-          onSubmit={async (formData) => {
-            setLoading(true);
-            setError("");
-            try {
-              await callProcess({
-                orderId,
-                token: formData.token,
-                paymentMethodId: formData.payment_method_id,
-                issuerId: formData.issuer_id,
-                installments: formData.installments,
-                email: formData.payer?.email ?? email,
-              });
-            } finally {
-              setLoading(false);
-            }
-          }}
-          onError={(err) => {
-            console.error("Brick error:", err);
-            onPaymentResult({ status: "error", error: "Error en el formulario de pago" });
-          }}
-        />
+        <div className="relative">
+          {loading && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-white/95">
+              <svg className="animate-spin h-10 w-10 text-[#111111]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <p className="text-sm font-medium text-[#111111]">Procesando pago…</p>
+              <p className="text-xs text-gray-400">No cierres esta ventana</p>
+            </div>
+          )}
+          <CardPayment
+            initialization={{ amount: total }}
+            customization={{ paymentMethods: { maxInstallments: 12 } }}
+            onSubmit={async (formData) => {
+              setLoading(true);
+              setError("");
+              try {
+                await callProcess({
+                  orderId,
+                  token: formData.token,
+                  paymentMethodId: formData.payment_method_id,
+                  issuerId: formData.issuer_id,
+                  installments: formData.installments,
+                  email: formData.payer?.email ?? email,
+                });
+              } finally {
+                setLoading(false);
+              }
+            }}
+            onError={(err) => {
+              console.error("Brick error:", err);
+              onPaymentResult({ status: "error", error: "Error en el formulario de pago" });
+            }}
+          />
+        </div>
       )}
 
       {paymentMethod === "yape" && (
-        <div className="space-y-4">
+        <div className="relative space-y-4">
+          {loading && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-white/95">
+              <svg className="animate-spin h-10 w-10 text-[#5D2D8C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <p className="text-sm font-medium text-[#111111]">Verificando pago con Yape…</p>
+              <p className="text-xs text-gray-400">No cierres esta ventana</p>
+            </div>
+          )}
           <p className="text-sm text-gray-500">Abre Yape, ve a <strong>Cobrar → Pagar por código</strong> y obtén tu código de aprobación.</p>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Número de celular (9 dígitos)</label>
