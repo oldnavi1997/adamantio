@@ -145,7 +145,7 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
     };
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="font-semibold text-[#111111] mb-4">Datos de pago</h2>
+        <h3 className="font-semibold text-[#111111] mb-4">Datos de pago</h3>
         <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-4 mb-4 text-sm text-yellow-800">
           <strong>Modo desarrollo</strong> — Mercado Pago desactivado
         </div>
