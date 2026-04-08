@@ -17,6 +17,7 @@ const productCreateSchema = z.object({
   sizeInfo: z.string().default(""),
   category: z.string().optional().nullable(),
   sizes: z.array(z.string()).default([]),
+  sku: z.string().optional().nullable(),
   isActive: z.boolean().default(true),
   engravingEnabled: z.boolean().default(false),
   freeShipping: z.boolean().default(false),

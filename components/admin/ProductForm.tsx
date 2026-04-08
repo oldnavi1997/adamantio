@@ -73,6 +73,7 @@ function SortableImage({
 
 const productSchema = z.object({
   name: z.string().min(2, "Nombre requerido"),
+  sku: z.string().optional(),
   description: z.string().optional(),
   price: z.string().min(1, "Precio requerido"),
   stock: z.string(),
@@ -111,6 +112,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
     defaultValues: product
       ? {
           name: product.name,
+          sku: product.sku || "",
           description: product.description || "",
           price: product.price.toString(),
           stock: product.stock.toString(),
@@ -122,7 +124,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           freeShipping: product.freeShipping,
           testMode: product.testMode,
         }
-      : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, stock: "0" },
+      : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, stock: "0", sku: "" },
   });
 
   const sensors = useSensors(useSensor(PointerSensor));
@@ -162,6 +164,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
     try {
       const body = {
         ...data,
+        sku: data.sku?.trim() || null,
         price: parseFloat(data.price),
         stock: parseInt(data.stock),
         imageUrls: images,
@@ -205,6 +208,12 @@ export function ProductForm({ categories, product }: ProductFormProps) {
             label="Nombre *"
             error={errors.name?.message}
             {...register("name")}
+          />
+          <Input
+            label="SKU"
+            placeholder="Ej: ANI-001"
+            error={errors.sku?.message}
+            {...register("sku")}
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>

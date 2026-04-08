@@ -27,6 +27,7 @@ const updateSchema = z.object({
   sizeInfo: z.string().optional(),
   category: z.string().optional().nullable(),
   sizes: z.array(z.string()).optional(),
+  sku: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   engravingEnabled: z.boolean().optional(),
   freeShipping: z.boolean().optional(),

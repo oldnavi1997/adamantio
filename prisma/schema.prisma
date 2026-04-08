@@ -60,6 +60,7 @@ model Product {
   category         String?
   price            Decimal     @db.Decimal(10, 2)
   stock            Int
+  sku              String?     @unique
   sizes            String[]    @default([])
   isActive         Boolean     @default(true)
   engravingEnabled Boolean     @default(false)
