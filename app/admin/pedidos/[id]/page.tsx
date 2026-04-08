@@ -142,6 +142,16 @@ export default function AdminOrderDetailPage({
         </div>
       </div>
 
+      {/* Stock note */}
+      {order.stockNote && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <p className="text-sm font-medium text-amber-800 mb-1">Stock descontado al aprobar pago</p>
+          {order.stockNote.split(" | ").map((note, i) => (
+            <p key={i} className="text-sm text-amber-700">{note}</p>
+          ))}
+        </div>
+      )}
+
       {/* Items */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h2 className="font-semibold text-[#111111] mb-4">Productos</h2>

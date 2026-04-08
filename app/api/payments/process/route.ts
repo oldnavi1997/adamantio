@@ -106,24 +106,56 @@ export async function POST(request: NextRequest) {
     if (paymentStatus === "APPROVED") {
       sendOrderConfirmation(order.id).catch(console.error);
 
-      // Decrementar stock en POS
+      // Decrementar stock en POS por ubicación (almacén preferido, tienda como fallback)
       const orderItems = await prisma.orderItem.findMany({
         where: { orderId: order.id },
-        include: { product: { select: { sku: true } } },
+        include: { product: { select: { sku: true, name: true } } },
       });
+
+      const stockNotes: string[] = [];
+
       for (const item of orderItems) {
-        if (item.product?.sku) {
+        if (!item.product?.sku) continue;
+        const sku = item.product.sku;
+        const qty = item.quantity;
+
+        type PosStock = { stockAlmacenHombre: number; stockAlmacenMujer: number };
+        const [posStock] = await prisma.$queryRaw<PosStock[]>`
+          SELECT "stockAlmacenHombre", "stockAlmacenMujer"
+          FROM pos."Product" WHERE sku = ${sku}
+        `;
+
+        let source = "TIENDA";
+
+        if (posStock && posStock.stockAlmacenHombre >= qty && posStock.stockAlmacenMujer >= qty) {
           await prisma.$executeRaw`
-            UPDATE pos."Product"
-            SET stock = GREATEST(0, stock - ${item.quantity})
-            WHERE sku = ${item.product.sku}
+            UPDATE pos."Product" SET
+              "stockAlmacenHombre" = GREATEST(0, "stockAlmacenHombre" - ${qty}),
+              "stockAlmacenMujer"  = GREATEST(0, "stockAlmacenMujer"  - ${qty}),
+              "stockAlmacen"       = GREATEST(0, "stockAlmacen"       - ${qty * 2}),
+              "updatedAt" = now()
+            WHERE sku = ${sku}
           `;
+          source = "ALMACÉN";
+        } else {
           await prisma.$executeRaw`
-            UPDATE public."Product"
-            SET stock = GREATEST(0, stock - ${item.quantity}), "updatedAt" = now()
-            WHERE sku = ${item.product.sku}
+            UPDATE pos."Product" SET
+              "stockHombre" = GREATEST(0, "stockHombre" - ${qty}),
+              "stockMujer"  = GREATEST(0, "stockMujer"  - ${qty}),
+              "stock"       = GREATEST(0, "stock"        - ${qty * 2}),
+              "updatedAt" = now()
+            WHERE sku = ${sku}
           `;
         }
+
+        stockNotes.push(`${item.product.name}: descontado de ${source}`);
+      }
+
+      if (stockNotes.length > 0) {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { stockNote: stockNotes.join(" | ") },
+        });
       }
     }
 
