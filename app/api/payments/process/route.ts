@@ -118,6 +118,11 @@ export async function POST(request: NextRequest) {
             SET stock = GREATEST(0, stock - ${item.quantity})
             WHERE sku = ${item.product.sku}
           `;
+          await prisma.$executeRaw`
+            UPDATE public."Product"
+            SET stock = GREATEST(0, stock - ${item.quantity}), "updatedAt" = now()
+            WHERE sku = ${item.product.sku}
+          `;
         }
       }
     }
