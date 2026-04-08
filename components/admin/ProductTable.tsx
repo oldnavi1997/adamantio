@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Category } from "@/app/generated/prisma/client";
 import { PosStockData } from "@/app/admin/productos/page";
 
-type SortCol = "name" | "price" | "stock";
+type SortCol = "name" | "price";
 type SortDir = "asc" | "desc";
 
 interface ProductTableProps {
@@ -178,7 +178,6 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
       let cmp = 0;
       if (sortCol === "name") cmp = a.name.localeCompare(b.name);
       if (sortCol === "price") cmp = Number(a.price) - Number(b.price);
-      if (sortCol === "stock") cmp = a.stock - b.stock;
       return sortDir === "asc" ? cmp : -cmp;
     });
   }
@@ -431,22 +430,6 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                 </button>
               </th>
 
-              {/* Stock — sortable */}
-              <th className="text-right py-3 px-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSort("stock")}
-                  className="inline-flex items-center gap-1 text-[9px] font-medium uppercase tracking-[0.2em] text-[#111111]/40 hover:text-[#111111]/70 transition-colors ml-auto"
-                >
-                  Stock
-                  {sortCol === "stock" ? (
-                    sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
-                  ) : (
-                    <ChevronsUpDown className="h-3 w-3 opacity-40" />
-                  )}
-                </button>
-              </th>
-
               {/* Stock Tienda POS */}
               <th className="text-right py-3 px-4">
                 <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-[#111111]/40">
@@ -501,7 +484,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={9} className="py-12 text-center text-[11px] text-[#111111]/30">
+                <td colSpan={8} className="py-12 text-center text-[11px] text-[#111111]/30">
                   Sin resultados para &ldquo;{query}&rdquo;
                 </td>
               </tr>
@@ -552,20 +535,6 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                   </td>
                   <td className="py-3.5 px-4 text-right font-medium text-sm">
                     {formatPEN(Number(product.price))}
-                  </td>
-                  <td className="py-3.5 px-4 text-right">
-                    <span
-                      className={cn(
-                        "text-sm font-medium",
-                        product.stock === 0
-                          ? "text-red-500"
-                          : product.stock < 5
-                          ? "text-amber-600"
-                          : "text-[#111111]/70"
-                      )}
-                    >
-                      {product.stock}
-                    </span>
                   </td>
                   {/* Stock Tienda POS */}
                   <td className="py-3.5 px-4 text-right">
