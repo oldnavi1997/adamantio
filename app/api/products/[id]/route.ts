@@ -58,6 +58,15 @@ export async function PUT(
     });
 
     indexProduct(product).catch(console.error);
+
+    if (data.stock !== undefined && product.sku) {
+      prisma.$executeRaw`
+        UPDATE pos."Product"
+        SET stock = ${data.stock}, "updatedAt" = now()
+        WHERE sku = ${product.sku}
+      `.catch(console.error);
+    }
+
     return NextResponse.json(product);
   } catch (error) {
     if (error instanceof z.ZodError) {
