@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { Prisma } from "@/app/generated/prisma/client";
+import { indexProduct, deleteFromIndex } from "@/lib/algolia-sync";
 
 export async function GET(
   _request: NextRequest,
@@ -56,6 +57,7 @@ export async function PUT(
       },
     });
 
+    indexProduct(product).catch(console.error);
     return NextResponse.json(product);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -76,6 +78,7 @@ export async function DELETE(
   }
 
   const { id } = await params;
+  await deleteFromIndex(id).catch(console.error);
   await prisma.product.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

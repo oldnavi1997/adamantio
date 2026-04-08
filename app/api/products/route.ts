@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { Prisma } from "@/app/generated/prisma/client";
+import { indexProduct } from "@/lib/algolia-sync";
 
 const productCreateSchema = z.object({
   name: z.string().min(2),
@@ -86,6 +87,8 @@ export async function POST(request: NextRequest) {
         price: new Prisma.Decimal(data.price),
       },
     });
+
+    indexProduct(product).catch(console.error);
 
     // Reflejar en POS si tiene SKU
     if (product.sku) {
