@@ -105,6 +105,21 @@ export async function POST(request: NextRequest) {
 
     if (paymentStatus === "APPROVED") {
       sendOrderConfirmation(order.id).catch(console.error);
+
+      // Decrementar stock en POS
+      const orderItems = await prisma.orderItem.findMany({
+        where: { orderId: order.id },
+        include: { product: { select: { sku: true } } },
+      });
+      for (const item of orderItems) {
+        if (item.product?.sku) {
+          await prisma.$executeRaw`
+            UPDATE pos."Product"
+            SET stock = GREATEST(0, stock - ${item.quantity})
+            WHERE sku = ${item.product.sku}
+          `;
+        }
+      }
     }
 
     return NextResponse.json({
