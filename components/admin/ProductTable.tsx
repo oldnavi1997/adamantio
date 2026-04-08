@@ -540,16 +540,16 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                   <td className="py-3.5 px-4 text-right">
                     {product.sku && posStock[product.sku] ? (() => {
                       const p = posStock[product.sku];
-                      const hasGenero = p.stockHombre > 0 || p.stockMujer > 0;
+                      const total = p.stockHombre + p.stockMujer;
                       return (
                         <div className="text-right">
                           <span className={cn(
                             "text-sm font-medium",
-                            p.stock === 0 ? "text-red-500" : p.stock < 5 ? "text-amber-600" : "text-[#111111]/70"
+                            total === 0 ? "text-red-500" : total < 5 ? "text-amber-600" : "text-[#111111]/70"
                           )}>
-                            {p.stock}
+                            {total}
                           </span>
-                          {hasGenero && (
+                          {total > 0 && (
                             <p className="text-[10px] text-[#111111]/35 leading-tight">
                               H:{p.stockHombre} / M:{p.stockMujer}
                             </p>
@@ -562,16 +562,16 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                   <td className="py-3.5 px-4 text-right">
                     {product.sku && posStock[product.sku] ? (() => {
                       const p = posStock[product.sku];
-                      const hasGenero = p.stockAlmacenHombre > 0 || p.stockAlmacenMujer > 0;
+                      const total = p.stockAlmacenHombre + p.stockAlmacenMujer;
                       return (
                         <div className="text-right">
                           <span className={cn(
                             "text-sm font-medium",
-                            p.stockAlmacen === 0 ? "text-[#111111]/30" : "text-[#111111]/70"
+                            total === 0 ? "text-[#111111]/30" : "text-[#111111]/70"
                           )}>
-                            {p.stockAlmacen}
+                            {total}
                           </span>
-                          {hasGenero && (
+                          {total > 0 && (
                             <p className="text-[10px] text-[#111111]/35 leading-tight">
                               H:{p.stockAlmacenHombre} / M:{p.stockAlmacenMujer}
                             </p>
