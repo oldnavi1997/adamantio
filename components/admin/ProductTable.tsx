@@ -10,6 +10,7 @@ import { ProductWithCategory } from "@/types";
 import { formatPEN, getPrimaryCategory } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Category } from "@/app/generated/prisma/client";
+import { PosStockData } from "@/app/admin/productos/page";
 
 type SortCol = "name" | "price" | "stock";
 type SortDir = "asc" | "desc";
@@ -17,6 +18,7 @@ type SortDir = "asc" | "desc";
 interface ProductTableProps {
   products: ProductWithCategory[];
   categories?: Category[];
+  posStock?: Record<string, PosStockData>;
 }
 
 function sortedCategories(cats: Category[]): { cat: Category; depth: number }[] {
@@ -39,7 +41,7 @@ function sortedCategories(cats: Category[]): { cat: Category; depth: number }[] 
   return result;
 }
 
-export function ProductTable({ products, categories = [] }: ProductTableProps) {
+export function ProductTable({ products, categories = [], posStock = {} }: ProductTableProps) {
   const router = useRouter();
   const orderedCategories = sortedCategories(categories);
   const indent = (depth: number) => (depth > 0 ? "\u00a0".repeat(depth * 2) + "↳ " : "");
@@ -445,6 +447,20 @@ export function ProductTable({ products, categories = [] }: ProductTableProps) {
                 </button>
               </th>
 
+              {/* Stock Tienda POS */}
+              <th className="text-right py-3 px-4">
+                <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-[#111111]/40">
+                  Tienda
+                </span>
+              </th>
+
+              {/* Stock Almacén POS */}
+              <th className="text-right py-3 px-4">
+                <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-[#111111]/40">
+                  Almacén
+                </span>
+              </th>
+
               {/* Estado — dropdown filter */}
               <th className="text-center py-3 px-4 relative" ref={statusRef}>
                 <button
@@ -485,7 +501,7 @@ export function ProductTable({ products, categories = [] }: ProductTableProps) {
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-[11px] text-[#111111]/30">
+                <td colSpan={9} className="py-12 text-center text-[11px] text-[#111111]/30">
                   Sin resultados para &ldquo;{query}&rdquo;
                 </td>
               </tr>
@@ -550,6 +566,50 @@ export function ProductTable({ products, categories = [] }: ProductTableProps) {
                     >
                       {product.stock}
                     </span>
+                  </td>
+                  {/* Stock Tienda POS */}
+                  <td className="py-3.5 px-4 text-right">
+                    {product.sku && posStock[product.sku] ? (() => {
+                      const p = posStock[product.sku];
+                      const hasGenero = p.stockHombre > 0 || p.stockMujer > 0;
+                      return (
+                        <div className="text-right">
+                          <span className={cn(
+                            "text-sm font-medium",
+                            p.stock === 0 ? "text-red-500" : p.stock < 5 ? "text-amber-600" : "text-[#111111]/70"
+                          )}>
+                            {p.stock}
+                          </span>
+                          {hasGenero && (
+                            <p className="text-[10px] text-[#111111]/35 leading-tight">
+                              H:{p.stockHombre} / M:{p.stockMujer}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })() : <span className="text-[#111111]/20 text-sm">—</span>}
+                  </td>
+                  {/* Stock Almacén POS */}
+                  <td className="py-3.5 px-4 text-right">
+                    {product.sku && posStock[product.sku] ? (() => {
+                      const p = posStock[product.sku];
+                      const hasGenero = p.stockAlmacenHombre > 0 || p.stockAlmacenMujer > 0;
+                      return (
+                        <div className="text-right">
+                          <span className={cn(
+                            "text-sm font-medium",
+                            p.stockAlmacen === 0 ? "text-[#111111]/30" : "text-[#111111]/70"
+                          )}>
+                            {p.stockAlmacen}
+                          </span>
+                          {hasGenero && (
+                            <p className="text-[10px] text-[#111111]/35 leading-tight">
+                              H:{p.stockAlmacenHombre} / M:{p.stockAlmacenMujer}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })() : <span className="text-[#111111]/20 text-sm">—</span>}
                   </td>
                   <td className="py-3.5 px-4 text-center">
                     <Badge variant={product.isActive ? "success" : "default"}>

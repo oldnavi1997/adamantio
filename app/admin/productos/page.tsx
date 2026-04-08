@@ -6,13 +6,44 @@ import { Button } from "@/components/ui/Button";
 
 export const metadata = { title: "Productos | Admin" };
 
+export type PosStockData = {
+  stock: number;
+  stockHombre: number;
+  stockMujer: number;
+  stockAlmacen: number;
+  stockAlmacenHombre: number;
+  stockAlmacenMujer: number;
+};
+
 export default async function AdminProductsPage() {
-  const [raw, categories] = await Promise.all([
-    prisma.product.findMany({
-      orderBy: { createdAt: "desc" },
-    }),
+  const [raw, categories, posRows] = await Promise.all([
+    prisma.product.findMany({ orderBy: { createdAt: "desc" } }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.$queryRaw<Array<{ sku: string } & PosStockData>>`
+      SELECT sku,
+        stock::int,
+        "stockHombre"::int        AS "stockHombre",
+        "stockMujer"::int         AS "stockMujer",
+        "stockAlmacen"::int       AS "stockAlmacen",
+        "stockAlmacenHombre"::int AS "stockAlmacenHombre",
+        "stockAlmacenMujer"::int  AS "stockAlmacenMujer"
+      FROM pos."Product"
+      WHERE sku IS NOT NULL
+    `,
   ]);
+
+  const posStock: Record<string, PosStockData> = {};
+  for (const r of posRows) {
+    posStock[r.sku] = {
+      stock: Number(r.stock),
+      stockHombre: Number(r.stockHombre),
+      stockMujer: Number(r.stockMujer),
+      stockAlmacen: Number(r.stockAlmacen),
+      stockAlmacenHombre: Number(r.stockAlmacenHombre),
+      stockAlmacenMujer: Number(r.stockAlmacenMujer),
+    };
+  }
+
   const products = JSON.parse(JSON.stringify(raw));
 
   return (
@@ -37,7 +68,7 @@ export default async function AdminProductsPage() {
         </Link>
       </div>
       <div className="bg-white border border-[#111111]/6">
-        <ProductTable products={products} categories={categories} />
+        <ProductTable products={products} categories={categories} posStock={posStock} />
       </div>
     </div>
   );
