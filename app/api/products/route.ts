@@ -87,6 +87,43 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Reflejar en POS si tiene SKU
+    if (product.sku) {
+      const categoriaMap: Record<string, string> = {
+        anillo: "ANILLO", anillos: "ANILLO",
+        collar: "COLLAR", collares: "COLLAR",
+        pulsera: "PULSERA", pulseras: "PULSERA",
+        arete: "ARETE", aretes: "ARETE",
+      };
+      const catKey = (product.category ?? "").toLowerCase().split(" ")[0];
+      const categoria = categoriaMap[catKey] ?? "OTRO";
+
+      await prisma.$executeRaw`
+        INSERT INTO pos."Product" (
+          id, name, sku, categoria, material,
+          "precioCosto", "precioVenta",
+          "precioVentaHombre", "precioVentaMujer", "precioVentaPareja",
+          stock, "stockMinimo",
+          "stockHombre", "stockMujer", "stockAlmacen",
+          "stockAlmacenHombre", "stockAlmacenMujer",
+          genero, descripcion, "imagenUrl",
+          "createdAt", "updatedAt"
+        ) VALUES (
+          gen_random_uuid()::text, ${product.name}, ${product.sku},
+          ${categoria}::pos."Categoria", 'OTRO'::pos."Material",
+          ${data.price}, ${data.price},
+          ${data.price}, ${data.price}, ${data.price},
+          ${product.stock}, 5,
+          0, 0, 0, 0, 0,
+          ARRAY['UNISEX']::pos."Genero"[],
+          ${product.description?.slice(0, 500) ?? null},
+          ${product.imageUrl ?? null},
+          now(), now()
+        )
+        ON CONFLICT (sku) DO NOTHING
+      `;
+    }
+
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
