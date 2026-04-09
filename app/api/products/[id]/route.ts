@@ -67,6 +67,11 @@ export async function PUT(
     const hasPosStock = data.stockHombre !== undefined || data.stockMujer !== undefined
       || data.stockAlmacenH !== undefined || data.stockAlmacenM !== undefined;
     if (hasPosStock && product.sku) {
+      const generoSQL = data.esPar !== undefined
+        ? (data.esPar
+            ? Prisma.sql`ARRAY['HOMBRE','MUJER']::pos."Genero"[]`
+            : Prisma.sql`ARRAY['UNISEX']::pos."Genero"[]`)
+        : Prisma.sql`genero`;
       prisma.$executeRaw`
         UPDATE pos."Product" SET
           "stockHombre"        = COALESCE(${data.stockHombre ?? null}::int, "stockHombre"),
@@ -74,6 +79,7 @@ export async function PUT(
           "stockAlmacenHombre" = COALESCE(${data.stockAlmacenH ?? null}::int, "stockAlmacenHombre"),
           "stockAlmacenMujer"  = COALESCE(${data.stockAlmacenM ?? null}::int, "stockAlmacenMujer"),
           "esPar"              = COALESCE(${data.esPar ?? null}::boolean, "esPar"),
+          genero               = ${generoSQL},
           "updatedAt" = now()
         WHERE sku = ${product.sku}
       `.catch(console.error);

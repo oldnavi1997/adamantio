@@ -105,6 +105,9 @@ export async function POST(request: NextRequest) {
       };
       const catKey = (product.category ?? "").toLowerCase().split(" ")[0];
       const categoria = categoriaMap[catKey] ?? "OTRO";
+      const generoSQL = data.esPar
+        ? Prisma.sql`ARRAY['HOMBRE','MUJER']::pos."Genero"[]`
+        : Prisma.sql`ARRAY['UNISEX']::pos."Genero"[]`;
 
       await prisma.$executeRaw`
         INSERT INTO pos."Product" (
@@ -126,7 +129,7 @@ export async function POST(request: NextRequest) {
           ${data.stockHombre}, ${data.stockMujer}, ${data.stockHombre + data.stockMujer},
           ${data.stockAlmacenH}, ${data.stockAlmacenM},
           ${data.esPar},
-          ARRAY['UNISEX']::pos."Genero"[],
+          ${generoSQL},
           ${product.description?.slice(0, 500) ?? null},
           ${product.imageUrl ?? null},
           now(), now()
