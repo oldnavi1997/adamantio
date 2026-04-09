@@ -76,7 +76,10 @@ const productSchema = z.object({
   sku: z.string().optional(),
   description: z.string().optional(),
   price: z.string().min(1, "Precio requerido"),
-  stock: z.string(),
+  stockHombre: z.string().default("0"),
+  stockMujer: z.string().default("0"),
+  stockAlmacenH: z.string().default("0"),
+  stockAlmacenM: z.string().default("0"),
   category: z.string().optional(),
   productDetails: z.string().optional(),
   sizeInfo: z.string().optional(),
@@ -88,12 +91,20 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
+interface PosStock {
+  stockHombre: number;
+  stockMujer: number;
+  stockAlmacenHombre: number;
+  stockAlmacenMujer: number;
+}
+
 interface ProductFormProps {
   categories: Category[];
   product?: ProductWithCategory;
+  posStock?: PosStock | null;
 }
 
-export function ProductForm({ categories, product }: ProductFormProps) {
+export function ProductForm({ categories, product, posStock }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>(product?.imageUrls ?? (product?.imageUrl ? [product.imageUrl] : []));
@@ -116,7 +127,10 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           sku: product.sku || "",
           description: product.description || "",
           price: product.price.toString(),
-          stock: product.stock.toString(),
+          stockHombre: String(posStock?.stockHombre ?? 0),
+          stockMujer: String(posStock?.stockMujer ?? 0),
+          stockAlmacenH: String(posStock?.stockAlmacenHombre ?? 0),
+          stockAlmacenM: String(posStock?.stockAlmacenMujer ?? 0),
           category: product.category || "",
           productDetails: product.productDetails || "",
           sizeInfo: product.sizeInfo || "",
@@ -125,7 +139,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           freeShipping: product.freeShipping,
           testMode: product.testMode,
         }
-      : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, stock: "0", sku: "" },
+      : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, stockHombre: "0", stockMujer: "0", stockAlmacenH: "0", stockAlmacenM: "0", sku: "" },
   });
 
   const sensors = useSensors(useSensor(PointerSensor));
@@ -167,7 +181,11 @@ export function ProductForm({ categories, product }: ProductFormProps) {
         ...data,
         sku: data.sku?.trim() || null,
         price: parseFloat(data.price),
-        stock: parseInt(data.stock),
+        stock: parseInt(data.stockHombre) + parseInt(data.stockMujer) + parseInt(data.stockAlmacenH) + parseInt(data.stockAlmacenM),
+        stockHombre: parseInt(data.stockHombre),
+        stockMujer: parseInt(data.stockMujer),
+        stockAlmacenH: parseInt(data.stockAlmacenH),
+        stockAlmacenM: parseInt(data.stockAlmacenM),
         imageUrls: images,
         imageUrl: images[0] ?? null,
         contentImages,
@@ -276,20 +294,28 @@ export function ProductForm({ categories, product }: ProductFormProps) {
       {/* Precio y stock */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
         <h2 className="font-semibold text-[#111111]">Precio y stock</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            label="Precio (PEN) *"
-            type="number"
-            step="0.01"
-            error={errors.price?.message}
-            {...register("price")}
-          />
-          <Input
-            label="Stock"
-            type="number"
-            error={errors.stock?.message}
-            {...register("stock")}
-          />
+        <Input
+          label="Precio (PEN) *"
+          type="number"
+          step="0.01"
+          error={errors.price?.message}
+          {...register("price")}
+        />
+        <div className="space-y-3">
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Tienda física</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Hombre" type="number" min="0" {...register("stockHombre")} />
+              <Input label="Mujer" type="number" min="0" {...register("stockMujer")} />
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Almacén</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Hombre" type="number" min="0" {...register("stockAlmacenH")} />
+              <Input label="Mujer" type="number" min="0" {...register("stockAlmacenM")} />
+            </div>
+          </div>
         </div>
       </div>
 

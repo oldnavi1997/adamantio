@@ -33,6 +33,10 @@ const updateSchema = z.object({
   engravingEnabled: z.boolean().optional(),
   freeShipping: z.boolean().optional(),
   testMode: z.boolean().optional(),
+  stockHombre: z.number().int().min(0).optional(),
+  stockMujer: z.number().int().min(0).optional(),
+  stockAlmacenH: z.number().int().min(0).optional(),
+  stockAlmacenM: z.number().int().min(0).optional(),
 });
 
 export async function PUT(
@@ -59,10 +63,16 @@ export async function PUT(
 
     indexProduct(product).catch(console.error);
 
-    if (data.stock !== undefined && product.sku) {
+    const hasPosStock = data.stockHombre !== undefined || data.stockMujer !== undefined
+      || data.stockAlmacenH !== undefined || data.stockAlmacenM !== undefined;
+    if (hasPosStock && product.sku) {
       prisma.$executeRaw`
-        UPDATE pos."Product"
-        SET stock = ${data.stock}, "updatedAt" = now()
+        UPDATE pos."Product" SET
+          "stockHombre"        = COALESCE(${data.stockHombre ?? null}::int, "stockHombre"),
+          "stockMujer"         = COALESCE(${data.stockMujer ?? null}::int, "stockMujer"),
+          "stockAlmacenHombre" = COALESCE(${data.stockAlmacenH ?? null}::int, "stockAlmacenHombre"),
+          "stockAlmacenMujer"  = COALESCE(${data.stockAlmacenM ?? null}::int, "stockAlmacenMujer"),
+          "updatedAt" = now()
         WHERE sku = ${product.sku}
       `.catch(console.error);
     }
