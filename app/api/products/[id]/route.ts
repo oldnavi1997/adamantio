@@ -54,10 +54,12 @@ export async function PUT(
     const body = await request.json();
     const data = updateSchema.parse(body);
 
+    const { stockHombre, stockMujer, stockAlmacenH, stockAlmacenM, ...prismaData } = data;
+
     const product = await prisma.product.update({
       where: { id },
       data: {
-        ...data,
+        ...prismaData,
         ...(data.price !== undefined && { price: new Prisma.Decimal(data.price) }),
       },
     });

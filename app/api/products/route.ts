@@ -86,9 +86,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = productCreateSchema.parse(body);
 
+    const { stockHombre, stockMujer, stockAlmacenH, stockAlmacenM, ...prismaData } = data;
+
     const product = await prisma.product.create({
       data: {
-        ...data,
+        ...prismaData,
         price: new Prisma.Decimal(data.price),
       },
     });
