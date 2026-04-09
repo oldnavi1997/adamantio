@@ -37,6 +37,7 @@ const updateSchema = z.object({
   stockMujer: z.number().int().min(0).optional(),
   stockAlmacenH: z.number().int().min(0).optional(),
   stockAlmacenM: z.number().int().min(0).optional(),
+  esPar: z.boolean().optional(),
 });
 
 export async function PUT(
@@ -72,6 +73,7 @@ export async function PUT(
           "stockMujer"         = COALESCE(${data.stockMujer ?? null}::int, "stockMujer"),
           "stockAlmacenHombre" = COALESCE(${data.stockAlmacenH ?? null}::int, "stockAlmacenHombre"),
           "stockAlmacenMujer"  = COALESCE(${data.stockAlmacenM ?? null}::int, "stockAlmacenMujer"),
+          "esPar"              = COALESCE(${data.esPar ?? null}::boolean, "esPar"),
           "updatedAt" = now()
         WHERE sku = ${product.sku}
       `.catch(console.error);

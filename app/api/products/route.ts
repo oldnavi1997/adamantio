@@ -27,6 +27,7 @@ const productCreateSchema = z.object({
   engravingEnabled: z.boolean().default(false),
   freeShipping: z.boolean().default(false),
   testMode: z.boolean().default(false),
+  esPar: z.boolean().default(false),
 });
 
 export async function GET(request: NextRequest) {
@@ -113,6 +114,7 @@ export async function POST(request: NextRequest) {
           stock, "stockMinimo",
           "stockHombre", "stockMujer", "stockAlmacen",
           "stockAlmacenHombre", "stockAlmacenMujer",
+          "esPar",
           genero, descripcion, "imagenUrl",
           "createdAt", "updatedAt"
         ) VALUES (
@@ -123,6 +125,7 @@ export async function POST(request: NextRequest) {
           ${product.stock}, 5,
           ${data.stockHombre}, ${data.stockMujer}, ${data.stockHombre + data.stockMujer},
           ${data.stockAlmacenH}, ${data.stockAlmacenM},
+          ${data.esPar},
           ARRAY['UNISEX']::pos."Genero"[],
           ${product.description?.slice(0, 500) ?? null},
           ${product.imageUrl ?? null},

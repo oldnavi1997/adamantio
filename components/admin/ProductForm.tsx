@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -76,10 +76,10 @@ const productSchema = z.object({
   sku: z.string().optional(),
   description: z.string().optional(),
   price: z.string().min(1, "Precio requerido"),
-  stockHombre: z.string().default("0"),
-  stockMujer: z.string().default("0"),
-  stockAlmacenH: z.string().default("0"),
-  stockAlmacenM: z.string().default("0"),
+  stockHombre: z.string(),
+  stockMujer: z.string(),
+  stockAlmacenH: z.string(),
+  stockAlmacenM: z.string(),
   category: z.string().optional(),
   productDetails: z.string().optional(),
   sizeInfo: z.string().optional(),
@@ -87,6 +87,7 @@ const productSchema = z.object({
   engravingEnabled: z.boolean(),
   freeShipping: z.boolean(),
   testMode: z.boolean(),
+  esPar: z.boolean(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -118,6 +119,7 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -127,9 +129,13 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           sku: product.sku || "",
           description: product.description || "",
           price: product.price.toString(),
-          stockHombre: String(posStock?.stockHombre ?? 0),
+          stockHombre: product.esPar
+            ? String(posStock?.stockHombre ?? 0)
+            : String((posStock?.stockHombre ?? 0) + (posStock?.stockMujer ?? 0)),
           stockMujer: String(posStock?.stockMujer ?? 0),
-          stockAlmacenH: String(posStock?.stockAlmacenHombre ?? 0),
+          stockAlmacenH: product.esPar
+            ? String(posStock?.stockAlmacenHombre ?? 0)
+            : String((posStock?.stockAlmacenHombre ?? 0) + (posStock?.stockAlmacenMujer ?? 0)),
           stockAlmacenM: String(posStock?.stockAlmacenMujer ?? 0),
           category: product.category || "",
           productDetails: product.productDetails || "",
@@ -138,9 +144,33 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           engravingEnabled: product.engravingEnabled,
           freeShipping: product.freeShipping,
           testMode: product.testMode,
+          esPar: product.esPar,
         }
-      : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, stockHombre: "0", stockMujer: "0", stockAlmacenH: "0", stockAlmacenM: "0", sku: "" },
+      : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, esPar: false, stockHombre: "0", stockMujer: "0", stockAlmacenH: "0", stockAlmacenM: "0", sku: "" },
   });
+
+  const esPar = watch("esPar");
+  const prevEsParRef = useRef(esPar);
+
+  useEffect(() => {
+    if (prevEsParRef.current === esPar) return;
+    prevEsParRef.current = esPar;
+
+    const sH  = parseInt(watch("stockHombre"))  || 0;
+    const sM  = parseInt(watch("stockMujer"))   || 0;
+    const sAH = parseInt(watch("stockAlmacenH")) || 0;
+    const sAM = parseInt(watch("stockAlmacenM")) || 0;
+
+    if (!esPar) {
+      setValue("stockHombre",  String(sH + sM));
+      setValue("stockMujer",   "0");
+      setValue("stockAlmacenH", String(sAH + sAM));
+      setValue("stockAlmacenM", "0");
+    } else {
+      setValue("stockMujer",   "0");
+      setValue("stockAlmacenM", "0");
+    }
+  }, [esPar]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -177,15 +207,19 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
   const onSubmit = async (data: ProductFormData) => {
     setLoading(true);
     try {
+      const sH = parseInt(data.stockHombre) || 0;
+      const sM = data.esPar ? (parseInt(data.stockMujer) || 0) : 0;
+      const sAH = parseInt(data.stockAlmacenH) || 0;
+      const sAM = data.esPar ? (parseInt(data.stockAlmacenM) || 0) : 0;
       const body = {
         ...data,
         sku: data.sku?.trim() || null,
         price: parseFloat(data.price),
-        stock: parseInt(data.stockHombre) + parseInt(data.stockMujer) + parseInt(data.stockAlmacenH) + parseInt(data.stockAlmacenM),
-        stockHombre: parseInt(data.stockHombre),
-        stockMujer: parseInt(data.stockMujer),
-        stockAlmacenH: parseInt(data.stockAlmacenH),
-        stockAlmacenM: parseInt(data.stockAlmacenM),
+        stock: sH + sM + sAH + sAM,
+        stockHombre: sH,
+        stockMujer: sM,
+        stockAlmacenH: sAH,
+        stockAlmacenM: sAM,
         imageUrls: images,
         imageUrl: images[0] ?? null,
         contentImages,
@@ -293,7 +327,13 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
 
       {/* Precio y stock */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-        <h2 className="font-semibold text-[#111111]">Precio y stock</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold text-[#111111]">Precio y stock</h2>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" {...register("esPar")} className="accent-[#111111]" />
+            <span className="text-sm text-gray-600">Venta por par (H/M)</span>
+          </label>
+        </div>
         <Input
           label="Precio (PEN) *"
           type="number"
@@ -301,22 +341,29 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           error={errors.price?.message}
           {...register("price")}
         />
-        <div className="space-y-3">
-          <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">Tienda física</p>
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Hombre" type="number" min="0" {...register("stockHombre")} />
-              <Input label="Mujer" type="number" min="0" {...register("stockMujer")} />
+        {esPar ? (
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Tienda física</p>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Hombre" type="number" min="0" {...register("stockHombre")} />
+                <Input label="Mujer" type="number" min="0" {...register("stockMujer")} />
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Almacén</p>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Hombre" type="number" min="0" {...register("stockAlmacenH")} />
+                <Input label="Mujer" type="number" min="0" {...register("stockAlmacenM")} />
+              </div>
             </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">Almacén</p>
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Hombre" type="number" min="0" {...register("stockAlmacenH")} />
-              <Input label="Mujer" type="number" min="0" {...register("stockAlmacenM")} />
-            </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Tienda" type="number" min="0" {...register("stockHombre")} />
+            <Input label="Almacén" type="number" min="0" {...register("stockAlmacenH")} />
           </div>
-        </div>
+        )}
       </div>
 
       {/* Tallas */}

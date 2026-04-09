@@ -549,7 +549,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                           )}>
                             {total}
                           </span>
-                          {total > 0 && (
+                          {product.esPar && total > 0 && (
                             <p className="text-[10px] text-[#111111]/35 leading-tight">
                               H:{p.stockHombre} / M:{p.stockMujer}
                             </p>
@@ -571,7 +571,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                           )}>
                             {total}
                           </span>
-                          {total > 0 && (
+                          {product.esPar && total > 0 && (
                             <p className="text-[10px] text-[#111111]/35 leading-tight">
                               H:{p.stockAlmacenHombre} / M:{p.stockAlmacenMujer}
                             </p>

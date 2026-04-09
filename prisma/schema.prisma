@@ -66,6 +66,7 @@ model Product {
   engravingEnabled Boolean     @default(false)
   freeShipping     Boolean     @default(false)
   testMode         Boolean     @default(false)
+  esPar            Boolean     @default(false)
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   orderItems       OrderItem[]

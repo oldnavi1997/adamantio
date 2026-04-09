@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Product" ADD COLUMN "esPar" BOOLEAN NOT NULL DEFAULT false;
