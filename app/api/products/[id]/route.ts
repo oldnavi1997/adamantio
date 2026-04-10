@@ -62,6 +62,17 @@ export async function PUT(
 
     const { stockAlmacenH, stockAlmacenM, ...prismaData } = data;
 
+    const existing = await prisma.product.findUnique({
+      where: { id },
+      select: { stockHombre: true, stockMujer: true, stockAlmacenHombre: true, stockAlmacenMujer: true },
+    });
+
+    const newStockHombre = data.stockHombre ?? existing?.stockHombre ?? 0;
+    const newStockMujer  = data.stockMujer  ?? existing?.stockMujer  ?? 0;
+    const newAlmacenH    = stockAlmacenH    ?? existing?.stockAlmacenHombre ?? 0;
+    const newAlmacenM    = stockAlmacenM    ?? existing?.stockAlmacenMujer  ?? 0;
+    const newStock = newStockHombre + newStockMujer + newAlmacenH + newAlmacenM;
+
     const product = await prisma.product.update({
       where: { id },
       data: {
@@ -73,6 +84,7 @@ export async function PUT(
         ...(stockAlmacenM !== undefined && { stockAlmacenMujer: stockAlmacenM }),
         ...(stockAlmacenH !== undefined && { stockAlmacen: (stockAlmacenH ?? 0) + (stockAlmacenM ?? 0) }),
         ...(data.esPar !== undefined && { genero: data.esPar ? ["HOMBRE", "MUJER"] : ["UNISEX"] }),
+        stock: newStock,
       },
     });
 

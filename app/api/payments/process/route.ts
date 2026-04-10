@@ -139,6 +139,7 @@ export async function POST(request: NextRequest) {
               stockAlmacenHombre: Math.max(0, posProduct.stockAlmacenHombre - qty),
               ...(posProduct.esPar && { stockAlmacenMujer: Math.max(0, posProduct.stockAlmacenMujer - qty) }),
               stockAlmacen: Math.max(0, posProduct.stockAlmacen - (posProduct.esPar ? qty * 2 : qty)),
+              stock: Math.max(0, posProduct.stock - (posProduct.esPar ? qty * 2 : qty)),
             },
           });
           source = "ALMACÉN";
