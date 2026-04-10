@@ -38,6 +38,12 @@ const updateSchema = z.object({
   stockAlmacenH: z.number().int().min(0).optional(),
   stockAlmacenM: z.number().int().min(0).optional(),
   esPar: z.boolean().optional(),
+  categoria: z.enum(["ANILLO", "COLLAR", "PULSERA", "ARETE", "OTRO"]).optional().nullable(),
+  precioCosto: z.number().min(0).optional().nullable(),
+  stockMinimo: z.number().int().min(0).optional(),
+  precioVentaHombre: z.number().min(0).optional(),
+  precioVentaMujer: z.number().min(0).optional(),
+  precioVentaPareja: z.number().min(0).optional(),
 });
 
 export async function PUT(
@@ -54,38 +60,23 @@ export async function PUT(
     const body = await request.json();
     const data = updateSchema.parse(body);
 
-    const { stockHombre, stockMujer, stockAlmacenH, stockAlmacenM, ...prismaData } = data;
+    const { stockAlmacenH, stockAlmacenM, ...prismaData } = data;
 
     const product = await prisma.product.update({
       where: { id },
       data: {
         ...prismaData,
         ...(data.price !== undefined && { price: new Prisma.Decimal(data.price) }),
+        ...(data.stockHombre !== undefined && { stockHombre: data.stockHombre }),
+        ...(data.stockMujer !== undefined && { stockMujer: data.stockMujer }),
+        ...(stockAlmacenH !== undefined && { stockAlmacenHombre: stockAlmacenH }),
+        ...(stockAlmacenM !== undefined && { stockAlmacenMujer: stockAlmacenM }),
+        ...(stockAlmacenH !== undefined && { stockAlmacen: (stockAlmacenH ?? 0) + (stockAlmacenM ?? 0) }),
+        ...(data.esPar !== undefined && { genero: data.esPar ? ["HOMBRE", "MUJER"] : ["UNISEX"] }),
       },
     });
 
     indexProduct(product).catch(console.error);
-
-    const hasPosStock = data.stockHombre !== undefined || data.stockMujer !== undefined
-      || data.stockAlmacenH !== undefined || data.stockAlmacenM !== undefined;
-    if (hasPosStock && product.sku) {
-      const generoSQL = data.esPar !== undefined
-        ? (data.esPar
-            ? Prisma.sql`ARRAY['HOMBRE','MUJER']::pos."Genero"[]`
-            : Prisma.sql`ARRAY['UNISEX']::pos."Genero"[]`)
-        : Prisma.sql`genero`;
-      prisma.$executeRaw`
-        UPDATE pos."Product" SET
-          "stockHombre"        = COALESCE(${data.stockHombre ?? null}::int, "stockHombre"),
-          "stockMujer"         = COALESCE(${data.stockMujer ?? null}::int, "stockMujer"),
-          "stockAlmacenHombre" = COALESCE(${data.stockAlmacenH ?? null}::int, "stockAlmacenHombre"),
-          "stockAlmacenMujer"  = COALESCE(${data.stockAlmacenM ?? null}::int, "stockAlmacenMujer"),
-          "esPar"              = COALESCE(${data.esPar ?? null}::boolean, "esPar"),
-          genero               = ${generoSQL},
-          "updatedAt" = now()
-        WHERE sku = ${product.sku}
-      `.catch(console.error);
-    }
 
     return NextResponse.json(product);
   } catch (error) {

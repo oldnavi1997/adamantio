@@ -28,6 +28,12 @@ const productCreateSchema = z.object({
   freeShipping: z.boolean().default(false),
   testMode: z.boolean().default(false),
   esPar: z.boolean().default(false),
+  categoria: z.enum(["ANILLO", "COLLAR", "PULSERA", "ARETE", "OTRO"]).optional().nullable(),
+  precioCosto: z.number().min(0).optional().nullable(),
+  stockMinimo: z.number().int().min(0).default(5),
+  precioVentaHombre: z.number().min(0).default(0),
+  precioVentaMujer: z.number().min(0).default(0),
+  precioVentaPareja: z.number().min(0).default(0),
 });
 
 export async function GET(request: NextRequest) {
@@ -86,59 +92,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = productCreateSchema.parse(body);
 
-    const { stockHombre, stockMujer, stockAlmacenH, stockAlmacenM, ...prismaData } = data;
+    const { stockAlmacenH, stockAlmacenM, ...prismaData } = data;
 
     const product = await prisma.product.create({
       data: {
         ...prismaData,
         price: new Prisma.Decimal(data.price),
+        stockAlmacenHombre: stockAlmacenH,
+        stockAlmacenMujer: stockAlmacenM,
+        stockAlmacen: stockAlmacenH + stockAlmacenM,
+        genero: data.esPar ? ["HOMBRE", "MUJER"] : ["UNISEX"],
       },
     });
 
     indexProduct(product).catch(console.error);
-
-    // Reflejar en POS si tiene SKU
-    if (product.sku) {
-      const categoriaMap: Record<string, string> = {
-        anillo: "ANILLO", anillos: "ANILLO",
-        collar: "COLLAR", collares: "COLLAR",
-        pulsera: "PULSERA", pulseras: "PULSERA",
-        arete: "ARETE", aretes: "ARETE",
-      };
-      const catKey = (product.category ?? "").toLowerCase().split(" ")[0];
-      const categoria = categoriaMap[catKey] ?? "OTRO";
-      const generoSQL = data.esPar
-        ? Prisma.sql`ARRAY['HOMBRE','MUJER']::pos."Genero"[]`
-        : Prisma.sql`ARRAY['UNISEX']::pos."Genero"[]`;
-
-      await prisma.$executeRaw`
-        INSERT INTO pos."Product" (
-          id, name, sku, categoria, material,
-          "precioCosto", "precioVenta",
-          "precioVentaHombre", "precioVentaMujer", "precioVentaPareja",
-          stock, "stockMinimo",
-          "stockHombre", "stockMujer", "stockAlmacen",
-          "stockAlmacenHombre", "stockAlmacenMujer",
-          "esPar",
-          genero, descripcion, "imagenUrl",
-          "createdAt", "updatedAt"
-        ) VALUES (
-          gen_random_uuid()::text, ${product.name}, ${product.sku},
-          ${categoria}::pos."Categoria", 'OTRO'::pos."Material",
-          ${data.price}, ${data.price},
-          ${data.price}, ${data.price}, ${data.price},
-          ${product.stock}, 5,
-          ${data.stockHombre}, ${data.stockMujer}, ${data.stockHombre + data.stockMujer},
-          ${data.stockAlmacenH}, ${data.stockAlmacenM},
-          ${data.esPar},
-          ${generoSQL},
-          ${product.description?.slice(0, 500) ?? null},
-          ${product.imageUrl ?? null},
-          now(), now()
-        )
-        ON CONFLICT (sku) DO NOTHING
-      `;
-    }
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

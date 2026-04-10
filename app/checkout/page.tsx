@@ -86,7 +86,7 @@ export default function CheckoutPage() {
     if (result.status === "approved" && orderId) {
       setStep("result"); // prevent the cart-empty useEffect from redirecting to /carrito
       clearCart();
-      router.push(`/pedido/confirmacion/${orderId}`);
+      router.push(`/pedido/confirmacion/${orderId}`);suve 
       return;
     }
     setPaymentResult(result);

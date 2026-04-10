@@ -88,6 +88,12 @@ const productSchema = z.object({
   freeShipping: z.boolean(),
   testMode: z.boolean(),
   esPar: z.boolean(),
+  // POS fields
+  precioCosto: z.string().optional(),
+  stockMinimo: z.string().optional(),
+  precioVentaHombre: z.string().optional(),
+  precioVentaMujer: z.string().optional(),
+  precioVentaPareja: z.string().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -145,6 +151,11 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           freeShipping: product.freeShipping,
           testMode: product.testMode,
           esPar: product.esPar,
+          precioCosto: String(product.precioCosto ?? ""),
+          stockMinimo: String(product.stockMinimo ?? "5"),
+          precioVentaHombre: String(product.precioVentaHombre ?? ""),
+          precioVentaMujer: String(product.precioVentaMujer ?? ""),
+          precioVentaPareja: String(product.precioVentaPareja ?? ""),
         }
       : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, esPar: false, stockHombre: "0", stockMujer: "0", stockAlmacenH: "0", stockAlmacenM: "0", sku: "" },
   });
@@ -224,6 +235,11 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
         imageUrl: images[0] ?? null,
         contentImages,
         sizes,
+        precioCosto: parseFloat(data.precioCosto || "0") || 0,
+        stockMinimo: parseInt(data.stockMinimo || "5") || 5,
+        precioVentaHombre: parseFloat(data.precioVentaHombre || "0") || 0,
+        precioVentaMujer: parseFloat(data.precioVentaMujer || "0") || 0,
+        precioVentaPareja: parseFloat(data.precioVentaPareja || "0") || 0,
       };
 
       const url = product ? `/api/products/${product.id}` : "/api/products";
@@ -362,6 +378,22 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           <div className="grid grid-cols-2 gap-3">
             <Input label="Tienda" type="number" min="0" {...register("stockHombre")} />
             <Input label="Almacén" type="number" min="0" {...register("stockAlmacenH")} />
+          </div>
+        )}
+      </div>
+
+      {/* POS */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <h2 className="font-semibold text-[#111111]">Punto de venta (POS)</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Precio costo (PEN)" type="number" step="0.01" min="0" {...register("precioCosto")} />
+          <Input label="Stock mínimo (alerta)" type="number" min="0" {...register("stockMinimo")} />
+        </div>
+        {esPar && (
+          <div className="grid grid-cols-3 gap-4">
+            <Input label="Precio venta ♂ Hombre" type="number" step="0.01" min="0" {...register("precioVentaHombre")} />
+            <Input label="Precio venta ♀ Dama" type="number" step="0.01" min="0" {...register("precioVentaMujer")} />
+            <Input label="Precio venta ♀♂ Pareja" type="number" step="0.01" min="0" {...register("precioVentaPareja")} />
           </div>
         )}
       </div>

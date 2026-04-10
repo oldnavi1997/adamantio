@@ -16,32 +16,23 @@ export type PosStockData = {
 };
 
 export default async function AdminProductsPage() {
-  const [raw, categories, posRows] = await Promise.all([
+  const [raw, categories] = await Promise.all([
     prisma.product.findMany({ orderBy: { createdAt: "desc" } }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
-    prisma.$queryRaw<Array<{ sku: string } & PosStockData>>`
-      SELECT sku,
-        stock::int,
-        "stockHombre"::int        AS "stockHombre",
-        "stockMujer"::int         AS "stockMujer",
-        "stockAlmacen"::int       AS "stockAlmacen",
-        "stockAlmacenHombre"::int AS "stockAlmacenHombre",
-        "stockAlmacenMujer"::int  AS "stockAlmacenMujer"
-      FROM pos."Product"
-      WHERE sku IS NOT NULL
-    `,
   ]);
 
   const posStock: Record<string, PosStockData> = {};
-  for (const r of posRows) {
-    posStock[r.sku] = {
-      stock: Number(r.stock),
-      stockHombre: Number(r.stockHombre),
-      stockMujer: Number(r.stockMujer),
-      stockAlmacen: Number(r.stockAlmacen),
-      stockAlmacenHombre: Number(r.stockAlmacenHombre),
-      stockAlmacenMujer: Number(r.stockAlmacenMujer),
-    };
+  for (const p of raw) {
+    if (p.sku) {
+      posStock[p.sku] = {
+        stock: p.stock,
+        stockHombre: p.stockHombre,
+        stockMujer: p.stockMujer,
+        stockAlmacen: p.stockAlmacen,
+        stockAlmacenHombre: p.stockAlmacenHombre,
+        stockAlmacenMujer: p.stockAlmacenMujer,
+      };
+    }
   }
 
   const products = JSON.parse(JSON.stringify(raw));

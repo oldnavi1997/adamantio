@@ -19,13 +19,12 @@ export default async function EditProductPage({
 
   if (!product) notFound();
 
-  const posStockRows = product.sku
-    ? await prisma.$queryRaw<PosStockRow[]>`
-        SELECT "stockHombre", "stockMujer", "stockAlmacenHombre", "stockAlmacenMujer"
-        FROM pos."Product" WHERE sku = ${product.sku}
-      `.catch(() => [] as PosStockRow[])
-    : [];
-  const posStock = posStockRows[0] ?? null;
+  const posStock: PosStockRow = {
+    stockHombre: product.stockHombre,
+    stockMujer: product.stockMujer,
+    stockAlmacenHombre: product.stockAlmacenHombre,
+    stockAlmacenMujer: product.stockAlmacenMujer,
+  };
 
   return (
     <div>

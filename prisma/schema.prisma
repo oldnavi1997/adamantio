@@ -13,13 +13,6 @@ enum UserRole {
   VENDEDOR
 }
 
-enum Material {
-  ORO
-  PLATA
-  ACERO
-  OTRO
-}
-
 enum Categoria {
   ANILLO
   COLLAR
@@ -102,7 +95,6 @@ model Product {
 
   // ─── Campos POS ───────────────────────────────────
   categoria          Categoria?
-  material           Material?
   genero             Genero[]    @default([])
   precioCosto        Float?
   precioVentaHombre  Float       @default(0)

@@ -15,7 +15,7 @@ const jost = Jost({
 
 export const metadata: Metadata = {
   title: {
-    default: "Adamantio – Joyería con estilo",
+    default: "Adamantio – Accesorios en Perú",
     template: "%s | Adamantio",
   },
   description: "Tu destino de confianza para joyería de calidad en Perú.",
