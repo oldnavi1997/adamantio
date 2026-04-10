@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
 
         const posProduct = await prisma.product.findUnique({
           where: { sku },
-          select: { id: true, esPar: true, stockHombre: true, stockMujer: true, stockAlmacenHombre: true, stockAlmacenMujer: true, stockAlmacen: true },
+          select: { id: true, esPar: true, stock: true, stockHombre: true, stockMujer: true, stockAlmacenHombre: true, stockAlmacenMujer: true, stockAlmacen: true },
         });
 
         if (!posProduct) continue;
