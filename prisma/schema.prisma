@@ -10,6 +10,36 @@ datasource db {
 enum UserRole {
   CUSTOMER
   ADMIN
+  VENDEDOR
+}
+
+enum Material {
+  ORO
+  PLATA
+  ACERO
+  OTRO
+}
+
+enum Categoria {
+  ANILLO
+  COLLAR
+  PULSERA
+  ARETE
+  OTRO
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TARJETA
+  TRANSFERENCIA
+  YAPE
+  PLIN
+}
+
+enum Genero {
+  HOMBRE
+  MUJER
+  UNISEX
 }
 
 enum OrderStatus {
@@ -37,6 +67,8 @@ model User {
   orders        Order[]
   addresses     Address[]
   refreshTokens RefreshToken[]
+  sales         Sale[]
+  stockEntries  StockEntry[]
 }
 
 model RefreshToken {
@@ -67,9 +99,27 @@ model Product {
   freeShipping     Boolean     @default(false)
   testMode         Boolean     @default(false)
   esPar            Boolean     @default(false)
+
+  // ─── Campos POS ───────────────────────────────────
+  categoria          Categoria?
+  material           Material?
+  genero             Genero[]    @default([])
+  precioCosto        Float?
+  precioVentaHombre  Float       @default(0)
+  precioVentaMujer   Float       @default(0)
+  precioVentaPareja  Float       @default(0)
+  stockMinimo        Int         @default(5)
+  stockHombre        Int         @default(0)
+  stockMujer         Int         @default(0)
+  stockAlmacen       Int         @default(0)
+  stockAlmacenHombre Int         @default(0)
+  stockAlmacenMujer  Int         @default(0)
+
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   orderItems       OrderItem[]
+  saleItems        SaleItem[]
+  stockEntries     StockEntry[]
 }
 
 model Category {
@@ -148,4 +198,58 @@ model Payment {
   rawPayload        Json?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+}
+
+// ─── Modelos POS ─────────────────────────────────────────────────────────────
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sales     Sale[]
+}
+
+model Sale {
+  id            String     @id @default(cuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id])
+  customerId    String?
+  customer      Customer?  @relation(fields: [customerId], references: [id])
+  subtotal      Float
+  descuento     Float      @default(0)
+  total         Float
+  metodoPago    MetodoPago
+  montoRecibido Float?
+  cambio        Float?
+  createdAt     DateTime   @default(now())
+  items         SaleItem[]
+}
+
+model SaleItem {
+  id             String   @id @default(cuid())
+  saleId         String
+  sale           Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id])
+  cantidad       Int
+  precioUnitario Float
+  descuento      Float    @default(0)
+  subtotal       Float
+  generoVenta    String?
+}
+
+model StockEntry {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  cantidad  Int
+  costo     Float?
+  nota      String?
+  createdAt DateTime @default(now())
 }
