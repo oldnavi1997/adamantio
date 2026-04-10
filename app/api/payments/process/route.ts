@@ -106,55 +106,56 @@ export async function POST(request: NextRequest) {
     if (paymentStatus === "APPROVED") {
       sendOrderConfirmation(order.id).catch(console.error);
 
-      // Decrementar stock en POS por ubicación (almacén preferido, tienda como fallback)
+      // Decrementar stock por ubicación (almacén preferido, tienda como fallback)
       const orderItems = await prisma.orderItem.findMany({
         where: { orderId: order.id },
-        include: { product: { select: { sku: true, name: true } } },
+        include: {
+          product: {
+            select: {
+              id: true, name: true, esPar: true, stock: true,
+              stockHombre: true, stockMujer: true,
+              stockAlmacenHombre: true, stockAlmacenMujer: true, stockAlmacen: true,
+            },
+          },
+        },
       });
 
       const stockNotes: string[] = [];
 
       for (const item of orderItems) {
-        if (!item.product?.sku) continue;
-        const sku = item.product.sku;
+        if (!item.product) continue;
+        const p = item.product;
         const qty = item.quantity;
-
-        const posProduct = await prisma.product.findUnique({
-          where: { sku },
-          select: { id: true, esPar: true, stock: true, stockHombre: true, stockMujer: true, stockAlmacenHombre: true, stockAlmacenMujer: true, stockAlmacen: true },
-        });
-
-        if (!posProduct) continue;
 
         let source = "TIENDA";
 
-        const canUseAlmacen = posProduct.esPar
-          ? posProduct.stockAlmacenHombre >= qty && posProduct.stockAlmacenMujer >= qty
-          : posProduct.stockAlmacenHombre >= qty;
+        const canUseAlmacen = p.esPar
+          ? p.stockAlmacenHombre >= qty && p.stockAlmacenMujer >= qty
+          : p.stockAlmacenHombre >= qty;
 
         if (canUseAlmacen) {
           await prisma.product.update({
-            where: { sku },
+            where: { id: p.id },
             data: {
-              stockAlmacenHombre: Math.max(0, posProduct.stockAlmacenHombre - qty),
-              ...(posProduct.esPar && { stockAlmacenMujer: Math.max(0, posProduct.stockAlmacenMujer - qty) }),
-              stockAlmacen: Math.max(0, posProduct.stockAlmacen - (posProduct.esPar ? qty * 2 : qty)),
-              stock: Math.max(0, posProduct.stock - (posProduct.esPar ? qty * 2 : qty)),
+              stockAlmacenHombre: Math.max(0, p.stockAlmacenHombre - qty),
+              ...(p.esPar && { stockAlmacenMujer: Math.max(0, p.stockAlmacenMujer - qty) }),
+              stockAlmacen: Math.max(0, p.stockAlmacen - (p.esPar ? qty * 2 : qty)),
+              stock: Math.max(0, p.stock - (p.esPar ? qty * 2 : qty)),
             },
           });
           source = "ALMACÉN";
         } else {
           await prisma.product.update({
-            where: { sku },
+            where: { id: p.id },
             data: {
-              stockHombre: Math.max(0, posProduct.stockHombre - qty),
-              ...(posProduct.esPar && { stockMujer: Math.max(0, posProduct.stockMujer - qty) }),
-              stock: Math.max(0, posProduct.stock - (posProduct.esPar ? qty * 2 : qty)),
+              stockHombre: Math.max(0, p.stockHombre - qty),
+              ...(p.esPar && { stockMujer: Math.max(0, p.stockMujer - qty) }),
+              stock: Math.max(0, p.stock - (p.esPar ? qty * 2 : qty)),
             },
           });
         }
 
-        stockNotes.push(`${item.product.name}: descontado de ${source}`);
+        stockNotes.push(`${p.name}: descontado de ${source}`);
       }
 
       if (stockNotes.length > 0) {
