@@ -24,7 +24,7 @@ export function OrderTable({ orders }: OrderTableProps) {
   return (
     <div>
       <div className="px-5 py-4 border-b border-[#111111]/6">
-        <p className="text-[10px] text-[#111111]/40 uppercase tracking-[0.2em]">
+        <p className="text-[11px] text-[#111111]/40 uppercase tracking-[0.2em]">
           {orders.length} {orders.length === 1 ? "pedido" : "pedidos"}
         </p>
       </div>
@@ -35,7 +35,8 @@ export function OrderTable({ orders }: OrderTableProps) {
               {["ID", "Cliente", "Total", "Pago", "Estado", "Fecha", ""].map((h) => (
                 <th
                   key={h}
-                  className={`py-3 px-4 text-[9px] font-medium text-[#111111]/40 uppercase tracking-[0.2em] ${
+                  scope="col"
+                  className={`py-3 px-4 text-[11px] font-medium text-[#111111]/40 uppercase tracking-[0.2em] ${
                     h === "Total" ? "text-right" : h === "Pago" || h === "Estado" ? "text-center" : h === "" ? "" : "text-left"
                   }`}
                 >
@@ -52,29 +53,29 @@ export function OrderTable({ orders }: OrderTableProps) {
               return (
                 <tr
                   key={order.id}
-                  className="border-b border-[#111111]/4 hover:bg-[#f8f7f4]/60 transition-colors"
+                  className="border-b border-[#111111]/4 hover:bg-[#f8f7f4]/60 transition-[background-color] duration-150"
                 >
-                  <td className="py-3.5 px-4 font-mono text-xs text-[#111111]/60">
+                  <td className="py-3.5 px-4 font-mono text-xs text-[#111111]/60 tabular-nums">
                     {order.id.slice(0, 8)}…
                   </td>
                   <td className="py-3.5 px-4">
                     <p className="font-medium text-[#111111] text-sm">{clientName}</p>
-                    <p className="text-[10px] text-[#111111]/35 mt-0.5">{clientContact}</p>
+                    <p className="text-xs text-[#111111]/35 mt-0.5">{clientContact}</p>
                   </td>
-                  <td className="py-3.5 px-4 text-right font-semibold text-sm text-[#111111]">
+                  <td className="py-3.5 px-4 text-right font-semibold text-sm text-[#111111] tabular-nums">
                     {formatPEN(Number(order.total))}
                   </td>
                   <td className="py-3.5 px-4 text-center">
                     {latestPayment ? (
                       <PaymentStatusBadge status={latestPayment.status} />
                     ) : (
-                      <span className="text-[10px] text-[#111111]/30">—</span>
+                      <span className="text-xs text-[#111111]/30">—</span>
                     )}
                   </td>
                   <td className="py-3.5 px-4 text-center">
                     <OrderStatusBadge status={order.status} />
                   </td>
-                  <td className="py-3.5 px-4 text-[10px] text-[#111111]/40">
+                  <td className="py-3.5 px-4 text-xs text-[#111111]/40 tabular-nums">
                     {new Date(order.createdAt).toLocaleDateString("es-PE", {
                       day: "2-digit",
                       month: "short",
@@ -85,9 +86,10 @@ export function OrderTable({ orders }: OrderTableProps) {
                     <div className="flex justify-end">
                       <Link
                         href={`/admin/pedidos/${order.id}`}
-                        className="p-1.5 text-[#111111]/30 hover:text-[#111111] hover:bg-[#f8f7f4] transition-colors"
+                        className="p-1.5 text-[#111111]/30 hover:text-[#111111] hover:bg-[#f8f7f4] transition-[color,background-color] duration-150 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111]/20"
+                        aria-label={`Ver pedido ${order.id.slice(0, 8)}`}
                       >
-                        <Eye className="h-3.5 w-3.5" />
+                        <Eye className="h-3.5 w-3.5" aria-hidden="true" />
                       </Link>
                     </div>
                   </td>

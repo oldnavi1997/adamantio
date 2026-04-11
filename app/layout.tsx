@@ -6,6 +6,7 @@ import { Navbar, type NavCategory } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import { Analytics } from "@vercel/analytics/next";
+import { StoreChrome } from "@/components/layout/StoreChrome";
 
 const jost = Jost({
   subsets: ["latin"],
@@ -49,9 +50,9 @@ export default async function RootLayout({
     <html lang="es" className={jost.variable}>
       <body className="flex flex-col min-h-screen" suppressHydrationWarning>
         <Providers>
-          <Navbar categories={navCategories} />
+          <StoreChrome><Navbar categories={navCategories} /></StoreChrome>
           <main className="flex-1">{children}</main>
-          <Footer />
+          <StoreChrome><Footer /></StoreChrome>
         </Providers>
         <Analytics />
       </body>

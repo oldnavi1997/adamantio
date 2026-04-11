@@ -13,21 +13,21 @@ export function StatsCard({ title, value, icon, description, className, accent }
   return (
     <div
       className={cn(
-        "bg-white border border-[#111111]/6 p-6 relative overflow-hidden",
+        "bg-white border border-[#111111]/6 p-6 relative overflow-hidden transition-[border-color] duration-200 hover:border-[#111111]/12",
         accent && "bg-[#111111]",
         className
       )}
     >
       {/* Top accent line */}
       {accent && (
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#d4af37]" />
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#d4af37]" aria-hidden="true" />
       )}
 
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p
             className={cn(
-              "text-[9px] font-medium uppercase tracking-[0.2em] mb-2",
+              "text-[11px] font-medium uppercase tracking-[0.2em] mb-2",
               accent ? "text-white/50" : "text-[#111111]/40"
             )}
           >
@@ -35,15 +35,15 @@ export function StatsCard({ title, value, icon, description, className, accent }
           </p>
           <p
             className={cn(
-              "text-2xl font-light truncate",
+              "text-2xl font-medium truncate tabular-nums",
               accent ? "text-white" : "text-[#111111]"
             )}
-            style={{ fontFamily: "var(--font-sans, sans-serif)" }}
+            style={{ fontFamily: "var(--font-sans, sans-serif)", fontVariantNumeric: "tabular-nums" }}
           >
             {value}
           </p>
           {description && (
-            <p className={cn("text-[10px] mt-1.5", accent ? "text-white/35" : "text-[#111111]/30")}>
+            <p className={cn("text-xs mt-1.5", accent ? "text-white/35" : "text-[#111111]/30")}>
               {description}
             </p>
           )}
@@ -52,8 +52,9 @@ export function StatsCard({ title, value, icon, description, className, accent }
           <div
             className={cn(
               "flex-shrink-0 w-9 h-9 flex items-center justify-center",
-              accent ? "text-[#d4af37]" : "text-[#111111]/30"
+              accent ? "text-[#d4af37]" : "text-[#111111]/25"
             )}
+            aria-hidden="true"
           >
             {icon}
           </div>

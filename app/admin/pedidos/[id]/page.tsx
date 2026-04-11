@@ -60,7 +60,7 @@ export default function AdminOrderDetailPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-[#111111] font-mono">{order.id.slice(0, 12)}…</h1>
+          <h1 className="text-lg font-bold text-[#111111] font-mono tabular-nums text-pretty">{order.id.slice(0, 12)}…</h1>
           <p className="text-sm text-gray-500 mt-1">
             {new Date(order.createdAt).toLocaleDateString("es-PE", { dateStyle: "full" })}
           </p>
@@ -74,7 +74,7 @@ export default function AdminOrderDetailPage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Shipping info */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h2 className="font-semibold text-[#111111] mb-4">Datos de envío</h2>
+          <h2 className="font-semibold text-[#111111] mb-4 text-pretty">Datos de envío</h2>
           {addr ? (
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
@@ -111,7 +111,7 @@ export default function AdminOrderDetailPage({
 
         {/* Status update */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h2 className="font-semibold text-[#111111] mb-4">Actualizar estado</h2>
+          <h2 className="font-semibold text-[#111111] mb-4 text-pretty">Actualizar estado</h2>
           <div className="space-y-3">
             <Select
               value={newStatus}
@@ -122,7 +122,7 @@ export default function AdminOrderDetailPage({
               <option value="SHIPPED">Enviado</option>
               <option value="CANCELLED">Cancelado</option>
             </Select>
-            <Button onClick={handleUpdateStatus} loading={updating} className="w-full">
+            <Button onClick={handleUpdateStatus} loading={updating} className="w-full touch-manipulation">
               Actualizar estado
             </Button>
           </div>
@@ -191,7 +191,7 @@ export default function AdminOrderDetailPage({
           )}
           <div className="flex justify-between font-bold text-[#111111] text-base mt-2">
             <span>Total</span>
-            <span>{formatPEN(Number(order.total))}</span>
+            <span className="tabular-nums">{formatPEN(Number(order.total))}</span>
           </div>
         </div>
       </div>

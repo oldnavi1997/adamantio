@@ -11,6 +11,7 @@ import { formatPEN, getPrimaryCategory } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Category } from "@/app/generated/prisma/client";
 import { PosStockData } from "@/app/admin/productos/page";
+import { getSearchClient, INDEX_NAME } from "@/lib/algolia";
 
 type SortCol = "name" | "price";
 type SortDir = "asc" | "desc";
@@ -61,6 +62,8 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
   const [bulkPrimaryId, setBulkPrimaryId] = useState("");
   const [bulkLoading, setBulkLoading] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const [algoliaIds, setAlgoliaIds] = useState<Set<string> | null>(null);
+  const [algoliaLoading, setAlgoliaLoading] = useState(false);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`¿Eliminar "${name}"?`)) return;
@@ -151,6 +154,29 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      setAlgoliaIds(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setAlgoliaLoading(true);
+      try {
+        const results = await getSearchClient().searchSingleIndex({
+          indexName: INDEX_NAME,
+          searchParams: { query: trimmed, hitsPerPage: 200, attributesToRetrieve: ["objectID"] },
+        });
+        setAlgoliaIds(new Set(results.hits.map((h) => h.objectID as string)));
+      } catch {
+        setAlgoliaIds(null);
+      } finally {
+        setAlgoliaLoading(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
   const toggleSort = (col: SortCol) => {
     if (sortCol === col) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -164,9 +190,8 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
     new Set(products.map((p) => p.category ?? "").filter(Boolean))
   ).sort();
 
-  const q = query.trim().toLowerCase();
   let filtered = products.filter((p) => {
-    if (q && !p.name.toLowerCase().includes(q) && !(p.category ?? "").toLowerCase().includes(q)) return false;
+    if (algoliaIds !== null && !algoliaIds.has(p.id)) return false;
     if (filterCategory && (p.category ?? "") !== filterCategory) return false;
     if (filterStatus === "active" && !p.isActive) return false;
     if (filterStatus === "inactive" && p.isActive) return false;
@@ -198,7 +223,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
   return (
     <div>
       <div className="px-5 py-4 border-b border-[#111111]/6 flex items-center gap-4">
-        <p className="text-[10px] text-[#111111]/40 uppercase tracking-[0.2em] shrink-0">
+        <p className="text-[11px] text-[#111111]/40 uppercase tracking-[0.2em] shrink-0 tabular-nums">
           {filtered.length} {filtered.length === 1 ? "producto" : "productos"}
           {products.length !== filtered.length && (
             <span className="ml-1 text-[#111111]/25">de {products.length}</span>
@@ -208,26 +233,33 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
           <button
             type="button"
             onClick={() => { setFilterCategory(""); setFilterStatus("all"); }}
-            className="text-[9px] uppercase tracking-[0.15em] text-[#111111]/40 hover:text-[#111111] flex items-center gap-1 transition-colors"
+            className="text-[11px] uppercase tracking-[0.15em] text-[#111111]/40 hover:text-[#111111] flex items-center gap-1 transition-[color] duration-150"
+            aria-label="Limpiar filtros activos"
           >
-            <X className="h-2.5 w-2.5" /> Limpiar filtros
+            <X className="h-2.5 w-2.5" aria-hidden="true" /> Limpiar filtros
           </button>
         )}
         <div className="relative ml-auto w-56">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#111111]/30 pointer-events-none" />
+          {algoliaLoading ? (
+            <div className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 border border-[#111111]/30 border-t-[#111111]/60 rounded-full animate-spin" aria-hidden="true" />
+          ) : (
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#111111]/30 pointer-events-none" aria-hidden="true" />
+          )}
           <input
-            type="text"
+            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar por nombre, marca..."
-            className="w-full pl-8 pr-7 py-1.5 text-[11px] bg-[#f8f7f4] border border-[#111111]/8 text-[#111111] placeholder-[#111111]/30 focus:outline-none focus:border-[#111111]/25 transition-colors"
+            placeholder="Buscar con Algolia…"
+            aria-label="Buscar productos"
+            className="w-full pl-8 pr-7 py-1.5 text-[11px] bg-[#f8f7f4] border border-[#111111]/8 text-[#111111] placeholder-[#111111]/30 focus:outline-none focus:border-[#111111]/25 transition-[border-color] duration-150"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#111111]/30 hover:text-[#111111]/60"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#111111]/30 hover:text-[#111111]/60 transition-[color] duration-150"
+              aria-label="Limpiar búsqueda"
             >
-              <X className="h-3 w-3" />
+              <X className="h-3 w-3" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -359,7 +391,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                 <button
                   type="button"
                   onClick={() => toggleSort("name")}
-                  className="inline-flex items-center gap-1 text-[9px] font-medium uppercase tracking-[0.2em] text-[#111111]/40 hover:text-[#111111]/70 transition-colors"
+                  className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111]/40 hover:text-[#111111]/70 transition-[color] duration-150"
                 >
                   Producto
                   {sortCol === "name" ? (
@@ -419,7 +451,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                 <button
                   type="button"
                   onClick={() => toggleSort("price")}
-                  className="inline-flex items-center gap-1 text-[9px] font-medium uppercase tracking-[0.2em] text-[#111111]/40 hover:text-[#111111]/70 transition-colors ml-auto"
+                  className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111]/40 hover:text-[#111111]/70 transition-colors ml-auto"
                 >
                   Precio
                   {sortCol === "price" ? (
@@ -432,14 +464,14 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
 
               {/* Stock Tienda POS */}
               <th className="text-right py-3 px-4">
-                <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-[#111111]/40">
+                <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111]/40">
                   Tienda
                 </span>
               </th>
 
               {/* Stock Almacén POS */}
               <th className="text-right py-3 px-4">
-                <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-[#111111]/40">
+                <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111]/40">
                   Almacén
                 </span>
               </th>
@@ -496,7 +528,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                 <tr
                   key={product.id}
                   className={cn(
-                    "border-b border-[#111111]/4 hover:bg-[#f8f7f4]/60 transition-colors",
+                    "border-b border-[#111111]/4 hover:bg-[#f8f7f4]/60 transition-[background-color] duration-150",
                     isSelected && "bg-[#f8f7f4]"
                   )}
                 >
@@ -510,14 +542,14 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                   </td>
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="relative w-9 h-9 bg-[#f8f7f4] overflow-hidden flex-shrink-0">
+                      <div className="relative w-20 h-20 bg-[#f8f7f4] overflow-hidden flex-shrink-0">
                         {product.imageUrls?.[0] ?? product.imageUrl ? (
                           <Image
                             src={product.imageUrls?.[0] ?? product.imageUrl}
                             alt={product.name}
                             fill
                             className="object-cover"
-                            sizes="36px"
+                            sizes="80px"
                           />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center text-[#111111]/20 text-xs">
@@ -533,7 +565,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                   <td className="py-3.5 px-4 text-[#111111]/55 text-sm">
                     {product.category ?? "—"}
                   </td>
-                  <td className="py-3.5 px-4 text-right font-medium text-sm">
+                  <td className="py-3.5 px-4 text-right font-medium text-sm tabular-nums">
                     {formatPEN(Number(product.price))}
                   </td>
                   {/* Stock Tienda POS */}
@@ -550,7 +582,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                             {total}
                           </span>
                           {product.esPar && total > 0 && (
-                            <p className="text-[10px] text-[#111111]/35 leading-tight">
+                            <p className="text-xs text-[#111111]/35 leading-tight tabular-nums">
                               H:{p.stockHombre} / M:{p.stockMujer}
                             </p>
                           )}
@@ -572,7 +604,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                             {total}
                           </span>
                           {product.esPar && total > 0 && (
-                            <p className="text-[10px] text-[#111111]/35 leading-tight">
+                            <p className="text-xs text-[#111111]/35 leading-tight tabular-nums">
                               H:{p.stockAlmacenHombre} / M:{p.stockAlmacenMujer}
                             </p>
                           )}
@@ -589,15 +621,17 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                     <div className="flex items-center justify-end gap-1">
                       <Link
                         href={`/admin/productos/${product.id}/editar`}
-                        className="p-1.5 text-[#111111]/30 hover:text-[#111111] hover:bg-[#f8f7f4] transition-colors"
+                        className="p-1.5 text-[#111111]/30 hover:text-[#111111] hover:bg-[#f8f7f4] transition-[color,background-color] duration-150 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111]/20"
+                        aria-label={`Editar ${product.name}`}
                       >
-                        <Edit className="h-3.5 w-3.5" />
+                        <Edit className="h-3.5 w-3.5" aria-hidden="true" />
                       </Link>
                       <button
                         onClick={() => handleDelete(product.id, product.name)}
-                        className="p-1.5 text-[#111111]/30 hover:text-red-500 hover:bg-red-50 transition-colors"
+                        className="p-1.5 text-[#111111]/30 hover:text-red-500 hover:bg-red-50 transition-[color,background-color] duration-150 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 touch-manipulation"
+                        aria-label={`Eliminar ${product.name}`}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                       </button>
                     </div>
                   </td>

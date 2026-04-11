@@ -27,13 +27,13 @@ export function AdminSidebar() {
         >
           Adamantio
         </span>
-        <p className="text-[9px] text-[#d4af37]/60 uppercase tracking-[0.2em] mt-1.5">
+        <p className="text-[11px] text-[#d4af37]/60 uppercase tracking-[0.2em] mt-1.5">
           Panel admin
         </p>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-5 space-y-0.5">
+      <nav className="flex-1 px-3 py-5 space-y-0.5" aria-label="Navegación principal">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = href === "/admin" ? pathname === href : pathname.startsWith(href);
           return (
@@ -41,17 +41,17 @@ export function AdminSidebar() {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3.5 py-2.5 text-[11px] font-medium uppercase tracking-[0.15em] transition-all duration-200 relative",
+                "flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium uppercase tracking-[0.15em] transition-[background-color,color] duration-200 relative",
                 isActive
                   ? "text-white bg-white/5"
-                  : "text-white/35 hover:text-white/70 hover:bg-white/3"
+                  : "text-white/35 hover:text-white/70 hover:bg-white/[0.03]"
               )}
+              aria-current={isActive ? "page" : undefined}
             >
-              {/* Active indicator */}
               {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[#d4af37]" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#d4af37]" aria-hidden="true" />
               )}
-              <Icon className={cn("h-4 w-4 flex-shrink-0", isActive ? "text-[#d4af37]" : "")} />
+              <Icon className={cn("h-4 w-4 flex-shrink-0", isActive ? "text-[#d4af37]" : "")} aria-hidden="true" />
               {label}
             </Link>
           );
@@ -63,16 +63,19 @@ export function AdminSidebar() {
         <Link
           href="/"
           target="_blank"
-          className="flex items-center gap-3 px-3.5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-white/25 hover:text-white/50 transition-colors"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium uppercase tracking-[0.12em] text-white/25 hover:text-white/50 transition-[color] duration-200"
+          aria-label="Ver tienda (abre en nueva pestaña)"
         >
-          <ExternalLink className="h-3.5 w-3.5" />
+          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
           Ver tienda
         </Link>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="flex items-center gap-3 px-3.5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-white/25 hover:text-red-400/70 transition-colors w-full text-left"
+          className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium uppercase tracking-[0.12em] text-white/25 hover:text-red-400/70 transition-[color] duration-200 w-full text-left touch-manipulation"
+          aria-label="Cerrar sesión"
         >
-          <LogOut className="h-3.5 w-3.5" />
+          <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
           Cerrar sesión
         </button>
       </div>
