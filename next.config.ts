@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
         hostname: "adamantio.pe",
       },
     ],
+    formats: ["image/webp"],
+    qualities: [75],
+    minimumCacheTTL: 2678400, // 31 días
   },
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "bcryptjs", "mercadopago"],
 };
