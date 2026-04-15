@@ -118,6 +118,7 @@ model Category {
   id        String     @id
   name      String     @unique
   parentId  String?    @map("parent_id")
+  sortOrder Int        @default(0)  @map("sort_order")
   parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
   children  Category[] @relation("CategoryTree")
   createdAt DateTime   @default(now()) @map("created_at")

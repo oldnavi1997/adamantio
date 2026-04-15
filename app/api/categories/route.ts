@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 
 export async function GET() {
   const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     include: {
       parent: { select: { id: true, name: true } },
       _count: { select: { children: true } },

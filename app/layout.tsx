@@ -34,13 +34,13 @@ export default async function RootLayout({
       where: { parentId: null },
       include: {
         children: {
-          orderBy: { name: "asc" },
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
           include: {
-            children: { orderBy: { name: "asc" }, select: { id: true, name: true } },
+            children: { orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { id: true, name: true } },
           },
         },
       },
-      orderBy: { name: "asc" },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     });
   } catch {
     // DB unavailable during build (e.g. Railway build phase)
