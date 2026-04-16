@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Edit, Trash2, Plus, Tag, GripVertical } from "lucide-react";
+import { Edit, Trash2, Plus, Tag, GripVertical, Navigation } from "lucide-react";
 import { toast } from "sonner";
 import {
   DndContext,
@@ -35,6 +35,56 @@ interface Category {
 interface CategoryTableProps {
   categories: Category[];
 }
+
+// ─── Panel 1: Menu order row ──────────────────────────────────────────────────
+
+interface SortableMenuRowProps {
+  cat: Category;
+  children: Category[];
+}
+
+function SortableMenuRow({ cat, children }: SortableMenuRowProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: cat.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-3 px-5 py-3.5 border-b border-[#111111]/4 hover:bg-[#f8f7f4]/50 transition-colors"
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-[#111111]/20 hover:text-[#111111]/50 transition-colors touch-none flex-shrink-0"
+        title="Arrastrar para reordenar"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-[#111111] leading-tight">{cat.name}</p>
+        {children.length > 0 && (
+          <p className="text-[11px] text-[#111111]/35 mt-0.5 truncate">
+            {children.map((c) => c.name).join(" · ")}
+          </p>
+        )}
+      </div>
+      <span className="text-[10px] text-[#111111]/30 bg-[#f8f7f4] px-2 py-0.5 flex-shrink-0">
+        {children.length > 0
+          ? `${children.length} sub${children.length === 1 ? "cat." : "cats."}`
+          : "Sin subcats."}
+      </span>
+    </div>
+  );
+}
+
+// ─── Panel 2: Full table row ──────────────────────────────────────────────────
 
 interface SortableRowProps {
   cat: Category;
@@ -103,6 +153,8 @@ function SortableRow({ cat, onEdit, onDelete }: SortableRowProps) {
   );
 }
 
+// ─── Main component ───────────────────────────────────────────────────────────
+
 export function CategoryTable({ categories }: CategoryTableProps) {
   const router = useRouter();
   const [items, setItems] = useState<Category[]>(categories);
@@ -113,6 +165,42 @@ export function CategoryTable({ categories }: CategoryTableProps) {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
+  // Derived lists
+  const rootItems = items.filter((c) => c.parentId === null);
+  const childrenOf = new Map<string | null, Category[]>();
+  for (const cat of items) {
+    const key = cat.parentId ?? null;
+    if (!childrenOf.has(key)) childrenOf.set(key, []);
+    childrenOf.get(key)!.push(cat);
+  }
+
+  // ── Panel 1: reorder only root categories ──
+  const handleMenuDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = rootItems.findIndex((c) => c.id === active.id);
+    const newIndex = rootItems.findIndex((c) => c.id === over.id);
+    const newRootItems = arrayMove(rootItems, oldIndex, newIndex);
+    const nonRootItems = items.filter((c) => c.parentId !== null);
+    setItems([...newRootItems, ...nonRootItems]);
+
+    try {
+      const res = await fetch("/api/categories/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newRootItems.map((c, idx) => ({ id: c.id, sortOrder: idx }))),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Orden del menú guardado");
+      router.refresh();
+    } catch {
+      toast.error("Error al guardar el orden");
+      setItems(categories);
+    }
+  };
+
+  // ── Panel 2: reorder all categories in flat table ──
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -136,13 +224,6 @@ export function CategoryTable({ categories }: CategoryTableProps) {
       setItems(categories);
     }
   };
-
-  const childrenOf = new Map<string | null, Category[]>();
-  for (const cat of items) {
-    const key = cat.parentId ?? null;
-    if (!childrenOf.has(key)) childrenOf.set(key, []);
-    childrenOf.get(key)!.push(cat);
-  }
 
   const parentOptions: { cat: Category; depth: number }[] = [];
   function walkCats(parentId: string | null, depth: number) {
@@ -209,12 +290,44 @@ export function CategoryTable({ categories }: CategoryTableProps) {
 
   return (
     <>
+      {/* ── Panel 1: Nav menu order ─────────────────────────────────────────── */}
+      <div className="border-b border-[#111111]/8">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-[#111111]/6">
+          <Navigation className="h-3.5 w-3.5 text-[#d4af37]" />
+          <div>
+            <p className="text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.2em]">
+              Orden del menú de navegación
+            </p>
+            <p className="text-[10px] text-[#111111]/30 mt-0.5">
+              Arrastrá para cambiar el orden en que aparecen en el header del sitio
+            </p>
+          </div>
+        </div>
+
+        {rootItems.length === 0 ? (
+          <div className="px-5 py-6 text-[11px] text-[#111111]/30">Sin categorías raíz todavía</div>
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMenuDragEnd}>
+            <SortableContext items={rootItems.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+              {rootItems.map((cat) => (
+                <SortableMenuRow
+                  key={cat.id}
+                  cat={cat}
+                  children={childrenOf.get(cat.id) ?? []}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        )}
+      </div>
+
+      {/* ── Panel 2: Full category table ────────────────────────────────────── */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-[#111111]/6">
         <div>
           <p className="text-[10px] text-[#111111]/40 uppercase tracking-[0.2em]">
             {items.length} {items.length === 1 ? "categoría" : "categorías"}
           </p>
-          <p className="text-[10px] text-[#111111]/30 mt-0.5">Arrastrá las filas para cambiar el orden del menú</p>
+          <p className="text-[10px] text-[#111111]/30 mt-0.5">Gestión completa de categorías y subcategorías</p>
         </div>
         <Button size="sm" onClick={openCreate} className="gap-1.5">
           <Plus className="h-3.5 w-3.5" />
