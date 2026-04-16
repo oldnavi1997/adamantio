@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Edit, Trash2, Plus, Tag, GripVertical, Navigation } from "lucide-react";
+import { Edit, Trash2, Plus, Tag, GripVertical, Navigation, ChevronRight, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import {
   DndContext,
@@ -36,14 +36,16 @@ interface CategoryTableProps {
   categories: Category[];
 }
 
-// ─── Panel 1: Menu order row ──────────────────────────────────────────────────
+// ─── Panel 1: Root category row ───────────────────────────────────────────────
 
 interface SortableMenuRowProps {
   cat: Category;
-  children: Category[];
+  childCount: number;
+  expanded: boolean;
+  onToggle: () => void;
 }
 
-function SortableMenuRow({ cat, children }: SortableMenuRowProps) {
+function SortableMenuRow({ cat, childCount, expanded, onToggle }: SortableMenuRowProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: cat.id });
 
@@ -67,19 +69,52 @@ function SortableMenuRow({ cat, children }: SortableMenuRowProps) {
       >
         <GripVertical className="h-4 w-4" />
       </button>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-[#111111] leading-tight">{cat.name}</p>
-        {children.length > 0 && (
-          <p className="text-[11px] text-[#111111]/35 mt-0.5 truncate">
-            {children.map((c) => c.name).join(" · ")}
-          </p>
-        )}
-      </div>
-      <span className="text-[10px] text-[#111111]/30 bg-[#f8f7f4] px-2 py-0.5 flex-shrink-0">
-        {children.length > 0
-          ? `${children.length} sub${children.length === 1 ? "cat." : "cats."}`
-          : "Sin subcats."}
-      </span>
+      <p className="flex-1 text-sm font-medium text-[#111111] leading-tight">{cat.name}</p>
+      {childCount > 0 ? (
+        <button
+          onClick={onToggle}
+          className="flex items-center gap-1.5 text-[10px] text-[#111111]/40 hover:text-[#111111]/70 bg-[#f8f7f4] hover:bg-[#f0ede6] px-2 py-0.5 transition-colors flex-shrink-0"
+        >
+          {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          {childCount} sub{childCount === 1 ? "cat." : "cats."}
+        </button>
+      ) : (
+        <span className="text-[10px] text-[#111111]/25 bg-[#f8f7f4] px-2 py-0.5 flex-shrink-0">
+          Sin subcats.
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ─── Panel 1: Subcategory row ─────────────────────────────────────────────────
+
+function SortableSubRow({ cat }: { cat: Category }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: cat.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-3 pl-12 pr-5 py-2.5 border-b border-[#111111]/4 bg-[#fafaf8] hover:bg-[#f5f3ef] transition-colors"
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-[#111111]/20 hover:text-[#111111]/50 transition-colors touch-none flex-shrink-0"
+        title="Arrastrar para reordenar"
+      >
+        <GripVertical className="h-3.5 w-3.5" />
+      </button>
+      <span className="text-[11px] text-[#111111]/40 flex-shrink-0">↳</span>
+      <p className="flex-1 text-sm text-[#111111]/80">{cat.name}</p>
     </div>
   );
 }
@@ -158,6 +193,7 @@ function SortableRow({ cat, onEdit, onDelete }: SortableRowProps) {
 export function CategoryTable({ categories }: CategoryTableProps) {
   const router = useRouter();
   const [items, setItems] = useState<Category[]>(categories);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
   const [loading, setLoading] = useState(false);
@@ -165,7 +201,7 @@ export function CategoryTable({ categories }: CategoryTableProps) {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
-  // Derived lists
+  // Derived maps
   const rootItems = items.filter((c) => c.parentId === null);
   const childrenOf = new Map<string | null, Category[]>();
   for (const cat of items) {
@@ -174,7 +210,15 @@ export function CategoryTable({ categories }: CategoryTableProps) {
     childrenOf.get(key)!.push(cat);
   }
 
-  // ── Panel 1: reorder only root categories ──
+  const toggleExpand = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  // ── Panel 1: reorder root categories ──
   const handleMenuDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -193,6 +237,36 @@ export function CategoryTable({ categories }: CategoryTableProps) {
       });
       if (!res.ok) throw new Error();
       toast.success("Orden del menú guardado");
+      router.refresh();
+    } catch {
+      toast.error("Error al guardar el orden");
+      setItems(categories);
+    }
+  };
+
+  // ── Panel 1: reorder subcategories within a parent ──
+  const handleSubDragEnd = async (parentId: string, event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const subs = childrenOf.get(parentId) ?? [];
+    const oldIndex = subs.findIndex((c) => c.id === active.id);
+    const newIndex = subs.findIndex((c) => c.id === over.id);
+    const newSubs = arrayMove(subs, oldIndex, newIndex);
+
+    setItems((prev) => {
+      const others = prev.filter((c) => c.parentId !== parentId);
+      return [...others, ...newSubs];
+    });
+
+    try {
+      const res = await fetch("/api/categories/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newSubs.map((c, idx) => ({ id: c.id, sortOrder: idx }))),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Orden guardado");
       router.refresh();
     } catch {
       toast.error("Error al guardar el orden");
@@ -309,13 +383,33 @@ export function CategoryTable({ categories }: CategoryTableProps) {
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMenuDragEnd}>
             <SortableContext items={rootItems.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-              {rootItems.map((cat) => (
-                <SortableMenuRow
-                  key={cat.id}
-                  cat={cat}
-                  children={childrenOf.get(cat.id) ?? []}
-                />
-              ))}
+              {rootItems.map((cat) => {
+                const subs = childrenOf.get(cat.id) ?? [];
+                const isExpanded = expanded.has(cat.id);
+                return (
+                  <div key={cat.id}>
+                    <SortableMenuRow
+                      cat={cat}
+                      childCount={subs.length}
+                      expanded={isExpanded}
+                      onToggle={() => toggleExpand(cat.id)}
+                    />
+                    {isExpanded && subs.length > 0 && (
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={(e) => handleSubDragEnd(cat.id, e)}
+                      >
+                        <SortableContext items={subs.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+                          {subs.map((sub) => (
+                            <SortableSubRow key={sub.id} cat={sub} />
+                          ))}
+                        </SortableContext>
+                      </DndContext>
+                    )}
+                  </div>
+                );
+              })}
             </SortableContext>
           </DndContext>
         )}
