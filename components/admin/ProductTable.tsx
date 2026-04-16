@@ -572,7 +572,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                   <td className="py-3.5 px-4 text-right">
                     {product.sku && posStock[product.sku] ? (() => {
                       const p = posStock[product.sku];
-                      const total = p.stockHombre + p.stockMujer;
+                      const total = product.esPar ? p.stockHombre + p.stockMujer : p.stockHombre;
                       return (
                         <div className="text-right">
                           <span className={cn(
@@ -594,7 +594,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                   <td className="py-3.5 px-4 text-right">
                     {product.sku && posStock[product.sku] ? (() => {
                       const p = posStock[product.sku];
-                      const total = p.stockAlmacenHombre + p.stockAlmacenMujer;
+                      const total = product.esPar ? p.stockAlmacenHombre + p.stockAlmacenMujer : p.stockAlmacenHombre;
                       return (
                         <div className="text-right">
                           <span className={cn(
