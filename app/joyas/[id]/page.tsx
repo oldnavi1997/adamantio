@@ -71,9 +71,9 @@ export default async function ProductPage({ params }: Props) {
         {/* Details */}
         <div className="space-y-4">
           <div>
-            <h4 className="text-2xl md:text-3xl font-semibold text-[#111111] leading-tight">
+            <h6 className="text-2xl md:text-3xl font-semibold text-[#111111] leading-tight">
               {product.name}
-            </h4>
+            </h6>
           </div>
 
           {/* Price */}

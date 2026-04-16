@@ -15,14 +15,6 @@ export function formatPEN(amount: number | string) {
   }).format(num);
 }
 
-/** @deprecated Use formatPEN */
-export const formatARS = formatPEN;
-
-export function generateOrderNumber(): string {
-  const year = new Date().getFullYear();
-  const random = Math.floor(Math.random() * 9999).toString().padStart(4, "0");
-  return `ADM-${year}-${random}`;
-}
 
 export function getPrimaryCategory(product: { category?: string | null }): { name: string } | undefined {
   if (!product.category) return undefined;

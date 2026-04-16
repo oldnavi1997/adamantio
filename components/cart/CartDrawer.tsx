@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/stores/cart";
-import { formatARS } from "@/lib/utils";
+import { formatPEN } from "@/lib/utils";
 
 export function CartDrawer() {
   const {
@@ -197,7 +197,7 @@ export function CartDrawer() {
 
                         {/* Precio */}
                         <span className="text-[#d4af37] text-[13px] font-semibold tabular-nums">
-                          {formatARS(item.price * item.quantity)}
+                          {formatPEN(item.price * item.quantity)}
                         </span>
                       </div>
                     </div>
@@ -212,7 +212,7 @@ export function CartDrawer() {
               <div className="space-y-2 text-[12px]">
                 <div className="flex justify-between text-[#334155]/60 uppercase tracking-[0.15em]">
                   <span>{count} {count === 1 ? "producto" : "productos"}</span>
-                  <span>{formatARS(total)}</span>
+                  <span>{formatPEN(total)}</span>
                 </div>
                 <div className="flex justify-between text-[#334155]/40 uppercase tracking-[0.15em]">
                   <span>Envío</span>
@@ -232,7 +232,7 @@ export function CartDrawer() {
                   className="text-2xl font-light text-[#1e293b]"
                   style={{ fontFamily: "var(--font-sans, sans-serif)" }}
                 >
-                  {formatARS(total)}
+                  {formatPEN(total)}
                 </span>
               </div>
 
