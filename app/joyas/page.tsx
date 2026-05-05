@@ -21,7 +21,7 @@ interface SearchParams {
 }
 
 async function getProducts(params: SearchParams) {
-  const where: Prisma.ProductWhereInput = { isActive: true };
+  const where: Prisma.ProductWhereInput = { isActive: true, stock: { gt: 0 } };
 
   if (params.category) {
     const allCategories = await prisma.category.findMany({
