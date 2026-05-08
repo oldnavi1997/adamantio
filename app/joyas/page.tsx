@@ -1,6 +1,18 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Catálogo de Joyas",
+  description: "Explorá anillos, collares, pulseras y aretes en plata 925. Joyería con mensajes secretos y envío a todo Perú.",
+  openGraph: {
+    title: "Catálogo de Joyas | Adamantio",
+    description: "Explorá anillos, collares, pulseras y aretes en plata 925. Joyería con mensajes secretos y envío a todo Perú.",
+    url: "/joyas",
+    type: "website",
+  },
+};
 import { prisma } from "@/lib/prisma";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import { CatalogToolbar } from "@/components/catalog/CatalogToolbar";

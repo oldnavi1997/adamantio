@@ -1,7 +1,19 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+
+export const metadata: Metadata = {
+  title: "Adamantio – Joyería y Accesorios en Perú",
+  description: "Descubrí collares, pulseras, anillos y aretes en plata 925 con mensajes secretos. El regalo con significado. Envío a todo Perú.",
+  openGraph: {
+    title: "Adamantio – Joyería y Accesorios en Perú",
+    description: "Descubrí collares, pulseras, anillos y aretes en plata 925 con mensajes secretos. El regalo con significado. Envío a todo Perú.",
+    url: "/",
+    type: "website",
+  },
+};
 import { HeroSection } from "@/components/home/HeroSection";
 import { TrustBar } from "@/components/home/CategoryGrid";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";

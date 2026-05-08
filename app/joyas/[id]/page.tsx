@@ -50,9 +50,35 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   const images = product.imageUrls.length > 0 ? product.imageUrls : (product.imageUrl ? [product.imageUrl] : []);
+  const image = images[0] ?? null;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://adamantio.pe";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description ?? product.name,
+    ...(image && { image }),
+    url: `${baseUrl}/joyas/${product.id}`,
+    brand: { "@type": "Brand", name: "Adamantio" },
+    offers: {
+      "@type": "Offer",
+      price: Number(product.price).toFixed(2),
+      priceCurrency: "PEN",
+      availability: product.stock > 0
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: `${baseUrl}/joyas/${product.id}`,
+    },
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-5 sm:px-8 sm:py-10">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 sm:py-10">
       {/* Breadcrumb */}
       <nav className="hidden sm:flex items-center gap-2 mb-8 text-[10px] uppercase tracking-[0.2em] text-[#111111]/35">
         <Link href="/joyas" className="hover:text-[#111111]/60 transition-colors">
@@ -131,5 +157,6 @@ export default async function ProductPage({ params }: Props) {
         </div>
       )}
     </div>
+    </>
   );
 }

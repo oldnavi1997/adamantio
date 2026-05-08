@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import { Analytics } from "@vercel/analytics/next";
 import { StoreChrome } from "@/components/layout/StoreChrome";
+import { CookieBanner } from "@/components/layout/CookieBanner";
 
 const jost = Jost({
   subsets: ["latin"],
@@ -16,11 +17,17 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://adamantio.pe"),
   title: {
-    default: "Adamantio – Accesorios en Perú",
+    default: "Adamantio – Joyería y Accesorios en Perú",
     template: "%s | Adamantio",
   },
-  description: "Tu destino de confianza para joyería de calidad en Perú.",
+  description: "Joyería en plata 925 con mensajes secretos. Collares, pulseras, anillos y aretes con envío a todo Perú.",
+  openGraph: {
+    siteName: "Adamantio",
+    locale: "es_PE",
+    type: "website",
+  },
 };
 
 export default async function RootLayout({
@@ -46,15 +53,30 @@ export default async function RootLayout({
     // DB unavailable during build (e.g. Railway build phase)
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://adamantio.pe";
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Adamantio",
+    url: baseUrl,
+    logo: `${baseUrl}/logo.png`,
+    sameAs: [],
+  };
+
   return (
     <html lang="es" className={jost.variable}>
       <body className="flex flex-col min-h-screen" suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
         <Providers>
           <StoreChrome><Navbar categories={navCategories} /></StoreChrome>
           <main className="flex-1">{children}</main>
           <StoreChrome><Footer /></StoreChrome>
         </Providers>
         <Analytics />
+        <CookieBanner />
       </body>
     </html>
   );
