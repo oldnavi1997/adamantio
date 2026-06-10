@@ -17,7 +17,8 @@ export const metadata: Metadata = {
 import { HeroSection } from "@/components/home/HeroSection";
 import { TrustBar } from "@/components/home/CategoryGrid";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
-import { VideoSpotlight } from "@/components/home/VideoSpotlight";
+import { VideoSpotlight, type SpotlightItem } from "@/components/home/VideoSpotlight";
+import { getVideoSpotlightConfig } from "@/lib/video-spotlight-server";
 
 const FEATURED_CATEGORIES = [
   {
@@ -37,10 +38,35 @@ const FEATURED_CATEGORIES = [
 ] as const;
 
 export default async function HomePage() {
-  const featuredProducts = await prisma.product.findMany({
-    where: { isActive: true },
-    take: 8,
-    orderBy: { createdAt: "desc" },
+  const [featuredProducts, spotlightConfig] = await Promise.all([
+    prisma.product.findMany({
+      where: { isActive: true },
+      take: 8,
+      orderBy: { createdAt: "desc" },
+    }),
+    getVideoSpotlightConfig(),
+  ]);
+
+  const spotlightProductIds = spotlightConfig.map((c) => c.productId);
+  const spotlightProducts = spotlightProductIds.length
+    ? await prisma.product.findMany({
+        where: { id: { in: spotlightProductIds }, isActive: true },
+        select: { id: true, name: true, price: true },
+      })
+    : [];
+  const spotlightById = new Map(spotlightProducts.map((p) => [p.id, p]));
+
+  const spotlightItems: SpotlightItem[] = spotlightConfig.flatMap((c) => {
+    const product = spotlightById.get(c.productId);
+    if (!product || !c.video) return [];
+    return [{
+      id: c.productId,
+      name: product.name,
+      price: Number(product.price).toFixed(2),
+      href: `/joyas/${c.productId}`,
+      video: c.video,
+      poster: c.poster,
+    }];
   });
 
   return (
@@ -92,7 +118,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <VideoSpotlight />
+      <VideoSpotlight items={spotlightItems} />
 
       {/* Categorías destacadas */}
       <section className="py-16 px-5 sm:px-8">

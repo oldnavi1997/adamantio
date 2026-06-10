@@ -7,21 +7,14 @@ import { ProductWithCategory } from "@/types";
 import { useCartStore } from "@/stores/cart";
 import AccordionItem from "@/components/product/AccordionItem";
 
-const ENGRAVING_SAMPLES = [
-  "https://res.cloudinary.com/dzqns7kss/image/upload/v1772765494/WhatsApp_Image_2026-03-05_at_7.44.30_PM_1__05_03_2026_gnhjn1.webp",
-  "https://res.cloudinary.com/dzqns7kss/image/upload/v1772765494/WhatsApp_Image_2026-03-05_at_7.44.30_PM_2__05_03_2026_smowko.webp",
-  "https://res.cloudinary.com/dzqns7kss/image/upload/v1772765493/WhatsApp_Image_2026-03-05_at_7.44.30_PM_05_03_2026_flg2ts.webp",
-  "https://res.cloudinary.com/dzqns7kss/image/upload/v1772765494/WhatsApp_Image_2026-03-05_at_7.44.29_PM_1__05_03_2026_pfhikt.webp",
-  "https://res.cloudinary.com/dzqns7kss/image/upload/v1772765493/WhatsApp_Image_2026-03-05_at_7.44.29_PM_05_03_2026_q10b5w.webp",
-];
-
 const MAX_ENGRAVING = 30;
 
 interface Props {
   product: ProductWithCategory;
+  engravingSamples?: string[];
 }
 
-export function ProductDetails({ product }: Props) {
+export function ProductDetails({ product, engravingSamples = [] }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const openDrawer = useCartStore((s) => s.openDrawer);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -149,24 +142,26 @@ export function ProductDetails({ product }: Props) {
               </p>
 
               {/* Carousel estilo galería móvil */}
-              <div ref={emblaRef} className="overflow-hidden -mx-4">
-                <div className="flex gap-1 px-4">
-                  {ENGRAVING_SAMPLES.map((url, i) => (
-                    <div
-                      key={i}
-                      className="w-[78%] flex-shrink-0 relative aspect-square bg-[#f0eeeb] rounded-lg overflow-hidden"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={url}
-                        alt={`Ejemplo de grabado ${i + 1}`}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
+              {engravingSamples.length > 0 && (
+                <div ref={emblaRef} className="overflow-hidden -mx-4">
+                  <div className="flex gap-1 px-4">
+                    {engravingSamples.map((url, i) => (
+                      <div
+                        key={i}
+                        className="w-[78%] flex-shrink-0 relative aspect-square bg-[#f0eeeb] rounded-lg overflow-hidden"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`Ejemplo de grabado ${i + 1}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Input */}
               <div className="relative">

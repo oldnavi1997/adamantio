@@ -25,6 +25,7 @@ const productCreateSchema = z.object({
   sku: z.string().optional().nullable(),
   isActive: z.boolean().default(true),
   engravingEnabled: z.boolean().default(false),
+  engravingImages: z.array(z.string()).default([]),
   freeShipping: z.boolean().default(false),
   testMode: z.boolean().default(false),
   esPar: z.boolean().default(false),

@@ -15,14 +15,47 @@ export type PosStockData = {
   stockAlmacenMujer: number;
 };
 
+/** Solo los campos que la tabla del panel necesita — evita enviar al cliente
+ *  description, productDetails, sizeInfo y contentImages[] (potencialmente enormes). */
+export type AdminProductRow = {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  imageUrls: string[];
+  category: string | null;
+  price: number;
+  sku: string | null;
+  esPar: boolean;
+  isActive: boolean;
+};
+
 export default async function AdminProductsPage() {
   const [raw, categories] = await Promise.all([
-    prisma.product.findMany({ orderBy: { createdAt: "desc" } }),
+    prisma.product.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        imageUrl: true,
+        imageUrls: true,
+        category: true,
+        price: true,
+        sku: true,
+        esPar: true,
+        isActive: true,
+        stock: true,
+        stockHombre: true,
+        stockMujer: true,
+        stockAlmacen: true,
+        stockAlmacenHombre: true,
+        stockAlmacenMujer: true,
+      },
+    }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);
 
   const posStock: Record<string, PosStockData> = {};
-  for (const p of raw) {
+  const products: AdminProductRow[] = raw.map((p) => {
     if (p.sku) {
       posStock[p.sku] = {
         stock: p.stock,
@@ -33,9 +66,18 @@ export default async function AdminProductsPage() {
         stockAlmacenMujer: p.stockAlmacenMujer,
       };
     }
-  }
-
-  const products = JSON.parse(JSON.stringify(raw));
+    return {
+      id: p.id,
+      name: p.name,
+      imageUrl: p.imageUrl,
+      imageUrls: p.imageUrls,
+      category: p.category,
+      price: Number(p.price), // Decimal → number (serializable hacia el cliente)
+      sku: p.sku,
+      esPar: p.esPar,
+      isActive: p.isActive,
+    };
+  });
 
   return (
     <div>

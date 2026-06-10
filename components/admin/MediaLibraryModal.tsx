@@ -8,6 +8,8 @@ interface MediaLibraryModalProps {
   onClose: () => void;
   currentImages: string[];
   onConfirm: (newUrls: string[]) => void;
+  /** Filtra los recursos mostrados por tipo. Sin valor = todos. */
+  mediaType?: "image" | "video";
 }
 
 interface CloudinaryImage {
@@ -21,7 +23,7 @@ function getThumbnailUrl(url: string, resourceType: string): string {
   return url.replace("/video/upload/", "/video/upload/f_jpg,so_0/");
 }
 
-export function MediaLibraryModal({ open, onClose, currentImages, onConfirm }: MediaLibraryModalProps) {
+export function MediaLibraryModal({ open, onClose, currentImages, onConfirm, mediaType }: MediaLibraryModalProps) {
   const [images, setImages] = useState<CloudinaryImage[]>([]);
   const [loading, setLoading] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -76,6 +78,8 @@ export function MediaLibraryModal({ open, onClose, currentImages, onConfirm }: M
 
   if (!open) return null;
 
+  const visibleImages = mediaType ? images.filter((img) => img.resourceType === mediaType) : images;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl flex flex-col max-h-[90vh]">
@@ -97,12 +101,14 @@ export function MediaLibraryModal({ open, onClose, currentImages, onConfirm }: M
             <p className="text-red-500 text-sm mb-4">{error}</p>
           )}
 
-          {images.length === 0 && !loading && !error && (
-            <p className="text-gray-500 text-sm text-center py-8">No hay imágenes en Cloudinary.</p>
+          {visibleImages.length === 0 && !loading && !error && (
+            <p className="text-gray-500 text-sm text-center py-8">
+              {mediaType === "video" ? "No hay videos en Cloudinary." : "No hay imágenes en Cloudinary."}
+            </p>
           )}
 
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-            {images.map((img) => {
+            {visibleImages.map((img) => {
               const isCurrentImage = currentImages.includes(img.url);
               const isSelected = selected.has(img.url);
 

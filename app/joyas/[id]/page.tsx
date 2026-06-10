@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { ImageGallery } from "@/components/product/ImageGallery";
 import { ProductDetails } from "@/components/product/ProductDetails";
 import { formatPEN } from "@/lib/utils";
+import { resolveEngravingSamples } from "@/lib/engraving";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -48,6 +49,8 @@ export default async function ProductPage({ params }: Props) {
   });
 
   if (!product) notFound();
+
+  const engravingSamples = product.engravingEnabled ? await resolveEngravingSamples(product) : [];
 
   const images = product.imageUrls.length > 0 ? product.imageUrls : (product.imageUrl ? [product.imageUrl] : []);
   const image = images[0] ?? null;
@@ -126,7 +129,7 @@ export default async function ProductPage({ params }: Props) {
           <div className="border-t border-[#111111]/8" />
 
           {/* Interactive section: sizes, add to cart, accordions, engraving */}
-          <ProductDetails product={product} />
+          <ProductDetails product={product} engravingSamples={engravingSamples} />
         </div>
       </div>
 

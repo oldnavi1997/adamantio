@@ -3,39 +3,21 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 
-const ITEMS = [
-  {
-    id: 1,
-    name: "Amor Infinito – Anillos de Pareja",
-    price: "190.00",
-    href: "/joyas/cmlyj6zzm002gmi0pun7tg48j",
-    video: "https://res.cloudinary.com/dzqns7kss/video/upload/v1772845327/01e9240cc9db724a010370019ab4d2647a_115_qs5k4j.mp4",
-    poster: "https://res.cloudinary.com/dzqns7kss/video/upload/so_0/v1772845327/01e9240cc9db724a010370019ab4d2647a_115_qs5k4j.jpg",
-  },
-  {
-    id: 2,
-    name: "Anillo de Amor a Primera Vista",
-    price: "80.00",
-    href: "/joyas/cmm5dsv7d0000pa1womtk3pd0",
-    video: "https://res.cloudinary.com/dzqns7kss/video/upload/v1772845326/01e998435445f4c8010370019c7ac7b443_115_i9cq6c.mp4",
-    poster: "https://res.cloudinary.com/dzqns7kss/video/upload/so_0/v1772845326/01e998435445f4c8010370019c7ac7b443_115_i9cq6c.jpg",
-  },
-  {
-    id: 3,
-    name: "Anillo Flores de Primavera",
-    price: "160.00",
-    href: "/joyas/cmlyj6vph0014mi0pq9h41qjh",
-    video: "https://res.cloudinary.com/dzqns7kss/video/upload/v1772845332/01e9a7f032c5dbdb010370019cb8055475_115_pfbnat.mp4",
-    poster: "https://res.cloudinary.com/dzqns7kss/video/upload/so_0/v1772845332/01e9a7f032c5dbdb010370019cb8055475_115_pfbnat.jpg",
-  },
-];
+export type SpotlightItem = {
+  id: string;
+  name: string;
+  price: string;
+  href: string;
+  video: string;
+  poster: string;
+};
 
 const CARD_RATIO = 0.72;
 const GAP = 12;
 const BREAKPOINT = 641;
 const SWIPE_THRESHOLD = 40;
 
-export function VideoSpotlight() {
+export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
   const [active, setActive] = useState(0);
   const [muted, setMuted] = useState(true);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -97,6 +79,8 @@ export function VideoSpotlight() {
     else if (dragOffset > SWIPE_THRESHOLD && active > 0) go("prev");
     setDragOffset(0);
   }
+
+  if (ITEMS.length === 0) return null;
 
   const isMobile = containerWidth > 0 && containerWidth < BREAKPOINT;
   const cardWidth = Math.round(containerWidth * CARD_RATIO);

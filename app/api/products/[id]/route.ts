@@ -31,6 +31,7 @@ const updateSchema = z.object({
   sku: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   engravingEnabled: z.boolean().optional(),
+  engravingImages: z.array(z.string()).optional(),
   freeShipping: z.boolean().optional(),
   testMode: z.boolean().optional(),
   stockHombre: z.number().int().min(0).optional(),

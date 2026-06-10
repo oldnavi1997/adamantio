@@ -5,19 +5,27 @@ import Image from "next/image";
 import { Edit, Trash2, Search, X, Tag, ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
-import { ProductWithCategory } from "@/types";
-import { formatPEN, getPrimaryCategory } from "@/lib/utils";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { formatPEN, cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Category } from "@/app/generated/prisma/client";
-import { PosStockData } from "@/app/admin/productos/page";
+import { PosStockData, AdminProductRow } from "@/app/admin/productos/page";
 import { getSearchClient, INDEX_NAME } from "@/lib/algolia";
 
 type SortCol = "name" | "price";
 type SortDir = "asc" | "desc";
 
+const LOW_STOCK_THRESHOLD = 5;
+
+/** Stock total en tienda (POS). null si el producto no está vinculado al POS por SKU. */
+function storeStock(p: AdminProductRow, posStock: Record<string, PosStockData>): number | null {
+  const s = p.sku ? posStock[p.sku] : undefined;
+  if (!s) return null;
+  return p.esPar ? s.stockHombre + s.stockMujer : s.stockHombre;
+}
+
 interface ProductTableProps {
-  products: ProductWithCategory[];
+  products: AdminProductRow[];
   categories?: Category[];
   posStock?: Record<string, PosStockData>;
 }
@@ -44,13 +52,14 @@ function sortedCategories(cats: Category[]): { cat: Category; depth: number }[] 
 
 export function ProductTable({ products, categories = [], posStock = {} }: ProductTableProps) {
   const router = useRouter();
-  const orderedCategories = sortedCategories(categories);
+  const orderedCategories = useMemo(() => sortedCategories(categories), [categories]);
   const indent = (depth: number) => (depth > 0 ? "\u00a0".repeat(depth * 2) + "↳ " : "");
   const [query, setQuery] = useState("");
   const [sortCol, setSortCol] = useState<SortCol | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+  const [filterStock, setFilterStock] = useState<"all" | "out" | "low">("all");
   const [catOpen, setCatOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
   const catRef = useRef<HTMLTableCellElement>(null);
@@ -150,8 +159,19 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
         setStatusOpen(false);
       }
     };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setBulkPanelOpen(false);
+        setCatOpen(false);
+        setStatusOpen(false);
+      }
+    };
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
   }, []);
 
   useEffect(() => {
@@ -186,26 +206,48 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
     }
   };
 
-  const uniqueCategories = Array.from(
-    new Set(products.map((p) => p.category ?? "").filter(Boolean))
-  ).sort();
+  const uniqueCategories = useMemo(
+    () => Array.from(new Set(products.map((p) => p.category ?? "").filter(Boolean))).sort(),
+    [products]
+  );
 
-  let filtered = products.filter((p) => {
-    if (algoliaIds !== null && !algoliaIds.has(p.id)) return false;
-    if (filterCategory && (p.category ?? "") !== filterCategory) return false;
-    if (filterStatus === "active" && !p.isActive) return false;
-    if (filterStatus === "inactive" && p.isActive) return false;
-    return true;
-  });
-
-  if (sortCol) {
-    filtered = [...filtered].sort((a, b) => {
-      let cmp = 0;
-      if (sortCol === "name") cmp = a.name.localeCompare(b.name);
-      if (sortCol === "price") cmp = Number(a.price) - Number(b.price);
-      return sortDir === "asc" ? cmp : -cmp;
+  const filtered = useMemo(() => {
+    const result = products.filter((p) => {
+      if (algoliaIds !== null && !algoliaIds.has(p.id)) return false;
+      if (filterCategory && (p.category ?? "") !== filterCategory) return false;
+      if (filterStatus === "active" && !p.isActive) return false;
+      if (filterStatus === "inactive" && p.isActive) return false;
+      if (filterStock !== "all") {
+        const stock = storeStock(p, posStock);
+        if (stock === null) return false;
+        if (filterStock === "out" && stock !== 0) return false;
+        if (filterStock === "low" && !(stock > 0 && stock < LOW_STOCK_THRESHOLD)) return false;
+      }
+      return true;
     });
-  }
+
+    if (sortCol) {
+      result.sort((a, b) => {
+        let cmp = 0;
+        if (sortCol === "name") cmp = a.name.localeCompare(b.name);
+        if (sortCol === "price") cmp = a.price - b.price;
+        return sortDir === "asc" ? cmp : -cmp;
+      });
+    }
+    return result;
+  }, [products, algoliaIds, filterCategory, filterStatus, filterStock, sortCol, sortDir, posStock]);
+
+  const stockSummary = useMemo(() => {
+    let out = 0;
+    let low = 0;
+    for (const p of products) {
+      const stock = storeStock(p, posStock);
+      if (stock === null) continue;
+      if (stock === 0) out++;
+      else if (stock < LOW_STOCK_THRESHOLD) low++;
+    }
+    return { out, low };
+  }, [products, posStock]);
 
   if (products.length === 0) {
     return (
@@ -229,16 +271,49 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
             <span className="ml-1 text-[#111111]/25">de {products.length}</span>
           )}
         </p>
-        {(filterCategory || filterStatus !== "all") && (
+        {(filterCategory || filterStatus !== "all" || filterStock !== "all") && (
           <button
             type="button"
-            onClick={() => { setFilterCategory(""); setFilterStatus("all"); }}
+            onClick={() => { setFilterCategory(""); setFilterStatus("all"); setFilterStock("all"); }}
             className="text-[11px] uppercase tracking-[0.15em] text-[#111111]/40 hover:text-[#111111] flex items-center gap-1 transition-[color] duration-150"
             aria-label="Limpiar filtros activos"
           >
             <X className="h-2.5 w-2.5" aria-hidden="true" /> Limpiar filtros
           </button>
         )}
+
+        {/* Resumen de stock (tienda) — clic para filtrar */}
+        {stockSummary.out > 0 && (
+          <button
+            type="button"
+            onClick={() => setFilterStock((s) => (s === "out" ? "all" : "out"))}
+            aria-pressed={filterStock === "out"}
+            className={cn(
+              "text-[11px] tabular-nums px-2 py-1 rounded-full border transition-colors",
+              filterStock === "out"
+                ? "bg-red-500 text-white border-red-500"
+                : "border-red-200 text-red-600 hover:bg-red-50"
+            )}
+          >
+            {stockSummary.out} sin stock
+          </button>
+        )}
+        {stockSummary.low > 0 && (
+          <button
+            type="button"
+            onClick={() => setFilterStock((s) => (s === "low" ? "all" : "low"))}
+            aria-pressed={filterStock === "low"}
+            className={cn(
+              "text-[11px] tabular-nums px-2 py-1 rounded-full border transition-colors",
+              filterStock === "low"
+                ? "bg-amber-500 text-white border-amber-500"
+                : "border-amber-200 text-amber-700 hover:bg-amber-50"
+            )}
+          >
+            {stockSummary.low} stock bajo
+          </button>
+        )}
+
         <div className="relative ml-auto w-56">
           {algoliaLoading ? (
             <div className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 border border-[#111111]/30 border-t-[#111111]/60 rounded-full animate-spin" aria-hidden="true" />
@@ -522,7 +597,6 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
               </tr>
             )}
             {filtered.map((product) => {
-              const primaryCat = getPrimaryCategory(product);
               const isSelected = selectedIds.has(product.id);
               return (
                 <tr
@@ -566,7 +640,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                     {product.category ?? "—"}
                   </td>
                   <td className="py-3.5 px-4 text-right font-medium text-sm tabular-nums">
-                    {formatPEN(Number(product.price))}
+                    {formatPEN(product.price)}
                   </td>
                   {/* Stock Tienda POS */}
                   <td className="py-3.5 px-4 text-right">
@@ -643,8 +717,4 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
       </div>
     </div>
   );
-}
-
-function cn(...classes: (string | undefined | false)[]) {
-  return classes.filter(Boolean).join(" ");
 }

@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import Image from "next/image";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Category } from "@/app/generated/prisma/client";
@@ -21,55 +20,13 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  useSortable,
   horizontalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { CldUploadWidget } from "next-cloudinary";
 import { MediaLibraryModal } from "@/components/admin/MediaLibraryModal";
-
-function SortableImage({
-  url,
-  index,
-  onRemove,
-}: {
-  url: string;
-  index: number;
-  onRemove: () => void;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: url });
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`relative group w-24 h-24 rounded-lg overflow-hidden border-2 flex-shrink-0 ${
-        isDragging ? "opacity-50 border-[#111111]" : "border-gray-200"
-      }`}
-    >
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute inset-0 cursor-grab active:cursor-grabbing z-10"
-      />
-      <Image src={url} alt={`Imagen ${index + 1}`} fill className="object-cover" sizes="96px" />
-      {index === 0 && (
-        <span className="absolute top-1 left-1 bg-[#111111] text-white text-[9px] px-1.5 py-0.5 rounded z-20 pointer-events-none">
-          Principal
-        </span>
-      )}
-      <button
-        type="button"
-        onClick={onRemove}
-        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 text-xs"
-      >
-        ×
-      </button>
-    </div>
-  );
-}
+import { SortableImage } from "@/components/admin/SortableImage";
+import { ImageManager } from "@/components/admin/ImageManager";
 
 const productSchema = z.object({
   name: z.string().min(2, "Nombre requerido"),
@@ -120,6 +77,7 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
   const [contentImages, setContentImages] = useState<string[]>(product?.contentImages ?? []);
   const [showContentLibrary, setShowContentLibrary] = useState(false);
+  const [engravingImages, setEngravingImages] = useState<string[]>(product?.engravingImages ?? []);
 
   const {
     register,
@@ -161,6 +119,7 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
   });
 
   const esPar = watch("esPar");
+  const engravingEnabled = watch("engravingEnabled");
   const prevEsParRef = useRef(esPar);
 
   useEffect(() => {
@@ -234,6 +193,7 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
         imageUrls: images,
         imageUrl: images[0] ?? null,
         contentImages,
+        engravingImages,
         sizes,
         precioCosto: parseFloat(data.precioCosto || "0") || 0,
         stockMinimo: parseInt(data.stockMinimo || "5") || 5,
@@ -547,6 +507,20 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           currentImages={contentImages}
           onConfirm={(newUrls) => setContentImages((prev) => [...prev, ...newUrls])}
         />
+      </div>
+
+      {/* Imágenes de grabado */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <h2 className="font-semibold text-[#111111]">Imágenes de grabado</h2>
+        <p className="text-sm text-gray-500">
+          Ejemplos de grabado específicos para este producto. Si lo dejas vacío, se usa la galería global de la sección Grabado. Arrastrá para reordenar.
+        </p>
+        {!engravingEnabled && (
+          <p className="text-sm text-amber-600">
+            El grabado está desactivado para este producto: estas imágenes no se mostrarán hasta que habilites &ldquo;Grabado personalizado&rdquo; abajo.
+          </p>
+        )}
+        <ImageManager images={engravingImages} onChange={setEngravingImages} />
       </div>
 
       {/* Visibilidad */}

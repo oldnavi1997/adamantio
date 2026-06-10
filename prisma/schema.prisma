@@ -89,6 +89,7 @@ model Product {
   sizes            String[]    @default([])
   isActive         Boolean     @default(true)
   engravingEnabled Boolean     @default(false)
+  engravingImages  String[]    @default([])
   freeShipping     Boolean     @default(false)
   testMode         Boolean     @default(false)
   esPar            Boolean     @default(false)
@@ -112,6 +113,14 @@ model Product {
   orderItems       OrderItem[]
   saleItems        SaleItem[]
   stockEntries     StockEntry[]
+}
+
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
 }
 
 model Category {

@@ -2,17 +2,25 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { ImageManager } from "@/components/admin/ImageManager";
 
-type Product = { id: string; name: string; category?: string | null; engravingEnabled: boolean };
+type Product = {
+  id: string;
+  name: string;
+  category?: string | null;
+  engravingEnabled: boolean;
+  engravingImages: string[];
+};
 type Category = { id: string; name: string };
 type Scope = "all" | "category" | "product";
 
 interface Props {
   products: Product[];
   categories: Category[];
+  globalSamples: string[];
 }
 
-export function EngravingPanel({ products: initialProducts, categories }: Props) {
+export function EngravingPanel({ products: initialProducts, categories, globalSamples }: Props) {
   const [products, setProducts] = useState(initialProducts);
   const [scope, setScope] = useState<Scope>("all");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -20,7 +28,65 @@ export function EngravingPanel({ products: initialProducts, categories }: Props)
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Galería global de ejemplos
+  const [globalImages, setGlobalImages] = useState<string[]>(globalSamples);
+  const [savingGlobal, setSavingGlobal] = useState(false);
+
+  // Imágenes por producto
+  const [imgSearch, setImgSearch] = useState("");
+  const [imgProductId, setImgProductId] = useState<string | null>(null);
+  const [productImages, setProductImages] = useState<string[]>([]);
+  const [savingProduct, setSavingProduct] = useState(false);
+
   const engravingCount = products.filter((p) => p.engravingEnabled).length;
+
+  async function saveGlobal() {
+    setSavingGlobal(true);
+    try {
+      const res = await fetch("/api/admin/engraving-samples", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ images: globalImages }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Galería global de grabado actualizada");
+    } catch {
+      toast.error("Error al guardar la galería global");
+    } finally {
+      setSavingGlobal(false);
+    }
+  }
+
+  function selectImageProduct(id: string) {
+    const product = products.find((p) => p.id === id);
+    setImgProductId(id);
+    setProductImages(product?.engravingImages ?? []);
+  }
+
+  async function saveProductImages() {
+    if (!imgProductId) return;
+    setSavingProduct(true);
+    try {
+      const res = await fetch(`/api/products/${imgProductId}/engraving-images`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ images: productImages }),
+      });
+      if (!res.ok) throw new Error();
+      setProducts((prev) =>
+        prev.map((p) => (p.id === imgProductId ? { ...p, engravingImages: productImages } : p))
+      );
+      toast.success("Imágenes del producto actualizadas");
+    } catch {
+      toast.error("Error al guardar las imágenes del producto");
+    } finally {
+      setSavingProduct(false);
+    }
+  }
+
+  const imgFilteredProducts = imgSearch.trim()
+    ? products.filter((p) => p.name.toLowerCase().includes(imgSearch.trim().toLowerCase()))
+    : products;
 
   async function refresh() {
     const res = await fetch("/api/products?admin=1&limit=500");
@@ -100,6 +166,28 @@ export function EngravingPanel({ products: initialProducts, categories }: Props)
 
   return (
     <div className="space-y-6">
+      {/* Galería global de ejemplos */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <div>
+          <h2 className="font-semibold text-[#111111]">Ejemplos de grabado (global)</h2>
+          <p className="text-sm text-gray-400 mt-1">
+            Estas imágenes se muestran como ejemplos en todos los productos con grabado que no tengan
+            imágenes propias. Arrastra para reordenar.
+          </p>
+        </div>
+        <ImageManager images={globalImages} onChange={setGlobalImages} />
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={saveGlobal}
+            disabled={savingGlobal}
+            className="px-5 py-2.5 bg-[#111111] text-white text-sm font-medium rounded-lg hover:bg-[#333] disabled:opacity-50 transition-colors"
+          >
+            {savingGlobal ? "Guardando..." : "Guardar galería global"}
+          </button>
+        </div>
+      </div>
+
       {/* Stats */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <p className="text-sm text-gray-500">
@@ -290,6 +378,92 @@ export function EngravingPanel({ products: initialProducts, categories }: Props)
               {selectedProductIds.length > 0 && (
                 <span className="text-sm text-gray-400">{selectedProductIds.length} seleccionados</span>
               )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Imágenes por producto */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <div>
+          <h2 className="font-semibold text-[#111111]">Imágenes por producto</h2>
+          <p className="text-sm text-gray-400 mt-1">
+            Asigna imágenes de ejemplo propias a un producto. Si lo dejas vacío, hereda la galería global.
+          </p>
+        </div>
+
+        <input
+          value={imgSearch}
+          onChange={(e) => setImgSearch(e.target.value)}
+          placeholder="Buscar producto..."
+          className="w-full max-w-sm px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+        />
+
+        <div className="border border-gray-100 rounded-lg overflow-hidden max-h-72 overflow-y-auto">
+          {imgFilteredProducts.length === 0 ? (
+            <p className="p-4 text-sm text-gray-400 text-center">No se encontraron productos.</p>
+          ) : (
+            imgFilteredProducts.map((p) => {
+              const active = imgProductId === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => selectImageProduct(p.id)}
+                  className={`flex w-full items-center gap-3 px-4 py-3 text-left border-b border-gray-50 last:border-0 transition-colors ${
+                    active ? "bg-gray-50" : "hover:bg-gray-50/50"
+                  }`}
+                >
+                  <span className="flex-1 text-sm text-[#111111]">{p.name}</span>
+                  {p.category && (
+                    <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                      {p.category}
+                    </span>
+                  )}
+                  <span
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                      p.engravingImages.length > 0
+                        ? "bg-[#c9a84c]/20 text-[#7a5c12]"
+                        : "bg-gray-100 text-gray-400"
+                    }`}
+                  >
+                    {p.engravingImages.length > 0 ? `${p.engravingImages.length} propias` : "Global"}
+                  </span>
+                </button>
+              );
+            })
+          )}
+        </div>
+
+        {imgProductId && (
+          <div className="space-y-4 border-t border-gray-100 pt-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-[#111111]">
+                {products.find((p) => p.id === imgProductId)?.name}
+              </p>
+              <button
+                type="button"
+                onClick={() => { setImgProductId(null); setProductImages([]); }}
+                className="text-sm text-gray-400 hover:text-[#111111] transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+            {productImages.length === 0 && (
+              <p className="text-xs text-gray-400">
+                Sin imágenes propias — este producto usa la galería global.
+              </p>
+            )}
+            <ImageManager images={productImages} onChange={setProductImages} />
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={saveProductImages}
+                disabled={savingProduct}
+                className="px-5 py-2.5 bg-[#111111] text-white text-sm font-medium rounded-lg hover:bg-[#333] disabled:opacity-50 transition-colors"
+              >
+                {savingProduct ? "Guardando..." : "Guardar imágenes del producto"}
+              </button>
             </div>
           </div>
         )}
