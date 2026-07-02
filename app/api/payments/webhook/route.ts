@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { paymentClient } from "@/lib/mercadopago";
 import { PaymentStatus } from "@/app/generated/prisma/client";
+import { sendOrderPaidPush } from "@/lib/push";
 
 function mapMpStatus(mpStatus: string): PaymentStatus {
   switch (mpStatus) {
@@ -39,10 +40,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (paymentStatus === PaymentStatus.APPROVED) {
-      await prisma.order.update({
-        where: { id: payment.external_reference },
+      // Only flip orders that aren't PAID yet so duplicate MP webhooks don't
+      // re-notify. updateMany returns the count of rows actually changed.
+      const updated = await prisma.order.updateMany({
+        where: { id: payment.external_reference, status: { not: "PAID" } },
         data: { status: "PAID" },
       });
+      if (updated.count > 0) {
+        await sendOrderPaidPush(payment.external_reference);
+      }
     }
 
     return NextResponse.json({ received: true });

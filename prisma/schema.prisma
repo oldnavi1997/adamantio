@@ -255,3 +255,13 @@ model StockEntry {
   nota      String?
   createdAt DateTime @default(now())
 }
+
+// Expo push tokens registered by the POS mobile app. Written by the POS
+// backend (/api/push-tokens), read here to notify devices when an order is paid.
+model PushToken {
+  token     String   @id
+  userId    String?
+  platform  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
