@@ -75,7 +75,8 @@ export async function POST(request: NextRequest) {
     }, 0);
 
     const isTestMode = products.some((p) => p.testMode);
-    const shippingCost = isTestMode ? 0 : (shipping.courier === "shalom"
+    const hasFreeShipping = products.some((p) => p.freeShipping);
+    const shippingCost = isTestMode || hasFreeShipping ? 0 : (shipping.courier === "shalom"
       ? SHALOM_PRICE
       : (OLVA_PRICE_BY_DEPARTMENT[shipping.department] ?? 15));
 

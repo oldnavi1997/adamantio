@@ -75,6 +75,7 @@ export function AddToCartButton({ product, engravingText, selectedSize }: AddToC
             size: size ?? undefined,
             engravingText: trimmed || undefined,
             testMode: product.testMode,
+            freeShipping: product.freeShipping,
           });
           openDrawer();
         }}

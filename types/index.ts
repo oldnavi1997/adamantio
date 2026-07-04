@@ -23,6 +23,7 @@ export type CartItem = {
   size?: string;
   engravingText?: string;
   testMode?: boolean;
+  freeShipping?: boolean;
 };
 
 export type ShippingFormData = {

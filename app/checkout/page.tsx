@@ -33,6 +33,7 @@ export default function CheckoutPage() {
 
   const sub = subtotal();
   const isTestMode = items.some((i) => i.testMode);
+  const hasFreeShipping = items.some((i) => i.freeShipping);
 
   useEffect(() => {
     if (items.length === 0 && step !== "result") {
@@ -100,7 +101,7 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {step === "form" && (
-            <CheckoutForm onSubmit={handleShippingSubmit} loading={loadingOrder} subtotal={sub} isTestMode={isTestMode} defaultValues={savedShipping ?? undefined} />
+            <CheckoutForm onSubmit={handleShippingSubmit} loading={loadingOrder} subtotal={sub} isTestMode={isTestMode} freeShipping={hasFreeShipping} defaultValues={savedShipping ?? undefined} />
           )}
 
           {step === "payment" && orderId && (

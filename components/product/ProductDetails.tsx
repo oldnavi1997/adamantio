@@ -39,6 +39,7 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
       size: selectedSize ?? undefined,
       engravingText: trimmed || undefined,
       testMode: product.testMode,
+      freeShipping: product.freeShipping,
     });
     openDrawer();
   };

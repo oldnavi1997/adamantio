@@ -53,10 +53,11 @@ interface CheckoutFormProps {
   loading?: boolean;
   subtotal: number;
   isTestMode?: boolean;
+  freeShipping?: boolean;
   defaultValues?: Partial<ShippingFormData>;
 }
 
-export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, defaultValues }: CheckoutFormProps) {
+export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, freeShipping, defaultValues }: CheckoutFormProps) {
   const [districtSelectValue, setDistrictSelectValue] = useState(defaultValues?.district ?? "");
 
   const {
@@ -80,7 +81,7 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, defaultV
     ? (UBIGEO.districtsByDepartmentProvince[department]?.[province] ?? [])
     : [];
 
-  const shippingCost = isTestMode ? 0 : (courier === "shalom" ? SHALOM_PRICE : (OLVA_PRICE_BY_DEPARTMENT[department] ?? 15));
+  const shippingCost = isTestMode || freeShipping ? 0 : (courier === "shalom" ? SHALOM_PRICE : (OLVA_PRICE_BY_DEPARTMENT[department] ?? 15));
   const beforeCommission = subtotal + shippingCost;
   const mpCommission = isTestMode ? 0 : (beforeCommission * 0.0329 * 1.18 + 1.18);
   const total = beforeCommission + mpCommission;
@@ -198,7 +199,7 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, defaultV
         </div>
         <div className="flex justify-between text-[#111111]/60">
           <span>Envío ({courier === "shalom" ? "Shalom" : "Olva"})</span>
-          <span>S/ {shippingCost.toFixed(2)}</span>
+          <span>{shippingCost === 0 ? "Gratis" : `S/ ${shippingCost.toFixed(2)}`}</span>
         </div>
         <div className="flex justify-between text-[#111111]/60">
           <span>Comisión Mercado Pago</span>
