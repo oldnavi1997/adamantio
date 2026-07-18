@@ -28,56 +28,6 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
     );
   }
 
-  const thumbnailStrip = images.length > 1 && (
-    <>
-      {/* Desktop: vertical strip on the left */}
-      <div className="hidden sm:flex flex-col gap-2 w-[68px] flex-shrink-0">
-        {images.map((img, idx) => (
-          <button
-            key={idx}
-            onClick={() => setSelectedIdx(idx)}
-            className={`relative w-full aspect-square border overflow-hidden cursor-pointer transition-colors duration-150 ${
-              idx === selectedIdx
-                ? "border-[#1c1c1c]"
-                : "border-[#dadadd] hover:border-[#1c1c1c]/40"
-            }`}
-          >
-            <Image
-              src={img}
-              alt={`${name} ${idx + 1}`}
-              fill
-              className="object-cover"
-              sizes="68px"
-            />
-          </button>
-        ))}
-      </div>
-
-      {/* Mobile: horizontal strip below the image */}
-      <div className="flex sm:hidden gap-2 overflow-x-auto pt-2">
-        {images.map((img, idx) => (
-          <button
-            key={idx}
-            onClick={() => setSelectedIdx(idx)}
-            className={`relative w-14 h-14 flex-shrink-0 border overflow-hidden cursor-pointer transition-colors duration-150 ${
-              idx === selectedIdx
-                ? "border-[#1c1c1c]"
-                : "border-[#dadadd] hover:border-[#1c1c1c]/40"
-            }`}
-          >
-            <Image
-              src={img}
-              alt={`${name} ${idx + 1}`}
-              fill
-              className="object-cover"
-              sizes="56px"
-            />
-          </button>
-        ))}
-      </div>
-    </>
-  );
-
   return (
     <div>
       {/* Desktop layout: thumbnails left + main image right */}
@@ -88,6 +38,8 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
               <button
                 key={idx}
                 onClick={() => setSelectedIdx(idx)}
+                onMouseEnter={() => setSelectedIdx(idx)}
+                onFocus={() => setSelectedIdx(idx)}
                 className={`relative w-full aspect-square border overflow-hidden cursor-pointer transition-colors duration-150 ${
                   idx === selectedIdx
                     ? "border-[#1c1c1c]"
@@ -106,14 +58,20 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
           </div>
         )}
         <div className="flex-1 relative aspect-square bg-white overflow-hidden">
-          <Image
-            src={images[selectedIdx]}
-            alt={name}
-            fill
-            className="object-contain transition-opacity duration-300"
-            sizes="(max-width: 1024px) 45vw, 500px"
-            priority
-          />
+          {images.map((img, idx) => (
+            <Image
+              key={idx}
+              src={img}
+              alt={name}
+              fill
+              className={`object-contain transition-opacity duration-[120ms] ${
+                idx === selectedIdx ? "opacity-100" : "opacity-0"
+              }`}
+              sizes="(max-width: 1024px) 45vw, 500px"
+              priority={idx === 0}
+              loading={idx === 0 ? undefined : "eager"}
+            />
+          ))}
         </div>
       </div>
 

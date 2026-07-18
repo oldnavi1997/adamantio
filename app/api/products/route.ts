@@ -95,9 +95,15 @@ export async function POST(request: NextRequest) {
 
     const { stockAlmacenH, stockAlmacenM, ...prismaData } = data;
 
+    // Transición a FK: mantener categoryId sincronizado con el nombre (category).
+    const categoryId = data.category
+      ? (await prisma.category.findUnique({ where: { name: data.category }, select: { id: true } }))?.id ?? null
+      : null;
+
     const product = await prisma.product.create({
       data: {
         ...prismaData,
+        categoryId,
         price: new Prisma.Decimal(data.price),
         stockAlmacenHombre: stockAlmacenH,
         stockAlmacenMujer: stockAlmacenM,

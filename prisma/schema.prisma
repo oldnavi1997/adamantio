@@ -83,6 +83,8 @@ model Product {
   productDetails   String      @default("")
   sizeInfo         String      @default("")
   category         String?
+  categoryId       String?
+  categoryRef      Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   price            Decimal     @db.Decimal(10, 2)
   stock            Int
   sku              String?     @unique
@@ -130,6 +132,7 @@ model Category {
   sortOrder Int        @default(0)  @map("sort_order")
   parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
   children  Category[] @relation("CategoryTree")
+  products  Product[]
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @default(now()) @map("updated_at")
 

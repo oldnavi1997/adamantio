@@ -22,16 +22,21 @@ export async function POST(request: NextRequest) {
     const { productIds, categoryIds, mode } = bulkSchema.parse(body);
 
     let categoryName: string | null = null;
+    let categoryId: string | null = null;
     if (mode !== "remove" && categoryIds.length > 0) {
       const cat = await prisma.category.findUnique({ where: { id: categoryIds[0] } });
       categoryName = cat?.name ?? null;
+      categoryId = cat?.id ?? null;
     }
 
     await prisma.$transaction(
       productIds.map((id) =>
         prisma.product.update({
           where: { id },
-          data: { category: mode === "remove" ? null : categoryName },
+          data:
+            mode === "remove"
+              ? { category: null, categoryId: null }
+              : { category: categoryName, categoryId },
         })
       )
     );

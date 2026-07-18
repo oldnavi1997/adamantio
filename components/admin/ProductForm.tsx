@@ -270,6 +270,15 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
               {...register("category")}
             >
               <option value="">Sin categoría</option>
+              {/* Si la categoría actual del producto ya no existe en la lista
+                  (p.ej. una categoría renombrada/eliminada), la mostramos igual
+                  para que el navegador no la descarte en silencio al guardar. */}
+              {product?.category &&
+                !categories.some((c) => c.name === product.category) && (
+                  <option value={product.category}>
+                    {product.category} (categoría inexistente)
+                  </option>
+                )}
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.name}>
                   {cat.name}

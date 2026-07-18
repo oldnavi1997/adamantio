@@ -63,6 +63,14 @@ export async function PUT(
 
     const { stockAlmacenH, stockAlmacenM, ...prismaData } = data;
 
+    // Transición a FK: sincronizar categoryId solo si el payload trae category.
+    const categoryId =
+      data.category !== undefined
+        ? data.category
+          ? (await prisma.category.findUnique({ where: { name: data.category }, select: { id: true } }))?.id ?? null
+          : null
+        : undefined;
+
     const existing = await prisma.product.findUnique({
       where: { id },
       select: { stockHombre: true, stockMujer: true, stockAlmacenHombre: true, stockAlmacenMujer: true },
@@ -78,6 +86,7 @@ export async function PUT(
       where: { id },
       data: {
         ...prismaData,
+        ...(categoryId !== undefined && { categoryId }),
         ...(data.price !== undefined && { price: new Prisma.Decimal(data.price) }),
         ...(data.stockHombre !== undefined && { stockHombre: data.stockHombre }),
         ...(data.stockMujer !== undefined && { stockMujer: data.stockMujer }),
