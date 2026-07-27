@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
+import { ShoppingBag, Menu, X, ChevronDown, Heart } from "lucide-react";
 import { SearchBar } from "@/components/search/SearchBar";
 import { useState, useEffect, useRef } from "react";
 import { useCartStore } from "@/stores/cart";
+import { useWishlistStore } from "@/stores/wishlist";
 import { slugify } from "@/lib/utils";
 
 type NavLeaf = { id: string; name: string };
@@ -33,6 +34,8 @@ export function Navbar({ categories }: NavbarProps) {
   const [openMobileCatId, setOpenMobileCatId] = useState<string | null>(null);
   const itemCount = useCartStore((s) => s.itemCount());
   const openDrawer = useCartStore((s) => s.openDrawer);
+  const wishCount = useWishlistStore((s) => s.count());
+  const openWishlist = useWishlistStore((s) => s.openDrawer);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const navRef = useRef<HTMLDivElement>(null);
@@ -126,6 +129,18 @@ export function Navbar({ categories }: NavbarProps) {
                   onClose={() => setSearchOpen(false)}
                   triggerOnly
                 />
+                <button
+                  onClick={() => { openWishlist(); setSearchOpen(false); }}
+                  className="relative text-[#374151]"
+                  aria-label="Abrir lista de deseos"
+                >
+                  <Heart className="h-5 w-5" />
+                  {mounted && wishCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-[#111827] text-white text-[9px] font-bold rounded-full h-3.5 w-3.5 flex items-center justify-center">
+                      {wishCount}
+                    </span>
+                  )}
+                </button>
                 <button
                   onClick={() => { openDrawer(); setSearchOpen(false); }}
                   className="relative text-[#374151]"
@@ -248,6 +263,19 @@ export function Navbar({ categories }: NavbarProps) {
                   onOpen={() => setSearchOpen(true)}
                   onClose={() => setSearchOpen(false)}
                 />
+                <button
+                  onClick={() => { openWishlist(); setSearchOpen(false); }}
+                  className="relative text-[#374151] hover:text-[#111827] transition-colors"
+                  title="Lista de deseos"
+                  aria-label="Abrir lista de deseos"
+                >
+                  <Heart className="h-5 w-5" />
+                  {mounted && wishCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-[#111827] text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center leading-none">
+                      {wishCount > 9 ? "9+" : wishCount}
+                    </span>
+                  )}
+                </button>
                 <button
                   onClick={() => { openDrawer(); setSearchOpen(false); }}
                   className="relative text-[#374151] hover:text-[#111827] transition-colors"

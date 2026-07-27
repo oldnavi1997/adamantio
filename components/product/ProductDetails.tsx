@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { ProductWithCategory } from "@/types";
 import { useCartStore } from "@/stores/cart";
 import AccordionItem from "@/components/product/AccordionItem";
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
 
 const MAX_ENGRAVING = 30;
 
@@ -52,6 +53,7 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
             Sin stock disponible
           </span>
         </div>
+        <WishlistButton product={product} variant="detail" />
         <Accordions product={product} />
       </>
     );
@@ -97,6 +99,8 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
       >
         Agregar al carrito
       </Button>
+
+      <WishlistButton product={product} variant="detail" />
 
       {/* Acordeones */}
       <div>

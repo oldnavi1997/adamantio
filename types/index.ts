@@ -26,6 +26,15 @@ export type CartItem = {
   freeShipping?: boolean;
 };
 
+export type WishlistItem = {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl?: string;
+  stock: number;
+  sizes?: string[];
+};
+
 export type ShippingFormData = {
   email: string;
   firstName: string;

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ProductWithCategory } from "@/types";
 import { formatPEN } from "@/lib/utils";
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
 
 interface ProductCardProps {
   product: ProductWithCategory;
@@ -38,6 +39,7 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
               </span>
             </div>
           )}
+          <WishlistButton product={product} variant="card" />
         </div>
         <div className="mt-2 text-center">
           <p className="text-xs font-medium text-[#111111] line-clamp-1 leading-snug">
@@ -89,6 +91,7 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
             </span>
           </div>
         )}
+        <WishlistButton product={product} variant="card" />
       </div>
 
       {/* Divider */}
