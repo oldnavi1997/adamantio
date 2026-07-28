@@ -18,7 +18,7 @@ import { ProductGrid } from "@/components/catalog/ProductGrid";
 import { CatalogToolbar } from "@/components/catalog/CatalogToolbar";
 import { CatalogPagination } from "@/components/catalog/CatalogPagination";
 import { Prisma } from "@/app/generated/prisma/client";
-import { seededShuffle, slugify } from "@/lib/utils";
+import { slugify } from "@/lib/utils";
 
 interface SearchParams {
   category?: string;
@@ -63,42 +63,24 @@ async function getProducts(params: SearchParams) {
     if (params.maxPrice) where.price.lte = new Prisma.Decimal(params.maxPrice);
   }
 
-  const sortMap: Record<string, Prisma.ProductOrderByWithRelationInput> = {
-    best_selling: { createdAt: "desc" },
-    name_asc:     { name: "asc" },
-    name_desc:    { name: "desc" },
-    price_asc:    { price: "asc" },
-    price_desc:   { price: "desc" },
-    oldest:       { createdAt: "asc" },
+  // `newest` es el orden por defecto. Cualquier valor desconocido —incluidos los
+  // `featured` y `best_selling` que existieron antes— cae también en él.
+  //
+  // Cada orden termina en `id` para desempatar: hay decenas de productos que
+  // comparten precio, y sin una clave única el orden entre ellos es
+  // indeterminado, así que al paginar uno puede repetirse o desaparecer.
+  const sortMap: Record<string, Prisma.ProductOrderByWithRelationInput[]> = {
+    newest:     [{ createdAt: "desc" }, { id: "desc" }],
+    oldest:     [{ createdAt: "asc" }, { id: "asc" }],
+    name_asc:   [{ name: "asc" }, { id: "asc" }],
+    name_desc:  [{ name: "desc" }, { id: "desc" }],
+    price_asc:  [{ price: "asc" }, { id: "asc" }],
+    price_desc: [{ price: "desc" }, { id: "desc" }],
   };
 
   const page = parseInt(params.page || "1");
   const limit = 24;
-  const useShuffleSort = !params.sort || params.sort === "newest";
-
-  if (useShuffleSort) {
-    const allIds = await prisma.product.findMany({
-      where,
-      select: { id: true },
-      orderBy: { createdAt: "asc" },
-    });
-
-    const seed = Number(new Date().toISOString().slice(0, 10).replace(/-/g, ""));
-    const shuffledIds = seededShuffle(allIds.map((p) => p.id), seed);
-    const total = shuffledIds.length;
-    const pageIds = shuffledIds.slice((page - 1) * limit, page * limit);
-
-    const raw = await prisma.product.findMany({
-      where: { id: { in: pageIds } },
-    });
-
-    const map = new Map(raw.map((p) => [p.id, p]));
-    const products = pageIds.map((id) => map.get(id)!).filter(Boolean);
-
-    return { products, total, pages: Math.ceil(total / limit), page };
-  }
-
-  const orderBy = sortMap[params.sort!] || { createdAt: "desc" };
+  const orderBy = sortMap[params.sort ?? ""] ?? sortMap.newest;
 
   const [products, total] = await Promise.all([
     prisma.product.findMany({
