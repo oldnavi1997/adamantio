@@ -3,27 +3,17 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Check } from "lucide-react";
-
-const OPTIONS = [
-  { value: "featured",    label: "Destacados" },
-  { value: "best_selling",label: "Más vendidos" },
-  { value: "name_asc",    label: "Alfabéticamente, A-Z" },
-  { value: "name_desc",   label: "Alfabéticamente, Z-A" },
-  { value: "price_asc",   label: "Precio: menor a mayor" },
-  { value: "price_desc",  label: "Precio: mayor a menor" },
-  { value: "oldest",      label: "Fecha: antiguo a nuevo" },
-  { value: "newest",      label: "Fecha: nuevo a antiguo" },
-];
+import { SORT_OPTIONS, normalizeSort } from "@/lib/catalog-sort";
 
 export function SortSelect() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentSort = searchParams.get("sort") || "newest";
+  const currentSort = normalizeSort(searchParams.get("sort"));
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const currentLabel = OPTIONS.find((o) => o.value === currentSort)?.label ?? "Ordenar";
+  const currentLabel = SORT_OPTIONS.find((o) => o.value === currentSort)?.label ?? "Ordenar";
 
   const handleSelect = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -55,7 +45,7 @@ export function SortSelect() {
 
       {open && (
         <div className="absolute right-0 top-[calc(100%+8px)] z-50 min-w-[210px] bg-white border border-[#dadadd] shadow-sm py-1">
-          {OPTIONS.map((opt) => (
+          {SORT_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               onClick={() => handleSelect(opt.value)}
