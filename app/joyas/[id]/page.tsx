@@ -6,6 +6,7 @@ import { ImageGallery } from "@/components/product/ImageGallery";
 import { ProductDetails } from "@/components/product/ProductDetails";
 import { formatPEN } from "@/lib/utils";
 import { resolveEngravingSamples } from "@/lib/engraving";
+import { productThumbnail } from "@/lib/media";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Producto no encontrado" };
 
   const description = product.description || `${product.name} | Adamantio`;
-  const image = product.imageUrls?.[0] ?? product.imageUrl ?? null;
+  const image = productThumbnail(product);
   const url = `${process.env.NEXT_PUBLIC_APP_URL}/joyas/${id}`;
 
   return {
@@ -53,7 +54,7 @@ export default async function ProductPage({ params }: Props) {
   const engravingSamples = product.engravingEnabled ? await resolveEngravingSamples(product) : [];
 
   const images = product.imageUrls.length > 0 ? product.imageUrls : (product.imageUrl ? [product.imageUrl] : []);
-  const image = images[0] ?? null;
+  const image = productThumbnail(product);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://adamantio.pe";
 
   const jsonLd = {

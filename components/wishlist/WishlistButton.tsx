@@ -5,6 +5,7 @@ import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useWishlistStore } from "@/stores/wishlist";
 import { ProductWithCategory } from "@/types";
+import { productThumbnail } from "@/lib/media";
 
 interface Props {
   product: ProductWithCategory;
@@ -28,7 +29,7 @@ export function WishlistButton({ product, variant = "card" }: Props) {
       id: product.id,
       name: product.name,
       price: Number(product.price),
-      imageUrl: product.imageUrls?.[0] ?? product.imageUrl ?? undefined,
+      imageUrl: productThumbnail(product) ?? undefined,
       stock: product.stock,
       sizes: product.sizes ?? undefined,
     });

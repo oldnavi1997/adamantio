@@ -10,23 +10,8 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Category } from "@/app/generated/prisma/client";
 import { ProductWithCategory } from "@/types";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  horizontalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { CldUploadWidget } from "next-cloudinary";
-import { MediaLibraryModal } from "@/components/admin/MediaLibraryModal";
-import { SortableImage } from "@/components/admin/SortableImage";
 import { ImageManager } from "@/components/admin/ImageManager";
+import { productThumbnail } from "@/lib/media";
 
 const productSchema = z.object({
   name: z.string().min(2, "Nombre requerido"),
@@ -74,9 +59,7 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
   const [images, setImages] = useState<string[]>(product?.imageUrls ?? (product?.imageUrl ? [product.imageUrl] : []));
   const [sizes, setSizes] = useState<string[]>(product?.sizes ?? []);
   const [sizeInput, setSizeInput] = useState("");
-  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
   const [contentImages, setContentImages] = useState<string[]>(product?.contentImages ?? []);
-  const [showContentLibrary, setShowContentLibrary] = useState(false);
   const [engravingImages, setEngravingImages] = useState<string[]>(product?.engravingImages ?? []);
 
   const {
@@ -142,30 +125,6 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
     }
   }, [esPar]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const sensors = useSensors(useSensor(PointerSensor));
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      setImages((imgs) => {
-        const oldIndex = imgs.indexOf(active.id as string);
-        const newIndex = imgs.indexOf(over.id as string);
-        return arrayMove(imgs, oldIndex, newIndex);
-      });
-    }
-  }
-
-  function handleContentDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      setContentImages((imgs) => {
-        const oldIndex = imgs.indexOf(active.id as string);
-        const newIndex = imgs.indexOf(over.id as string);
-        return arrayMove(imgs, oldIndex, newIndex);
-      });
-    }
-  }
-
   function addSize() {
     const trimmed = sizeInput.trim();
     if (trimmed && !sizes.includes(trimmed)) {
@@ -191,7 +150,7 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
         stockAlmacenH: sAH,
         stockAlmacenM: sAM,
         imageUrls: images,
-        imageUrl: images[0] ?? null,
+        imageUrl: productThumbnail({ imageUrls: images }),
         contentImages,
         engravingImages,
         sizes,
@@ -404,118 +363,24 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
         )}
       </div>
 
-      {/* Imágenes */}
+      {/* Galería */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-        <h2 className="font-semibold text-[#111111]">Imágenes</h2>
-        <p className="text-sm text-gray-500">La primera imagen es la principal. Arrastrá para reordenar.</p>
+        <h2 className="font-semibold text-[#111111]">Galería</h2>
+        <p className="text-sm text-gray-500">
+          Fotos y videos en el orden en que se ven en la ficha. Arrastrá para reordenar: el video puede ir
+          en cualquier posición. Los videos se reproducen en bucle y sin sonido. La miniatura del catálogo,
+          el carrito y las redes es la primera <strong>foto</strong> (marcada como Principal).
+        </p>
 
-        {images.length > 0 && (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={images} strategy={horizontalListSortingStrategy}>
-              <div className="flex flex-wrap gap-3">
-                {images.map((url, i) => (
-                  <SortableImage
-                    key={url}
-                    url={url}
-                    index={i}
-                    onRemove={() => setImages(images.filter((_, idx) => idx !== i))}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        )}
-
-        <CldUploadWidget
-          uploadPreset="adamantio-products"
-          options={{ multiple: true }}
-          onSuccess={(result) => {
-            const info = result.info as { secure_url: string };
-            if (info?.secure_url) setImages((prev) => [...prev, info.secure_url]);
-          }}
-        >
-          {({ open }) => (
-            <button
-              type="button"
-              onClick={() => open()}
-              className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-[#111111] hover:text-[#111111] transition-colors"
-            >
-              + Subir imagen
-            </button>
-          )}
-        </CldUploadWidget>
-
-        <button
-          type="button"
-          onClick={() => setShowMediaLibrary(true)}
-          className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-[#111111] hover:text-[#111111] transition-colors"
-        >
-          + Seleccionar de galería
-        </button>
-
-        <MediaLibraryModal
-          open={showMediaLibrary}
-          onClose={() => setShowMediaLibrary(false)}
-          currentImages={images}
-          onConfirm={(newUrls) => setImages((prev) => [...prev, ...newUrls])}
-        />
+        <ImageManager images={images} onChange={setImages} showPrimaryBadge mediaType="mixed" />
       </div>
 
       {/* Imágenes de contenido */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
         <h2 className="font-semibold text-[#111111]">Imágenes de contenido</h2>
-        <p className="text-sm text-gray-500">Imágenes adicionales para la descripción o contenido editorial del producto. Arrastrá para reordenar.</p>
+        <p className="text-sm text-gray-500">Fotos o videos adicionales para la descripción o contenido editorial del producto. Arrastrá para reordenar.</p>
 
-        {contentImages.length > 0 && (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleContentDragEnd}>
-            <SortableContext items={contentImages} strategy={horizontalListSortingStrategy}>
-              <div className="flex flex-wrap gap-3">
-                {contentImages.map((url, i) => (
-                  <SortableImage
-                    key={url}
-                    url={url}
-                    index={-1}
-                    onRemove={() => setContentImages(contentImages.filter((_, idx) => idx !== i))}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        )}
-
-        <CldUploadWidget
-          uploadPreset="adamantio-products"
-          options={{ multiple: true }}
-          onSuccess={(result) => {
-            const info = result.info as { secure_url: string };
-            if (info?.secure_url) setContentImages((prev) => [...prev, info.secure_url]);
-          }}
-        >
-          {({ open }) => (
-            <button
-              type="button"
-              onClick={() => open()}
-              className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-[#111111] hover:text-[#111111] transition-colors"
-            >
-              + Subir imagen
-            </button>
-          )}
-        </CldUploadWidget>
-
-        <button
-          type="button"
-          onClick={() => setShowContentLibrary(true)}
-          className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-[#111111] hover:text-[#111111] transition-colors"
-        >
-          + Seleccionar de galería
-        </button>
-
-        <MediaLibraryModal
-          open={showContentLibrary}
-          onClose={() => setShowContentLibrary(false)}
-          currentImages={contentImages}
-          onConfirm={(newUrls) => setContentImages((prev) => [...prev, ...newUrls])}
-        />
+        <ImageManager images={contentImages} onChange={setContentImages} mediaType="mixed" />
       </div>
 
       {/* Imágenes de grabado */}

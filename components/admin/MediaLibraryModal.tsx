@@ -85,7 +85,9 @@ export function MediaLibraryModal({ open, onClose, currentImages, onConfirm, med
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <h2 className="font-semibold text-[#111111] text-lg">Galería de imágenes</h2>
+          <h2 className="font-semibold text-[#111111] text-lg">
+            {mediaType === "video" ? "Galería de videos" : "Galería de imágenes"}
+          </h2>
           <button
             type="button"
             onClick={onClose}

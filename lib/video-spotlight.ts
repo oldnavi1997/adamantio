@@ -1,6 +1,8 @@
 // Módulo puro (cliente-safe): no importa prisma. La lectura desde la DB vive en
 // `lib/video-spotlight-server.ts` para no contaminar los bundles de cliente.
 
+import { videoPosterUrl } from "@/lib/media";
+
 /** Clave del SiteSetting que almacena la configuración de videos destacados de la home. */
 export const VIDEO_SPOTLIGHT_KEY = "video_spotlight";
 
@@ -12,16 +14,6 @@ export type SpotlightConfigItem = {
   /** Póster derivado del video (frame inicial). */
   poster: string;
 };
-
-/**
- * Deriva la URL del póster a partir de la URL del video de Cloudinary:
- * `/video/upload/...mp4` → `/video/upload/so_0/...jpg`.
- */
-export function videoPosterUrl(video: string): string {
-  return video
-    .replace("/video/upload/", "/video/upload/so_0/")
-    .replace(/\.(mp4|webm|mov|m4v)$/i, ".jpg");
-}
 
 /**
  * Configuración por defecto (los videos que estaban hardcodeados en VideoSpotlight).

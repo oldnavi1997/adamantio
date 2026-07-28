@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
-import { VIDEO_SPOTLIGHT_KEY, videoPosterUrl } from "@/lib/video-spotlight";
+import { VIDEO_SPOTLIGHT_KEY } from "@/lib/video-spotlight";
+import { videoPosterUrl } from "@/lib/media";
 import { getVideoSpotlightConfig } from "@/lib/video-spotlight-server";
 
 const schema = z.object({

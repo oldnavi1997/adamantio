@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Category } from "@/app/generated/prisma/client";
 import { PosStockData, AdminProductRow } from "@/app/admin/productos/page";
 import { getSearchClient, INDEX_NAME } from "@/lib/algolia";
+import { productThumbnail } from "@/lib/media";
 
 type SortCol = "name" | "price";
 type SortDir = "asc" | "desc";
@@ -617,9 +618,9 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
                       <div className="relative w-20 h-20 bg-[#f8f7f4] overflow-hidden flex-shrink-0">
-                        {product.imageUrls?.[0] ?? product.imageUrl ? (
+                        {productThumbnail(product) ? (
                           <Image
-                            src={product.imageUrls?.[0] ?? product.imageUrl}
+                            src={productThumbnail(product)!}
                             alt={product.name}
                             fill
                             className="object-cover"

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { productThumbnail } from "@/lib/media";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export async function GET() {
     const availability = p.stock > 0 ? "in stock" : "out of stock";
     const price = `${Number(p.price).toFixed(2)} PEN`;
     const link = `${appUrl}/joyas/${p.id}`;
-    const imageLink = p.imageUrl ?? p.imageUrls[0] ?? "";
+    const imageLink = productThumbnail(p) ?? "";
     const description = p.description ?? "Sin descripción";
 
     return [
