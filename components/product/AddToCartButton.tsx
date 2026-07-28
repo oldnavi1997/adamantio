@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { ProductWithCategory } from "@/types";
 import { useCartStore } from "@/stores/cart";
+import { productThumbnail } from "@/lib/media";
 
 interface AddToCartButtonProps {
   product: ProductWithCategory;
@@ -68,8 +69,8 @@ export function AddToCartButton({ product, engravingText, selectedSize }: AddToC
             cartKey: (size || trimmed) ? `${product.id}__${size ?? ""}__${trimmed}` : undefined,
             name: product.name,
             price: Number(product.price),
-            image: product.imageUrls?.[0] ?? product.imageUrl ?? undefined,
-            imageUrl: product.imageUrls?.[0] ?? product.imageUrl ?? undefined,
+            image: productThumbnail(product) ?? undefined,
+            imageUrl: productThumbnail(product) ?? undefined,
             stock: product.stock,
             quantity: 1,
             size: size ?? undefined,

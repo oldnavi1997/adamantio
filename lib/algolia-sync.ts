@@ -1,4 +1,5 @@
 import { getAdminClient, INDEX_NAME } from "./algolia";
+import { isVideoUrl } from "./media";
 
 type SyncProduct = {
   id: string;
@@ -21,7 +22,8 @@ export async function indexProduct(p: SyncProduct) {
       description: p.description ?? "",
       price: Number(p.price),
       slug: p.id,
-      images: [p.imageUrl, ...p.imageUrls].filter(Boolean),
+      // Solo fotos: el buscador muestra <img>, un video rompería la miniatura.
+      images: [p.imageUrl, ...p.imageUrls].filter((u): u is string => !!u && !isVideoUrl(u)),
       stock: p.stock,
       active: p.isActive,
       category: p.category ?? "",

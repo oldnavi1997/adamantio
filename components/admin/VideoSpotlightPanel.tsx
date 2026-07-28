@@ -7,7 +7,8 @@ import { CldUploadWidget } from "next-cloudinary";
 import { ArrowDown, ArrowUp, Film, Plus, Search, Trash2, Video, X } from "lucide-react";
 import { formatPEN } from "@/lib/utils";
 import { MediaLibraryModal } from "@/components/admin/MediaLibraryModal";
-import { videoPosterUrl, type SpotlightConfigItem } from "@/lib/video-spotlight";
+import { type SpotlightConfigItem } from "@/lib/video-spotlight";
+import { videoPosterUrl } from "@/lib/media";
 
 type ProductOption = { id: string; name: string; price: number; image: string | null };
 

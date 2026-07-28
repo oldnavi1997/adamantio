@@ -7,6 +7,7 @@ import { ProductWithCategory } from "@/types";
 import { useCartStore } from "@/stores/cart";
 import AccordionItem from "@/components/product/AccordionItem";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
+import { productThumbnail } from "@/lib/media";
 
 const MAX_ENGRAVING = 30;
 
@@ -33,8 +34,8 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
       cartKey: (selectedSize || trimmed) ? `${product.id}__${selectedSize ?? ""}__${trimmed}` : undefined,
       name: product.name,
       price: Number(product.price),
-      image: product.imageUrls?.[0] ?? product.imageUrl ?? undefined,
-      imageUrl: product.imageUrls?.[0] ?? product.imageUrl ?? undefined,
+      image: productThumbnail(product) ?? undefined,
+      imageUrl: productThumbnail(product) ?? undefined,
       stock: product.stock,
       quantity: 1,
       size: selectedSize ?? undefined,

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ProductWithCategory } from "@/types";
 import { formatPEN } from "@/lib/utils";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
+import { productThumbnail } from "@/lib/media";
 
 interface ProductCardProps {
   product: ProductWithCategory;
@@ -10,7 +11,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, view = "dense" }: ProductCardProps) {
-  const imageUrl = product.imageUrls[0] ?? product.imageUrl ?? null;
+  const imageUrl = productThumbnail(product);
 
   if (view === "dense") {
     return (

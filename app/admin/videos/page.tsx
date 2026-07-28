@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { VideoSpotlightPanel } from "@/components/admin/VideoSpotlightPanel";
 import { getVideoSpotlightConfig } from "@/lib/video-spotlight-server";
+import { productThumbnail } from "@/lib/media";
 
 export const metadata = { title: "Videos | Admin" };
 
@@ -18,7 +19,7 @@ export default async function AdminVideosPage() {
     id: p.id,
     name: p.name,
     price: Number(p.price),
-    image: p.imageUrls?.[0] ?? p.imageUrl ?? null,
+    image: productThumbnail(p),
   }));
 
   return (

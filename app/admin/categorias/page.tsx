@@ -4,13 +4,30 @@ import { CategoryTable } from "@/components/admin/CategoryTable";
 export const metadata = { title: "Categorías | Admin" };
 
 export default async function AdminCategoriasPage() {
-  const categories = await prisma.category.findMany({
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    include: {
-      parent: { select: { id: true, name: true } },
-      _count: { select: { children: true } },
-    },
-  });
+  const [categories, productCounts] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      include: {
+        parent: { select: { id: true, name: true } },
+        _count: { select: { children: true } },
+      },
+    }),
+    // `Product.category` es texto denormalizado (sin FK), y el borrado se
+    // bloquea contando por ese nombre. Contamos igual para que la columna
+    // coincida exactamente con la regla de eliminación.
+    prisma.product.groupBy({
+      by: ["category"],
+      _count: { _all: true },
+    }),
+  ]);
+
+  const countByName = new Map(
+    productCounts.map((r) => [r.category ?? "", r._count._all])
+  );
+  const categoriesWithCounts = categories.map((c) => ({
+    ...c,
+    productCount: countByName.get(c.name) ?? 0,
+  }));
 
   return (
     <div>
@@ -26,7 +43,7 @@ export default async function AdminCategoriasPage() {
         </h1>
       </div>
       <div className="bg-white border border-[#111111]/6">
-        <CategoryTable categories={categories} />
+        <CategoryTable categories={categoriesWithCounts} />
       </div>
     </div>
   );

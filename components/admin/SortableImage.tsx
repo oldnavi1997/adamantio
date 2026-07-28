@@ -3,18 +3,27 @@
 import Image from "next/image";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { isVideoUrl, videoPosterUrl } from "@/lib/media";
 
 export function SortableImage({
   url,
-  index,
+  isPrimary = false,
+  position,
   onRemove,
 }: {
   url: string;
-  index: number;
+  /** Marca esta pieza como la miniatura del producto (primera foto). */
+  isPrimary?: boolean;
+  /** Posición 1-indexada dentro de la galería. Sin valor, no se muestra. */
+  position?: number;
   onRemove: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: url });
+
+  // Los videos no pueden pasar por next/image: se muestra el póster (primer frame).
+  const isVideo = isVideoUrl(url);
+  const thumbnail = isVideo ? videoPosterUrl(url) : url;
 
   return (
     <div
@@ -29,8 +38,24 @@ export function SortableImage({
         {...listeners}
         className="absolute inset-0 cursor-grab active:cursor-grabbing z-10"
       />
-      <Image src={url} alt={`Imagen ${index + 1}`} fill className="object-cover" sizes="96px" />
-      {index === 0 && (
+      <Image
+        src={thumbnail}
+        alt={isVideo ? "Video" : `Imagen ${position ?? ""}`}
+        fill
+        className="object-cover"
+        sizes="96px"
+      />
+      {position !== undefined && (
+        <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] w-4 h-4 flex items-center justify-center rounded z-20 pointer-events-none">
+          {position}
+        </span>
+      )}
+      {isVideo && (
+        <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[9px] px-1.5 py-0.5 rounded z-20 pointer-events-none">
+          ▶ Video
+        </span>
+      )}
+      {isPrimary && (
         <span className="absolute top-1 left-1 bg-[#111111] text-white text-[9px] px-1.5 py-0.5 rounded z-20 pointer-events-none">
           Principal
         </span>
