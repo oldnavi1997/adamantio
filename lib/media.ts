@@ -31,8 +31,6 @@ export function videoPosterUrl(video: string): string {
  * falta más margen de créditos en Cloudinary, el dial es w_540 (-48%).
  */
 const VIDEO_DELIVERY = "f_auto,q_auto:eco,vc_auto,c_limit,w_640";
-/** Póster a tamaño de tarjeta. */
-const POSTER_DELIVERY = "f_auto,q_auto,c_limit,w_540";
 /** Miniatura cuadrada del listado: 44px CSS a 2x DPR. */
 const THUMB_DELIVERY = "f_auto,q_auto,c_fill,ar_1,w_88";
 
@@ -61,9 +59,12 @@ export function videoDeliveryUrl(video: string): string {
   return withVideoTransform(video, VIDEO_DELIVERY);
 }
 
-/** URL de entrega del póster a tamaño de tarjeta. */
-export function posterDeliveryUrl(poster: string): string {
-  return withVideoTransform(poster, POSTER_DELIVERY);
+/**
+ * URL de entrega del póster. El default (540) es el de la tarjeta del spotlight;
+ * la galería de producto lo muestra más grande y pasa su propio ancho.
+ */
+export function posterDeliveryUrl(poster: string, width = 540): string {
+  return withVideoTransform(poster, `f_auto,q_auto,c_limit,w_${width}`);
 }
 
 /** URL de entrega de la miniatura cuadrada de 44px del listado. */

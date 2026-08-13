@@ -1,9 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
-import { isVideoUrl, videoPosterUrl } from "@/lib/media";
+import { isVideoUrl, posterDeliveryUrl, videoDeliveryUrl, videoPosterUrl } from "@/lib/media";
+
+/**
+ * Los layouts desktop y móvil se montan los dos y solo se ocultan por CSS, así
+ * que sin saber cuál está visible el invisible también reproduce y descarga el
+ * video. `sm:` de Tailwind es 640px.
+ */
+const DESKTOP_MQ = "(min-width: 640px)";
+
+function subscribeDesktop(onChange: () => void) {
+  const mq = window.matchMedia(DESKTOP_MQ);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+const getDesktopSnapshot = () => window.matchMedia(DESKTOP_MQ).matches;
+/**
+ * `null` = todavía no sabemos el layout (SSR e hidratación). Mientras tanto no
+ * reproduce ninguno de los dos: si acá devolviéramos `false`, en desktop el
+ * layout móvil alcanzaría a descargar el video antes de que se corrija.
+ */
+const getDesktopServerSnapshot = (): boolean | null => null;
 
 interface ImageGalleryProps {
   /** Media de la galería: fotos y videos mezclados, en el orden en que se muestran. */
@@ -73,29 +93,44 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
     };
   }, [emblaApi]);
 
+  const isDesktop = useSyncExternalStore<boolean | null>(
+    subscribeDesktop,
+    getDesktopSnapshot,
+    getDesktopServerSnapshot
+  );
+
   // Reproduce solo el video del slide activo; el resto pausa y vuelve al inicio.
+  // `activeIdx = -1` apaga el layout entero (el que está oculto por CSS).
   const syncPlayback = useCallback(
     (refs: (HTMLVideoElement | null)[], activeIdx: number) => {
       refs.forEach((video, idx) => {
         if (!video) return;
         if (idx === activeIdx) {
+          // El src se asigna recién acá: los slides que nunca se miran —y el
+          // layout que no está visible— no descargan un solo byte.
+          const slide = slides[idx];
+          if (!video.src && slide?.type === "video") {
+            video.src = videoDeliveryUrl(slide.src);
+          }
           video.play().catch(() => {});
         } else {
           video.pause();
-          video.currentTime = 0;
+          // Con `preload="none"` un src recién asignado aún no tiene metadata;
+          // tocar currentTime antes de tiempo lanza InvalidStateError.
+          if (video.readyState > 0) video.currentTime = 0;
         }
       });
     },
-    []
+    [slides]
   );
 
   useEffect(() => {
-    syncPlayback(desktopVideoRefs.current, selectedIdx);
-  }, [selectedIdx, slides, syncPlayback]);
+    syncPlayback(desktopVideoRefs.current, isDesktop === true ? selectedIdx : -1);
+  }, [selectedIdx, slides, syncPlayback, isDesktop]);
 
   useEffect(() => {
-    syncPlayback(mobileVideoRefs.current, mobileIdx);
-  }, [mobileIdx, slides, syncPlayback]);
+    syncPlayback(mobileVideoRefs.current, isDesktop === false ? mobileIdx : -1);
+  }, [mobileIdx, slides, syncPlayback, isDesktop]);
 
   if (slides.length === 0) {
     return (
@@ -146,12 +181,11 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
                 ref={(el) => {
                   desktopVideoRefs.current[idx] = el;
                 }}
-                src={slide.src}
-                poster={slide.poster}
+                poster={posterDeliveryUrl(slide.poster, 800)}
                 muted
                 loop
                 playsInline
-                preload="metadata"
+                preload="none"
                 className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-[120ms] ${
                   idx === selectedIdx ? "opacity-100" : "opacity-0"
                 }`}
@@ -187,12 +221,11 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
                   ref={(el) => {
                     mobileVideoRefs.current[idx] = el;
                   }}
-                  src={slide.src}
-                  poster={slide.poster}
+                  poster={posterDeliveryUrl(slide.poster, 800)}
                   muted
                   loop
                   playsInline
-                  preload="metadata"
+                  preload="none"
                   className="absolute inset-0 w-full h-full object-contain"
                 />
               ) : (
