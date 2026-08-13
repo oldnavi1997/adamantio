@@ -233,7 +233,7 @@ export function CardPaymentBrick({ total, orderId, email, onPaymentResult }: Pro
         <div>
           <div className="yape-card">
             <div className="yape-header">
-              <img src="https://res.cloudinary.com/dzqns7kss/image/upload/v1772670756/Yape-App-Logo-Vector.svg-_g36q5h.png" alt="Yape" className="yape-logo" width="32" height="32" />
+              <img src="https://res.cloudinary.com/dzqns7kss/image/upload/w_64,c_limit,f_auto,q_auto/v1772670756/Yape-App-Logo-Vector.svg-_g36q5h.png" alt="Yape" className="yape-logo" width="32" height="32" />
               <div>
                 <strong className="yape-title">Paga con Yape en pocos segundos</strong>
                 <p className="yape-subtitle">Completa los siguientes datos y confirma tu compra.</p>

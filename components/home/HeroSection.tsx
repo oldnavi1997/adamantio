@@ -5,14 +5,14 @@ export function HeroSection() {
     <section
       className="hero-section relative overflow-hidden min-h-[88vh] flex items-center justify-end bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: "url('https://res.cloudinary.com/dzqns7kss/image/upload/v1772684338/Mobile_Hero_resultado_i5xyd5.webp')",
+        backgroundImage: "url('https://res.cloudinary.com/dzqns7kss/image/upload/f_auto,q_auto/v1772684338/Mobile_Hero_resultado_i5xyd5.webp')",
       }}
     >
       {/* Desktop background image */}
       <style>{`
         @media (min-width: 641px) {
           .hero-section {
-            background-image: url('https://res.cloudinary.com/dzqns7kss/image/upload/v1772684014/Hero_Image_Final_resultado-2048x1152-1_p9molx.webp') !important;
+            background-image: url('https://res.cloudinary.com/dzqns7kss/image/upload/f_auto,q_auto/v1772684014/Hero_Image_Final_resultado-2048x1152-1_p9molx.webp') !important;
           }
         }
       `}</style>

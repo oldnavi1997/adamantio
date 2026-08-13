@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { posterDeliveryUrl, thumbDeliveryUrl, videoDeliveryUrl } from "@/lib/media";
 
 export type SpotlightItem = {
   id: string;
@@ -23,6 +24,9 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
   const [containerWidth, setContainerWidth] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
+  // El carrusel vive bajo el hero: sin esto, todo visitante que nunca baja
+  // igual se descargaba el video. Solo cargamos cuando la sección se ve.
+  const [inView, setInView] = useState(false);
   const touchStartX = useRef(0);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const outerRef = useRef<HTMLDivElement>(null);
@@ -39,17 +43,34 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
   }, []);
 
   useEffect(() => {
+    const el = outerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { rootMargin: "200px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
     videoRefs.current.forEach((vid, i) => {
       if (!vid) return;
-      if (i === active) {
-        vid.currentTime = 0;
+      if (i === active && inView) {
+        // El src se asigna recién aquí: quien nunca baja hasta la sección no
+        // descarga un solo byte de video. Una vez asignado se conserva, así
+        // volver a una tarjeta anterior es instantáneo.
+        if (!vid.src) vid.src = videoDeliveryUrl(ITEMS[i].video);
+        // Con `preload="none"` el src recién asignado aún no tiene metadata;
+        // tocar currentTime antes de tiempo lanza InvalidStateError.
+        if (vid.readyState > 0) vid.currentTime = 0;
         vid.play().catch(() => {});
       } else {
         vid.pause();
-        vid.currentTime = 0;
+        if (vid.readyState > 0) vid.currentTime = 0;
       }
     });
-  }, [active]);
+  }, [active, inView, ITEMS]);
 
   function go(dir: "prev" | "next") {
     setActive((prev) => {
@@ -145,13 +166,12 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
               <div className="vs-video-wrap" onClick={() => setActive(i)}>
                 <video
                   ref={(el) => { videoRefs.current[i] = el; }}
-                  src={item.video}
-                  poster={item.poster}
+                  poster={posterDeliveryUrl(item.poster)}
                   className="vs-video"
                   muted={muted}
                   loop
                   playsInline
-                  preload="metadata"
+                  preload="none"
                 />
                 {i === active && (
                   <button
@@ -177,7 +197,7 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
               </div>
 
               <Link href={item.href} className="vs-info">
-                <img src={item.poster} alt={item.name} className="vs-thumb" loading="lazy" />
+                <img src={thumbDeliveryUrl(item.poster)} alt={item.name} className="vs-thumb" loading="lazy" width={44} height={44} />
                 <div className="vs-text">
                   <p className="vs-name">{item.name}</p>
                   <p className="vs-price">S/ {item.price}</p>
