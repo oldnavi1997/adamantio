@@ -26,11 +26,14 @@ export function videoPosterUrl(video: string): string {
 
 /**
  * Video: los fuentes son 1080x1920, pero se renderizan en tarjetas de ~280-330px
- * CSS, así que 640 cubre pantallas 2x de sobra. `q_auto` a secas apenas recorta
- * un 8%; `q_auto:eco` baja un 38% sin diferencia visible a ese tamaño. Si hiciera
- * falta más margen de créditos en Cloudinary, el dial es w_540 (-48%).
+ * CSS, así que 640 cubre pantallas 2x de sobra. Medido sobre un video de 2173 KB:
+ * `w_640` con `q_auto:good` da 1668 KB (-23%) y con `q_auto:eco` 1349 KB (-38%).
+ *
+ * Vamos con `good` a propósito: en joyería los reflejos metálicos sobre fondo
+ * oscuro son justo donde la compresión agresiva muestra bandeado. Si el consumo
+ * de Cloudinary no baja lo suficiente, el dial es `q_auto:eco` y después w_540.
  */
-const VIDEO_DELIVERY = "f_auto,q_auto:eco,vc_auto,c_limit,w_640";
+const VIDEO_DELIVERY = "f_auto,q_auto:good,vc_auto,c_limit,w_640";
 /** Miniatura cuadrada del listado: 44px CSS a 2x DPR. */
 const THUMB_DELIVERY = "f_auto,q_auto,c_fill,ar_1,w_88";
 
