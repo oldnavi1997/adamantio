@@ -16,6 +16,14 @@ const LOGO_URL =
 
 export async function sendOrderConfirmation(orderId: string): Promise<void> {
   try {
+    if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+      console.error(
+        `sendOrderConfirmation: falta ${!process.env.RESEND_API_KEY ? "RESEND_API_KEY" : "EMAIL_FROM"}, ` +
+          `el correo del pedido ${orderId} no se envía`
+      );
+      return;
+    }
+
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -223,12 +231,27 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
 </body>
 </html>`;
 
-    await getResend().emails.send({
-      from: process.env.EMAIL_FROM!,
+    const { data, error } = await getResend().emails.send({
+      from: process.env.EMAIL_FROM,
       to: recipientEmail,
       subject: `¡Pedido confirmado! #${shortId} — Adamantio`,
       html,
     });
+
+    // Resend NO lanza cuando la API rechaza el envío: devuelve `{ data, error }`.
+    // Ignorar el retorno hacía que un dominio sin verificar, una API key mala o
+    // el límite de `onboarding@resend.dev` (que solo entrega al dueño de la
+    // cuenta) se perdieran en silencio: el cliente no recibía nada y no quedaba
+    // ni un log.
+    if (error) {
+      console.error(
+        `sendOrderConfirmation: Resend rechazó el pedido ${orderId} para ${recipientEmail}:`,
+        error
+      );
+      return;
+    }
+
+    console.log(`sendOrderConfirmation: pedido ${orderId} enviado a ${recipientEmail} (id ${data?.id})`);
   } catch (error) {
     console.error("sendOrderConfirmation error:", error);
   }

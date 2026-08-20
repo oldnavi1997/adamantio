@@ -108,7 +108,9 @@ Products are indexed to Algolia. `lib/algolia.ts` holds the client, `lib/algolia
 
 ## Email
 
-`lib/email.ts` supports both Resend and Nodemailer (SMTP via Hostinger). Config via `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM` in `.env.local`.
+`lib/email.ts` sends via **Resend only** (the `nodemailer` dependency is left over and unused). Config: `RESEND_API_KEY` + `EMAIL_FROM` in `.env.local`.
+
+`EMAIL_FROM` must belong to a domain verified at resend.com/domains. `onboarding@resend.dev` only delivers to the Resend account owner and silently 403s every other recipient — Resend's SDK returns `{ data, error }` instead of throwing, so always check `error`.
 
 ## Railway Deployment
 
