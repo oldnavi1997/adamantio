@@ -11,6 +11,14 @@ function formatPEN(amount: number): string {
   return new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(amount);
 }
 
+/**
+ * Canal de contacto del pie. El remitente es `noreply@adamantio.pe` y nadie lee
+ * ese buzón, así que el correo tiene que decirlo y mandar a un canal atendido.
+ * Es el mismo número publicado en el libro de reclamaciones y en las políticas.
+ */
+const WHATSAPP_NUMBER = "51997676742";
+const WHATSAPP_DISPLAY = "+51 997 676 742";
+
 const LOGO_URL =
   "https://res.cloudinary.com/dzqns7kss/image/upload/v1772665459/adamantio-logo-1024x299_ol5fgy.png";
 
@@ -220,7 +228,11 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
               Gracias por tu compra en <span style="color:#ffffff;font-weight:600;">Adamantio</span>.
             </div>
             <div style="font-size:12px;color:#666666;margin-top:8px;">
-              ¿Preguntas? Responde este correo y te ayudamos.
+              ¿Preguntas? Escríbenos por WhatsApp al
+              <a href="https://wa.me/${WHATSAPP_NUMBER}" style="color:#c9a84c;text-decoration:none;font-weight:600;">${WHATSAPP_DISPLAY}</a>.
+            </div>
+            <div style="font-size:11px;color:#555555;margin-top:10px;">
+              Este correo es automático, por favor no lo respondas.
             </div>
           </td>
         </tr>
