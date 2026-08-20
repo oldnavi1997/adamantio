@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { posterDeliveryUrl, thumbDeliveryUrl, videoDeliveryUrl } from "@/lib/media";
+import { spotlightPosterUrl, spotlightVideoUrl, thumbDeliveryUrl } from "@/lib/media";
 
 export type SpotlightItem = {
   id: string;
@@ -15,13 +15,36 @@ export type SpotlightItem = {
 
 const CARD_RATIO = 0.72;
 const GAP = 12;
+const GAP_DESKTOP = 16;
 const BREAKPOINT = 641;
+/** Tarjetas visibles a la vez en desktop; el resto se alcanza deslizando. */
+const PER_VIEW_DESKTOP = 3;
 const SWIPE_THRESHOLD = 40;
+
+/**
+ * El CSS decide por viewport y el JS tiene que coincidir: medir el contenedor no
+ * sirve, porque le faltan los 1.5rem de padding lateral de la sección y quedaría
+ * una franja de viewports en la que ambos discrepan.
+ */
+const MOBILE_QUERY = `(max-width: ${BREAKPOINT - 1}px)`;
+
+function subscribeMobile(onChange: () => void) {
+  const mq = window.matchMedia(MOBILE_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
 
 export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
   const [active, setActive] = useState(0);
   const [muted, setMuted] = useState(true);
   const [containerWidth, setContainerWidth] = useState(0);
+  // En el server no hay viewport: el snapshot es `false` y el HTML sale con el
+  // layout de desktop, igual que antes. El cliente lo corrige antes de pintar.
+  const isMobile = useSyncExternalStore(
+    subscribeMobile,
+    () => window.matchMedia(MOBILE_QUERY).matches,
+    () => false
+  );
   const [dragOffset, setDragOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
   // El carrusel vive bajo el hero: sin esto, todo visitante que nunca baja
@@ -60,7 +83,7 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
         // El src se asigna recién aquí: quien nunca baja hasta la sección no
         // descarga un solo byte de video. Una vez asignado se conserva, así
         // volver a una tarjeta anterior es instantáneo.
-        if (!vid.src) vid.src = videoDeliveryUrl(ITEMS[i].video);
+        if (!vid.src) vid.src = spotlightVideoUrl(ITEMS[i].video);
         // Con `preload="none"` el src recién asignado aún no tiene metadata;
         // tocar currentTime antes de tiempo lanza InvalidStateError.
         if (vid.readyState > 0) vid.currentTime = 0;
@@ -103,10 +126,22 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
 
   if (ITEMS.length === 0) return null;
 
-  const isMobile = containerWidth > 0 && containerWidth < BREAKPOINT;
-  const cardWidth = Math.round(containerWidth * CARD_RATIO);
-  const peekWidth = Math.round((containerWidth - cardWidth) / 2);
-  const slideOffset = isMobile ? peekWidth - active * (cardWidth + GAP) + dragOffset : 0;
+  const gap = isMobile ? GAP : GAP_DESKTOP;
+  const perView = isMobile ? 1 : PER_VIEW_DESKTOP;
+  // En mobile el ancho lo pone JS (la tarjeta ocupa el 72% para dejar peek a los
+  // lados); en desktop lo pone el CSS, así el SSR ya sale bien sin hidratar.
+  const cardWidth = isMobile
+    ? Math.round(containerWidth * CARD_RATIO)
+    : (containerWidth - gap * (perView - 1)) / perView;
+  // Mobile: la activa va centrada. Desktop: la ventana de 3 se corre lo mínimo
+  // para que la activa entre, sin pasarse del final.
+  const maxSlide = Math.max(0, ITEMS.length - perView);
+  const slideIndex = isMobile
+    ? active
+    : Math.min(Math.max(active - Math.floor(perView / 2), 0), maxSlide);
+  const peekWidth = isMobile ? Math.round((containerWidth - cardWidth) / 2) : 0;
+  const slideOffset =
+    containerWidth === 0 ? 0 : peekWidth - slideIndex * (cardWidth + gap) + dragOffset;
 
   return (
     <section className="vs-section" aria-label="Descubre nuestras favoritas">
@@ -140,9 +175,11 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
         .vs-dot--active { background: #c8a96e; transform: scale(1.4); }
         @media (min-width: ${BREAKPOINT}px) {
           .vs-section { padding: 4rem 1.5rem 3rem; }
-          .vs-carousel-outer { overflow: visible; max-width: 1000px; margin: 0 auto; }
-          .vs-track { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; transform: none !important; }
-          .vs-card { width: 100%; }
+          .vs-carousel-outer { max-width: 1000px; margin: 0 auto; }
+          .vs-track { gap: ${GAP_DESKTOP}px; }
+          /* Ancho por CSS: con 4+ videos el track se desliza en vez de que el
+             cuarto caiga a una segunda fila. */
+          .vs-card { flex: 0 0 calc((100% - ${GAP_DESKTOP * (PER_VIEW_DESKTOP - 1)}px) / ${PER_VIEW_DESKTOP}); }
         }
       `}</style>
 
@@ -153,9 +190,9 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
         <div
           className="vs-track"
           style={{ transform: `translateX(${slideOffset}px)`, transition: dragging ? "none" : undefined }}
-          onTouchStart={isMobile ? handleTouchStart : undefined}
-          onTouchMove={isMobile ? handleTouchMove : undefined}
-          onTouchEnd={isMobile ? handleTouchEnd : undefined}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {ITEMS.map((item, i) => (
             <div
@@ -166,7 +203,7 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
               <div className="vs-video-wrap" onClick={() => setActive(i)}>
                 <video
                   ref={(el) => { videoRefs.current[i] = el; }}
-                  poster={posterDeliveryUrl(item.poster)}
+                  poster={spotlightPosterUrl(item.poster)}
                   className="vs-video"
                   muted={muted}
                   loop
