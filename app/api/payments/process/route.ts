@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { paymentClient } from "@/lib/mercadopago";
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      sendOrderConfirmation(orderId).catch(console.error);
+      after(() => sendOrderConfirmation(orderId));
       await deductStock(orderId);
       return NextResponse.json({ status: "approved", paymentId: "dev-bypass", statusDetail: "accredited" });
     }
@@ -163,7 +163,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (paymentStatus === "APPROVED") {
-      sendOrderConfirmation(order.id).catch(console.error);
+      // `after` y no una promesa suelta: en Vercel la función serverless se
+      // congela al devolver la respuesta y el envío a Resend se quedaba a medias.
+      after(() => sendOrderConfirmation(order.id));
       await deductStock(order.id);
     }
 
