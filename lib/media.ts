@@ -33,7 +33,18 @@ export function videoPosterUrl(video: string): string {
  * oscuro son justo donde la compresión agresiva muestra bandeado. Si el consumo
  * de Cloudinary no baja lo suficiente, el dial es `q_auto:eco` y después w_540.
  */
-const VIDEO_DELIVERY = "f_auto,q_auto:good,vc_auto,c_limit,w_640";
+const VIDEO_BASE = "f_auto,q_auto:good,vc_auto";
+
+/**
+ * Recorte de la tarjeta del spotlight, que es 9:16 con `object-fit: cover`.
+ *
+ * Sin esto, `c_limit,w_640` limita el *ancho*: un fuente horizontal (1920x1080)
+ * se entrega como 640x360 y el navegador se queda con la franja central de
+ * ~200px para estirarla a ~660px de pantalla — se ve pésimo al lado de los
+ * verticales. Recortando en Cloudinary, los 640px entregados son los que se ven.
+ * Gravedad centro (el default): `g_auto` sobre video es un add-on aparte.
+ */
+const CARD_CROP = "c_fill,ar_9:16";
 /** Miniatura cuadrada del listado: 44px CSS a 2x DPR. */
 const THUMB_DELIVERY = "f_auto,q_auto,c_fill,ar_1,w_88";
 
@@ -57,17 +68,34 @@ function withVideoTransform(url: string, transform: string): string {
     : `${head}${transform}/${rest}`;
 }
 
-/** URL de entrega del video (transcodificado y limitado a 640px de ancho). */
+/**
+ * URL de entrega del video en la galería de producto: se muestra con
+ * `object-contain` dentro de un cuadrado, así que no se recorta nada y basta
+ * con limitar el ancho.
+ */
 export function videoDeliveryUrl(video: string): string {
-  return withVideoTransform(video, VIDEO_DELIVERY);
+  return withVideoTransform(video, `${VIDEO_BASE},c_limit,w_640`);
+}
+
+/** URL de entrega del video de la tarjeta del spotlight (recortado a 9:16). */
+export function spotlightVideoUrl(video: string): string {
+  return withVideoTransform(video, `${VIDEO_BASE},${CARD_CROP},w_640`);
 }
 
 /**
- * URL de entrega del póster. El default (540) es el de la tarjeta del spotlight;
- * la galería de producto lo muestra más grande y pasa su propio ancho.
+ * URL de entrega del póster sin recorte, para la galería de producto, que pasa
+ * su propio ancho. La tarjeta del spotlight usa `spotlightPosterUrl`.
  */
 export function posterDeliveryUrl(poster: string, width = 540): string {
   return withVideoTransform(poster, `f_auto,q_auto,c_limit,w_${width}`);
+}
+
+/**
+ * Póster de la tarjeta del spotlight: mismo recorte 9:16 que el video, si no
+ * la imagen salta al arrancar la reproducción.
+ */
+export function spotlightPosterUrl(poster: string, width = 540): string {
+  return withVideoTransform(poster, `f_auto,q_auto,${CARD_CROP},w_${width}`);
 }
 
 /** URL de entrega de la miniatura cuadrada de 44px del listado. */
