@@ -268,3 +268,77 @@ model PushToken {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// --- Libro de Reclamaciones (Indecopi, D.S. 011-2011-PCM y modificatorias) ---
+// El reglamento distingue reclamo (disconformidad con el producto o servicio)
+// de queja (malestar por la atención), exige numeración correlativa y obliga a
+// conservar la hoja por dos años, por eso se persiste en vez de solo mandar un
+// correo.
+enum ComplaintType {
+  RECLAMO
+  QUEJA
+}
+
+enum ComplaintGoodType {
+  PRODUCTO
+  SERVICIO
+}
+
+enum ComplaintStatus {
+  PENDIENTE
+  RESPONDIDO
+}
+
+model Complaint {
+  id     String @id @default(cuid())
+  // Correlativo de la hoja. Un serial de Postgres evita que dos envíos
+  // simultáneos reciban el mismo número.
+  number Int    @unique @default(autoincrement())
+
+  // 1. Identificación del consumidor reclamante
+  fullName     String
+  documentType String
+  documentId   String
+  phone        String
+  email        String
+  department   String
+  province     String
+  district     String
+  address      String
+  reference    String?
+
+  // Menor de edad: el reglamento pide los datos del padre o apoderado
+  isMinor           Boolean @default(false)
+  guardianFullName  String?
+  guardianDocType   String?
+  guardianDocId     String?
+  guardianPhone     String?
+
+  // 2. Identificación del bien contratado
+  goodType    ComplaintGoodType
+  orderNumber String?
+  incidentAt  DateTime?
+  amount      Decimal?          @db.Decimal(10, 2)
+  goodDetail  String
+
+  // 3. Detalle de la reclamación
+  type    ComplaintType
+  detail  String
+  request String
+
+  // 4. Acciones adoptadas por el proveedor
+  status     ComplaintStatus @default(PENDIENTE)
+  response   String?
+  respondedAt DateTime?
+  // Plazo legal de respuesta: 15 días hábiles desde la presentación.
+  dueAt      DateTime
+
+  // Trazabilidad de la copia que exige remitirse al consumidor
+  copySentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("complaints")
+}
