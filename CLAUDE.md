@@ -74,7 +74,7 @@ No `tailwind.config.ts`. Custom theme configured via `@theme {}` block in `app/g
 
 ## Auth
 
-NextAuth 4 with JWT strategy. `lib/auth.ts` adds `id` and `role` to JWT token and session. Types augmented in `types/next-auth.d.ts`. Admin credential: `admin@adamantio.com.ar / Admin123!`.
+NextAuth 4 with JWT strategy. `lib/auth.ts` adds `id` and `role` to JWT token and session. Types augmented in `types/next-auth.d.ts`. Admin credential: `admin@adamantio.com / admin123`.
 
 ## Payment Flow (Mercado Pago)
 
@@ -111,6 +111,27 @@ Products are indexed to Algolia. `lib/algolia.ts` holds the client, `lib/algolia
 `lib/email.ts` sends via **Resend only** (the `nodemailer` dependency is left over and unused). Config: `RESEND_API_KEY` + `EMAIL_FROM` in `.env.local`.
 
 `EMAIL_FROM` must belong to a domain verified at resend.com/domains. `onboarding@resend.dev` only delivers to the Resend account owner and silently 403s every other recipient — Resend's SDK returns `{ data, error }` instead of throwing, so always check `error`.
+
+## Libro de Reclamaciones (Indecopi)
+
+Legally mandated complaints book (Ley 29571 art. 150, D.S. 011-2011-PCM). Not a generic contact form — the rules below are legal requirements, not preferences.
+
+- **Public form:** `/libro-de-reclamaciones` → `components/legal/ReclamacionForm.tsx` → `POST /api/reclamaciones`
+- **Admin:** `/admin/reclamaciones` (list + filters) and `/admin/reclamaciones/[id]` (full sheet + response) → `PATCH /api/admin/reclamaciones/[id]`
+- **Model:** `Complaint` (table `complaints`), enums `ComplaintType` (RECLAMO/QUEJA), `ComplaintGoodType`, `ComplaintStatus`
+- **Helpers:** `lib/complaints.ts` — `complaintCode()`, `addBusinessDays()`, `daysUntil()`, `DOCUMENT_TYPES`
+- **Emails:** `sendComplaintEmails()` (copy to consumer + internal notice) and `sendComplaintResponse()` in `lib/email.ts`. Internal notice goes to `COMPLAINTS_EMAIL`; without it the consumer still gets their copy but nobody at Adamantio is alerted.
+
+Constraints to preserve:
+
+- **Correlative number** comes from a Postgres `SERIAL` (`Complaint.number`), never from a count — concurrent submissions must not share a number. Display format via `complaintCode()`: `LR-AAAA-NNNNNN`.
+- **The copy to the consumer's email is mandatory** for the virtual modality. If Resend fails the sheet is still saved and the API returns `copySent: false`; the UI says so rather than pretending it was sent.
+- **Response deadline is 15 días hábiles** (art. 24, as amended by D.L. 1308), extendable by 15 more with prior notice. Not calendar days. Stored in `dueAt`.
+- `respondedAt` is set once and never overwritten on later edits — it is the proof the deadline was met.
+- Both legal notices must stay visible on the page and in the emails: the deadline, and that filing does not prevent other dispute channels nor is it a prerequisite for an Indecopi complaint.
+- Sheets must be kept for at least 2 years, so complaints are persisted, never only emailed.
+
+Free-text consumer fields are interpolated into email HTML — keep using `escapeHtml()` in `lib/email.ts`.
 
 ## Railway Deployment
 
