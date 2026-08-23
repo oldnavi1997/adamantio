@@ -201,3 +201,14 @@ h6 { font-size: 1rem;     line-height: 1.25; }
   margin-top: 16px;
   margin-bottom: 0;
 }
+
+/* Formulario embebido de Izipay (Krypton).
+   El tema "classic" que sirve micuentaweb trae un ancho fijo estrecho; aquí
+   tiene que ocupar el mismo ancho que el resto del checkout. Se apunta a las
+   clases que genera el propio cliente, así que no pueden ir scoped. */
+#izipay-form .kr-embedded,
+#izipay-form .kr-embedded .kr-payment-button,
+#izipay-form .kr-embedded .kr-field-wrapper {
+  width: 100%;
+  max-width: 100%;
+}

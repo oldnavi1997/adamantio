@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { paymentClient } from "@/lib/mercadopago";
 import { PaymentStatus } from "@/app/generated/prisma/client";
 import { sendOrderPaidPush } from "@/lib/push";
+import { sendOrderConfirmation } from "@/lib/email";
+import { aprobarOrden } from "@/lib/fulfillment";
 
 function mapMpStatus(mpStatus: string): PaymentStatus {
   switch (mpStatus) {
@@ -30,25 +32,36 @@ export async function POST(request: NextRequest) {
 
     const paymentStatus = mapMpStatus(payment.status ?? "pending");
 
-    await prisma.payment.updateMany({
-      where: { orderId: payment.external_reference },
-      data: {
-        mpPaymentId: paymentId,
-        status: paymentStatus,
-        statusDetail: payment.status_detail ?? null,
-      },
-    });
-
     if (paymentStatus === PaymentStatus.APPROVED) {
-      // Only flip orders that aren't PAID yet so duplicate MP webhooks don't
-      // re-notify. updateMany returns the count of rows actually changed.
-      const updated = await prisma.order.updateMany({
-        where: { id: payment.external_reference, status: { not: "PAID" } },
-        data: { status: "PAID" },
+      // Mercado Pago reintenta sus webhooks por diseño y este puede llegar
+      // antes o después de `payments/process`. `aprobarOrden` es idempotente
+      // por compare-and-swap, así que el stock baja una sola vez y el Payment
+      // se escribe una sola vez, gane quien gane.
+      //
+      // Antes esta rama sólo cambiaba el estado a PAID: una orden resuelta
+      // únicamente por webhook se quedaba sin descontar stock y sin correo.
+      const resultado = await aprobarOrden(payment.external_reference, {
+        provider: "mercadopago",
+        externalReference: paymentId,
+        providerPaymentId: paymentId,
+        paymentMethodId: payment.payment_method_id ?? null,
+        statusDetail: payment.status_detail ?? null,
+        rawPayload: payment as object,
       });
-      if (updated.count > 0) {
+
+      if (!resultado.yaProcesada) {
         await sendOrderPaidPush(payment.external_reference);
+        await sendOrderConfirmation(payment.external_reference);
       }
+    } else {
+      await prisma.payment.updateMany({
+        where: { orderId: payment.external_reference },
+        data: {
+          mpPaymentId: paymentId,
+          status: paymentStatus,
+          statusDetail: payment.status_detail ?? null,
+        },
+      });
     }
 
     return NextResponse.json({ received: true });

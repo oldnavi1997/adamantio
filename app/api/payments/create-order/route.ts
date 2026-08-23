@@ -3,15 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
-
-const SHALOM_PRICE = 8;
-const OLVA_PRICE_BY_DEPARTMENT: Record<string, number> = {
-  Amazonas: 18, Ancash: 18, Apurimac: 15, Ayacucho: 15, Cajamarca: 16,
-  Cusco: 15, Huancavelica: 16, Huanuco: 18, Ica: 15, Junin: 16,
-  "La Libertad": 16, Lambayeque: 18, Lima: 15, Loreto: 20,
-  "Madre de Dios": 16, Moquegua: 12, Pasco: 16, Piura: 18, Puno: 12,
-  "San Martin": 18, Tacna: 12, Tumbes: 20, Ucayali: 16, Arequipa: 15, Callao: 15,
-};
+import { getShippingCost, getPaymentFee } from "@/lib/shipping";
 
 const createOrderSchema = z.object({
   items: z.array(z.object({
@@ -34,13 +26,16 @@ const createOrderSchema = z.object({
     postalCode: z.string().min(1),
     courier: z.enum(["shalom", "olva"]),
   }),
+  // La pasarela decide la comisión que se suma al total, así que hay que
+  // conocerla antes de crear la orden.
+  paymentProvider: z.enum(["mercadopago", "izipay"]).default("mercadopago"),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const body = await request.json();
-    const { items, shipping } = createOrderSchema.parse(body);
+    const { items, shipping, paymentProvider } = createOrderSchema.parse(body);
 
     // Fetch products
     const productIds = [...new Set(items.map((i) => i.id))];
@@ -76,12 +71,14 @@ export async function POST(request: NextRequest) {
 
     const isTestMode = products.some((p) => p.testMode);
     const hasFreeShipping = products.some((p) => p.freeShipping);
-    const shippingCost = isTestMode || hasFreeShipping ? 0 : (shipping.courier === "shalom"
-      ? SHALOM_PRICE
-      : (OLVA_PRICE_BY_DEPARTMENT[shipping.department] ?? 15));
+    const shippingCost = isTestMode || hasFreeShipping
+      ? 0
+      : getShippingCost(shipping.courier, shipping.department);
 
     const beforeCommission = subtotal + shippingCost;
-    const mpCommission = isTestMode ? 0 : Number((beforeCommission * 0.0329 * 1.18 + 1.18).toFixed(2));
+    const mpCommission = isTestMode
+      ? 0
+      : Number(getPaymentFee(paymentProvider, beforeCommission).toFixed(2));
     const total = Number((beforeCommission + mpCommission).toFixed(2));
 
     // Resolve userId — guard against stale sessions pointing to deleted users
@@ -120,6 +117,7 @@ export async function POST(request: NextRequest) {
         total,
         shippingCost,
         mpCommission,
+        paymentProvider,
         status: "PENDING",
         items: {
           create: items.map((item) => {

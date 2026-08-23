@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { paymentClient } from "@/lib/mercadopago";
 import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderPaidPush } from "@/lib/push";
+import { aprobarOrden } from "@/lib/fulfillment";
 
 const processSchema = z.object({
   orderId: z.string(),
@@ -28,64 +30,6 @@ function mpStatusToPaymentStatus(mpStatus: string): "PENDING" | "APPROVED" | "RE
   }
 }
 
-async function deductStock(orderId: string) {
-  const orderItems = await prisma.orderItem.findMany({
-    where: { orderId },
-    include: {
-      product: {
-        select: {
-          id: true, name: true, esPar: true, stock: true,
-          stockHombre: true, stockMujer: true,
-          stockAlmacenHombre: true, stockAlmacenMujer: true, stockAlmacen: true,
-        },
-      },
-    },
-  });
-
-  const stockNotes: string[] = [];
-
-  for (const item of orderItems) {
-    if (!item.product) continue;
-    const p = item.product;
-    const qty = item.quantity;
-
-    const canUseAlmacen = p.esPar
-      ? p.stockAlmacenHombre >= qty && p.stockAlmacenMujer >= qty
-      : p.stockAlmacenHombre >= qty;
-
-    let source = "TIENDA";
-    if (canUseAlmacen) {
-      await prisma.product.update({
-        where: { id: p.id },
-        data: {
-          stockAlmacenHombre: Math.max(0, p.stockAlmacenHombre - qty),
-          ...(p.esPar && { stockAlmacenMujer: Math.max(0, p.stockAlmacenMujer - qty) }),
-          stockAlmacen: Math.max(0, p.stockAlmacen - (p.esPar ? qty * 2 : qty)),
-          stock: Math.max(0, p.stock - (p.esPar ? qty * 2 : qty)),
-        },
-      });
-      source = "ALMACÉN";
-    } else {
-      await prisma.product.update({
-        where: { id: p.id },
-        data: {
-          stockHombre: Math.max(0, p.stockHombre - qty),
-          ...(p.esPar && { stockMujer: Math.max(0, p.stockMujer - qty) }),
-          stock: Math.max(0, p.stock - (p.esPar ? qty * 2 : qty)),
-        },
-      });
-    }
-    stockNotes.push(`${p.name}: descontado de ${source}`);
-  }
-
-  if (stockNotes.length > 0) {
-    await prisma.order.update({
-      where: { id: orderId },
-      data: { stockNote: stockNotes.join(" | ") },
-    });
-  }
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -99,26 +43,18 @@ export async function POST(request: NextRequest) {
       if (!order) return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
       if (order.status !== "PENDING") return NextResponse.json({ error: "La orden ya fue procesada" }, { status: 400 });
 
-      await prisma.order.update({
-        where: { id: orderId },
-        data: { status: "PAID" },
+      const resultado = await aprobarOrden(orderId, {
+        provider: "mercadopago",
+        externalReference: `dev-${orderId}`,
+        providerPaymentId: "dev-bypass",
+        paymentMethodId: "dev",
+        statusDetail: "accredited",
       });
-
-      await prisma.payment.create({
-        data: {
-          orderId,
-          externalReference: `dev-${orderId}`,
-          mpPaymentId: "dev-bypass",
-          paymentMethodId: "dev",
-          statusDetail: "accredited",
-          amount: order.total,
-          status: "APPROVED",
-          rawPayload: {},
-        },
-      });
+      if (resultado.yaProcesada) {
+        return NextResponse.json({ error: "La orden ya fue procesada" }, { status: 400 });
+      }
 
       after(() => sendOrderConfirmation(orderId));
-      await deductStock(orderId);
       return NextResponse.json({ status: "approved", paymentId: "dev-bypass", statusDetail: "accredited" });
     }
 
@@ -144,29 +80,44 @@ export async function POST(request: NextRequest) {
     const paymentStatus = mpStatusToPaymentStatus(mpStatus);
     const orderStatus = mpStatusToOrderStatus(mpStatus);
 
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { status: orderStatus },
-    });
-
-    await prisma.payment.create({
-      data: {
-        orderId: order.id,
+    if (paymentStatus === "APPROVED") {
+      // Toda aprobación pasa por aquí: descuenta stock y escribe el Payment en
+      // una sola transacción idempotente, así que el webhook de Mercado Pago
+      // puede llegar después sin duplicar nada.
+      const resultado = await aprobarOrden(order.id, {
+        provider: "mercadopago",
         externalReference: String(payment.id),
-        mpPaymentId: String(payment.id),
+        providerPaymentId: String(payment.id),
         paymentMethodId: data.paymentMethodId,
         statusDetail: payment.status_detail ?? null,
-        amount: order.total,
-        status: paymentStatus,
         rawPayload: payment as object,
-      },
-    });
+      });
 
-    if (paymentStatus === "APPROVED") {
-      // `after` y no una promesa suelta: en Vercel la función serverless se
-      // congela al devolver la respuesta y el envío a Resend se quedaba a medias.
-      after(() => sendOrderConfirmation(order.id));
-      await deductStock(order.id);
+      if (!resultado.yaProcesada) {
+        // `after` y no una promesa suelta: en Vercel la función serverless se
+        // congela al devolver la respuesta y el envío a Resend se quedaba a medias.
+        after(() => sendOrderConfirmation(order.id));
+        after(() => sendOrderPaidPush(order.id));
+      }
+    } else {
+      // No aprobado: se refleja el estado del pago sin pasar por `aprobarOrden`.
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { status: orderStatus },
+      });
+
+      await prisma.payment.create({
+        data: {
+          orderId: order.id,
+          externalReference: String(payment.id),
+          mpPaymentId: String(payment.id),
+          paymentMethodId: data.paymentMethodId,
+          statusDetail: payment.status_detail ?? null,
+          amount: order.total,
+          status: paymentStatus,
+          rawPayload: payment as object,
+        },
+      });
     }
 
     return NextResponse.json({
