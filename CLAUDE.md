@@ -133,19 +133,29 @@ Constraints to preserve:
 
 Free-text consumer fields are interpolated into email HTML — keep using `escapeHtml()` in `lib/email.ts`.
 
-## Railway Deployment
+## Deployment
 
-See `railway.toml`. **Critical:** `prisma migrate deploy` runs in `startCommand`, NOT in `buildCommand`. The internal Railway Postgres network (`postgres.railway.internal`) is unavailable during the build phase.
+**The app runs on Vercel. Postgres runs on Railway.** `railway.toml` is leftover from when the app itself was on Railway — Vercel ignores it, so its `startCommand` never runs. Do not add deploy steps there expecting them to execute.
 
-```toml
-[build]
-buildCommand = "npm ci && npx prisma generate && npm run build"
+**Migrations** are applied by `vercel.json`, and only on production builds:
 
-[deploy]
-startCommand = "npx prisma migrate deploy && npm start"
+```json
+{
+  "buildCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then npx prisma migrate deploy; fi && npm run build"
+}
 ```
 
-Required environment variables: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `MP_ACCESS_TOKEN`, `NEXT_PUBLIC_MP_PUBLIC_KEY`, `NEXT_PUBLIC_APP_URL`. See `.env.example` for the full list.
+Preview builds skip `migrate deploy` on purpose: previews share the production database, so an unmerged branch must not alter its schema. If a migration fails, the build fails instead of deploying against a stale schema.
+
+Note this `buildCommand` overrides whatever build command is configured in the Vercel dashboard.
+
+**The database is shared with the POS.** It holds tables this repo's migration history knows nothing about (`CajaSession`, `CajaFondo`, `CajaRetiro`, `StockTransfer`, `media_assets`, extra `Sale` columns). Consequences:
+
+- **Never run `prisma migrate dev` or `migrate reset`** — they detect the drift and offer to reset, which would wipe the POS data.
+- To add a schema change locally: edit `prisma/schema.prisma`, hand-write `prisma/migrations/<timestamp>_<name>/migration.sql`, apply it with `npx prisma db execute --file <path>` (note: `db execute` has no `--schema` flag), record it with `npx prisma migrate resolve --applied <timestamp>_<name>`, then `npx prisma generate`.
+- Before touching production, run `npx prisma migrate status` against it. Columns applied by hand without being recorded make `migrate deploy` fail with *already exists*; the fix is `migrate resolve --applied` on that one migration, never `--rolled-back` and never editing an applied migration's SQL.
+
+Required environment variables: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `MP_ACCESS_TOKEN`, `NEXT_PUBLIC_MP_PUBLIC_KEY`, `NEXT_PUBLIC_APP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `COMPLAINTS_EMAIL`. See `.env.example` for the full list.
 
 ## Hydration Notes
 
