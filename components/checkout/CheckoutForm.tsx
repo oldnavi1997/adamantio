@@ -8,6 +8,13 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { ShippingFormData } from "@/types";
 import ubigeoData from "@/lib/peru-ubigeo.json";
+import {
+  SHALOM_PRICE,
+  OLVA_PRICE_BY_DEPARTMENT,
+  getShippingCost,
+  getPaymentFee,
+  type PaymentProvider,
+} from "@/lib/shipping";
 
 type UbigeoJson = {
   departments: string[];
@@ -17,14 +24,6 @@ type UbigeoJson = {
 
 const UBIGEO = ubigeoData as UbigeoJson;
 
-const SHALOM_PRICE = 8;
-const OLVA_PRICE_BY_DEPARTMENT: Record<string, number> = {
-  Amazonas: 18, Ancash: 18, Apurimac: 15, Ayacucho: 15, Cajamarca: 16,
-  Cusco: 15, Huancavelica: 16, Huanuco: 18, Ica: 15, Junin: 16,
-  "La Libertad": 16, Lambayeque: 18, Lima: 15, Loreto: 20,
-  "Madre de Dios": 16, Moquegua: 12, Pasco: 16, Piura: 18, Puno: 12,
-  "San Martin": 18, Tacna: 12, Tumbes: 20, Ucayali: 16, Arequipa: 15, Callao: 15,
-};
 
 const shippingSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -54,10 +53,12 @@ interface CheckoutFormProps {
   subtotal: number;
   isTestMode?: boolean;
   freeShipping?: boolean;
+  /** Pasarela con la que se va a cobrar; decide la comisión que se previsualiza. */
+  paymentProvider?: PaymentProvider;
   defaultValues?: Partial<ShippingFormData>;
 }
 
-export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, freeShipping, defaultValues }: CheckoutFormProps) {
+export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, freeShipping, paymentProvider = "mercadopago", defaultValues }: CheckoutFormProps) {
   const [districtSelectValue, setDistrictSelectValue] = useState(defaultValues?.district ?? "");
 
   const {
@@ -81,9 +82,11 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, freeShip
     ? (UBIGEO.districtsByDepartmentProvince[department]?.[province] ?? [])
     : [];
 
-  const shippingCost = isTestMode || freeShipping ? 0 : (courier === "shalom" ? SHALOM_PRICE : (OLVA_PRICE_BY_DEPARTMENT[department] ?? 15));
+  // Mismo cálculo que `create-order`, desde el mismo módulo: el importe que se
+  // previsualiza aquí es el que se va a cobrar.
+  const shippingCost = isTestMode || freeShipping ? 0 : getShippingCost(courier, department);
   const beforeCommission = subtotal + shippingCost;
-  const mpCommission = isTestMode ? 0 : (beforeCommission * 0.0329 * 1.18 + 1.18);
+  const mpCommission = isTestMode ? 0 : getPaymentFee(paymentProvider, beforeCommission);
   const total = beforeCommission + mpCommission;
 
   function handleDepartmentChange(value: string) {
@@ -202,7 +205,7 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, freeShip
           <span>{shippingCost === 0 ? "Gratis" : `S/ ${shippingCost.toFixed(2)}`}</span>
         </div>
         <div className="flex justify-between text-[#111111]/60">
-          <span>Comisión Mercado Pago</span>
+          <span>Comisión de pago</span>
           <span>S/ {mpCommission.toFixed(2)}</span>
         </div>
         <div className="flex justify-between font-semibold text-[#111111] pt-2 border-t border-gray-200">

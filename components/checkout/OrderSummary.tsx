@@ -49,7 +49,7 @@ export function OrderSummary({ items, subtotal, shippingCost, mpCommission, tota
               <span>{shippingCost === 0 ? "Gratis" : formatPEN(shippingCost ?? 0)}</span>
             </div>
             <div className="flex justify-between text-sm text-[#111111]/60">
-              <span>Comisión MP</span>
+              <span>Comisión de pago</span>
               <span>{formatPEN(mpCommission ?? 0)}</span>
             </div>
             <div className="flex justify-between text-sm font-semibold text-[#111111] border-t border-gray-100 pt-2 mt-1">

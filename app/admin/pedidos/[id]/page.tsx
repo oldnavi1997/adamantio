@@ -128,8 +128,13 @@ export default function AdminOrderDetailPage({
           </div>
           {latestPayment && (
             <div className="mt-4 pt-4 border-t border-gray-100 text-sm space-y-1">
+              <p className="text-gray-500">
+                Pasarela: <span className="font-medium">
+                  {order.paymentProvider === "izipay" ? "Izipay" : "Mercado Pago"}
+                </span>
+              </p>
               {latestPayment.mpPaymentId && (
-                <p className="text-gray-500">ID pago MP: <span className="font-mono">{latestPayment.mpPaymentId}</span></p>
+                <p className="text-gray-500">ID de pago: <span className="font-mono">{latestPayment.mpPaymentId}</span></p>
               )}
               {latestPayment.paymentMethodId && (
                 <p className="text-gray-500">Método: <span className="font-medium">{latestPayment.paymentMethodId}</span></p>
@@ -185,7 +190,7 @@ export default function AdminOrderDetailPage({
           )}
           {Number(order.mpCommission) > 0 && (
             <div className="flex justify-between text-gray-600">
-              <span>Comisión MP</span>
+              <span>Comisión de pago</span>
               <span>{formatPEN(Number(order.mpCommission))}</span>
             </div>
           )}
