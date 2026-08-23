@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { ReclamacionForm } from "@/components/legal/ReclamacionForm";
 
 export const metadata = {
   title: "Libro de Reclamaciones | Adamantio",
   description:
-    "Libro de reclamaciones de Adamantio. Presenta tu reclamo o queja de conformidad con la normativa peruana.",
+    "Libro de reclamaciones virtual de Adamantio. Presenta tu reclamo o queja en línea de conformidad con la normativa peruana.",
 };
 
 function Section({ title, children, highlight }: { title: string; children: React.ReactNode; highlight?: boolean }) {
@@ -59,77 +60,55 @@ export default function LibroReclamacionesPage() {
         </Link>
 
         <P>
-          De conformidad con la normativa peruana, Adamantio pone a disposición de los consumidores el Libro
-          de Reclamaciones. A continuación se detallan los datos y secciones que debe consignar para presentar
-          su reclamo o queja.
+          Conforme al artículo 150 del Código de Protección y Defensa del Consumidor (Ley N.º 29571)
+          y su Reglamento (D.S. N.º 011-2011-PCM), Adamantio pone a disposición de los consumidores
+          su Libro de Reclamaciones virtual. Completa el formulario y recibirás de inmediato, en el
+          correo que registres, una copia de tu hoja de reclamación con su número correlativo.
         </P>
 
-        <Section title="1. Identificación del Consumidor Reclamante">
+        <section aria-label="Formulario de reclamación">
+          <ReclamacionForm />
+        </section>
+
+        <Section title="Información importante" highlight>
           <Ul>
-            <li>Nombres y apellidos</li>
-            <li>Tipo de documento (DNI, CE, RUC, Pasaporte) y número de documento</li>
-            <li>Celular</li>
-            <li>Departamento, provincia, distrito</li>
-            <li>Dirección y referencia</li>
-            <li>Correo electrónico</li>
             <li>
-              Indicación de si es menor de edad (en cuyo caso se consignan los datos del apoderado)
+              <strong>Reclamo</strong> es la disconformidad relacionada con el producto o servicio
+              recibido; <strong>queja</strong> es el malestar respecto a la atención al público y no
+              está referida al producto o servicio.
+            </li>
+            <li>
+              Si no consignas como mínimo tu nombre, documento de identidad, domicilio o correo
+              electrónico y el detalle de lo reclamado, conforme al artículo 5 del Reglamento del
+              Libro de Reclamaciones el reclamo se considerará como no presentado.
+            </li>
+            <li>
+              La formulación del reclamo no impide acudir a otras vías de solución de controversias
+              ni es requisito previo para interponer una denuncia ante el Indecopi.
+            </li>
+            <li>
+              Daremos respuesta al reclamo en un plazo no mayor a{" "}
+              <strong>quince (15) días hábiles</strong>, que puede ampliarse por quince (15) días
+              hábiles adicionales cuando la naturaleza del reclamo lo justifique, comunicándotelo
+              antes de que venza el plazo inicial.
+            </li>
+            <li>
+              Conservamos las hojas de reclamación por un plazo mínimo de dos (2) años desde su
+              presentación y las ponemos a disposición del Indecopi cuando las requiera.
+            </li>
+            <li>
+              Los datos que registres se tratan únicamente para atender tu reclamo, conforme a la{" "}
+              <Link href="/politica-de-privacidad" className="text-[#d4af37] hover:underline">
+                política de privacidad
+              </Link>
+              .
             </li>
           </Ul>
+        </Section>
+
+        <Section title="Otros canales de atención">
           <P>
-            <strong>Datos del apoderado (si aplica):</strong> Tipo y número de documento, celular, nombres y
-            apellidos.
-          </P>
-        </Section>
-
-        <Section title="2. Identificación del Bien Contratado">
-          <Ul>
-            <li>Tipo de consumo (producto o servicio)</li>
-            <li>N.º de pedido</li>
-            <li>Fecha del incidente</li>
-            <li>Monto del producto o servicio contratado</li>
-            <li>Descripción del producto o servicio</li>
-          </Ul>
-        </Section>
-
-        <Section title="3. Detalle de la Reclamación y Pedido del Consumidor">
-          <Ul>
-            <li>Tipo de reclamo (reclamo o queja)</li>
-            <li>Detalle de la reclamación o queja</li>
-            <li>Pedido concreto del consumidor</li>
-          </Ul>
-        </Section>
-
-        <Section title="4. Observaciones y Condición">
-          <P>El consumidor declara encontrarse conforme con los términos de su reclamo o queja.</P>
-        </Section>
-
-        <Section title="Información Importante" highlight>
-          <Ul>
-            <li>
-              En caso de que el consumidor no consigne como mínimo su nombre, DNI, domicilio o correo
-              electrónico y el detalle del reclamo o queja, de conformidad con el artículo 5 del Reglamento
-              del Libro de Reclamaciones, estos se considerarán como no presentados.
-            </li>
-            <li>
-              La formulación del reclamo no excluye el recurso a otros medios de resolución de controversias
-              ni es un requisito previo para presentar una denuncia ante el Indecopi.
-            </li>
-            <li>
-              El proveedor deberá dar respuesta al reclamo en un plazo no mayor a{" "}
-              <strong>quince (15) días calendario</strong>, pudiendo extender el plazo hasta quince días
-              adicionales.
-            </li>
-            <li>
-              Con la firma del documento, el cliente autoriza a ser contactado después de la tramitación de
-              la reclamación para evaluar la calidad y satisfacción del proceso de atención.
-            </li>
-          </Ul>
-        </Section>
-
-        <Section title="Cómo Presentar su Reclamo">
-          <P>
-            Para registrar su reclamo o queja en nuestro Libro de Reclamaciones, puede enviar un correo a{" "}
+            Si prefieres, también puedes escribirnos a{" "}
             <a href="mailto:adamantio@gmail.com" className="text-[#d4af37] hover:underline">
               adamantio@gmail.com
             </a>{" "}
@@ -137,16 +116,20 @@ export default function LibroReclamacionesPage() {
             <a href="tel:+51997676742" className="text-[#d4af37] hover:underline">
               997 676 742
             </a>
-            . También puede utilizar el formulario de contacto disponible en{" "}
+            . Estos canales no reemplazan al Libro de Reclamaciones: para que tu reclamo quede
+            registrado con número correlativo, utiliza el formulario de esta página.
+          </P>
+          <P>
+            Para presentar una denuncia ante el Indecopi puedes acudir a{" "}
             <a
-              href="https://www.adamantio.pe"
+              href="https://www.indecopi.gob.pe"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#d4af37] hover:underline"
             >
-              adamantio.pe
-            </a>
-            .
+              indecopi.gob.pe
+            </a>{" "}
+            o llamar al 224 7777 (Lima) / 0800 4 4040 (provincias).
           </P>
         </Section>
       </div>

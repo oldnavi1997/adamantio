@@ -3,13 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { StatsCard } from "@/components/admin/StatsCard";
 import { PaymentStatusBadge } from "@/components/admin/OrderStatusBadge";
 import { Package, ShoppingCart, DollarSign, Users, Plus, Tag, ArrowRight } from "lucide-react";
-import { formatPEN } from "@/lib/utils";
+import { cn, formatPEN } from "@/lib/utils";
 
 export const metadata = { title: "Dashboard | Admin" };
 
 export default async function AdminDashboard() {
-  const [totalProducts, totalOrders, totalUsers, totalCategories, revenueData, recentOrders] =
-    await Promise.all([
+  const [
+    totalProducts,
+    totalOrders,
+    totalUsers,
+    totalCategories,
+    revenueData,
+    recentOrders,
+    pendingComplaints,
+    overdueComplaints,
+  ] = await Promise.all([
       prisma.product.count({ where: { isActive: true } }),
       prisma.order.count(),
       prisma.user.count(),
@@ -26,6 +34,8 @@ export default async function AdminDashboard() {
           payments: { orderBy: { createdAt: "desc" }, take: 1 },
         },
       }),
+      prisma.complaint.count({ where: { status: "PENDIENTE" } }),
+      prisma.complaint.count({ where: { status: "PENDIENTE", dueAt: { lt: new Date() } } }),
     ]);
 
   const revenue = Number(revenueData._sum.amount || 0);
@@ -173,6 +183,44 @@ export default async function AdminDashboard() {
               className="text-[11px] text-[#d4af37] hover:text-[#b4952f] uppercase tracking-[0.15em] transition-[color] duration-200 flex items-center gap-1"
             >
               Gestionar
+              <ArrowRight className="h-3 w-3" aria-hidden="true" />
+            </Link>
+          </div>
+
+          {/* Complaints — el plazo legal de respuesta corre solo, así que el
+              pendiente se ve desde el dashboard */}
+          <div
+            className={cn(
+              "bg-white border p-5 transition-[border-color] duration-200",
+              overdueComplaints > 0
+                ? "border-red-300/70 hover:border-red-400"
+                : "border-[#111111]/6 hover:border-[#111111]/12"
+            )}
+          >
+            <p className="text-[11px] font-medium text-[#111111]/40 uppercase tracking-[0.2em] mb-1.5">
+              Reclamos pendientes
+            </p>
+            <p
+              className={cn(
+                "text-3xl font-light mb-3 tabular-nums",
+                overdueComplaints > 0 ? "text-red-600" : "text-[#111111]"
+              )}
+              style={{ fontFamily: "var(--font-sans, sans-serif)", fontVariantNumeric: "tabular-nums" }}
+            >
+              {pendingComplaints}
+            </p>
+            {overdueComplaints > 0 && (
+              <p className="text-[11px] text-red-600 mb-3 leading-relaxed">
+                {overdueComplaints === 1
+                  ? "1 con el plazo legal vencido"
+                  : `${overdueComplaints} con el plazo legal vencido`}
+              </p>
+            )}
+            <Link
+              href="/admin/reclamaciones"
+              className="text-[11px] text-[#d4af37] hover:text-[#b4952f] uppercase tracking-[0.15em] transition-[color] duration-200 flex items-center gap-1"
+            >
+              Atender
               <ArrowRight className="h-3 w-3" aria-hidden="true" />
             </Link>
           </div>
