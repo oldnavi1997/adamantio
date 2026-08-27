@@ -261,7 +261,9 @@ export function CulqiForm({ total, orderId, email, onPaymentResult }: CulqiFormP
           // formulario, en vez de la columna lateral. Valores válidos:
           // sidebar | sliderTop | select.
           menuType: "sliderTop",
-          buttonCardPayText: `Pagar ${formatPEN(total)}`,
+          // Sólo el verbo: Culqi le concatena el importe por su cuenta, así
+          // que un "Pagar S/ 190.07" aquí sale como "Pagar S/ 190.07 S/ 190.07".
+          buttonCardPayText: "Pagar",
           defaultStyle: {
             bannerColor: "#111111",
             buttonBackground: "#111111",
