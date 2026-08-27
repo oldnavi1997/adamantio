@@ -281,9 +281,25 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Detalles del producto</label>
           <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#111111] min-h-[80px]"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#111111] min-h-[110px] font-mono"
+            placeholder={[
+              "Tipo: Anillos de pareja",
+              "Material: Plata de ley 925",
+              "Estilo: Diseño para parejas",
+              "Tamaño: Apertura ajustable",
+              "Uso: Ideal para uso diario",
+            ].join("\n")}
             {...register("productDetails")}
           />
+          <p className="text-xs text-gray-500 mt-1.5">
+            Una línea por atributo, en la forma <code>Clave: valor</code>. <strong>No pegues aquí
+            texto con formato</strong>: arrastra estilos que rompen la ficha. Tipo, Material, Estilo,
+            Tamaño y Uso salen primero y en ese orden; el resto va detrás tal como lo escribas.
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            No repitas los beneficios de la plata (resistente al agua, antideslustre, hipoalergénico,
+            durable): la ficha los añade sola a todo lo que no sea acero.
+          </p>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Guía de tallas</label>
