@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Search, X, ArrowRight, Loader2 } from "lucide-react";
 import { getSearchClient, INDEX_NAME } from "@/lib/algolia";
-import { formatPEN } from "@/lib/utils";
+import { formatPEN, precioConOferta } from "@/lib/utils";
 
 type Hit = {
   objectID: string;
@@ -13,6 +13,7 @@ type Hit = {
   slug: string;
   brand: string;
   price: number;
+  comparePrice?: number | null;
   images: string[];
   category: string;
 };
@@ -164,7 +165,9 @@ function SearchDrawer({ open, onClose }: { open: boolean; onClose: () => void })
             className="max-w-2xl mx-auto max-h-[60vh] overflow-y-auto"
             style={{ borderTop: "1px solid #ebebeb" }}
           >
-            {results.map((hit, i) => (
+            {results.map((hit, i) => {
+              const { precio, antes } = precioConOferta(hit);
+              return (
               <button
                 key={hit.objectID}
                 onClick={() => goToProduct(hit.slug)}
@@ -184,11 +187,17 @@ function SearchDrawer({ open, onClose }: { open: boolean; onClose: () => void })
                     {hit.brand || hit.category}
                   </p>
                 </div>
-                <span className="text-[13px] font-semibold text-[#111111] shrink-0 ml-2">
-                  {formatPEN(hit.price)}
+                <span className="text-[13px] shrink-0 ml-2 text-right">
+                  <span className="block font-semibold text-[#111111]">{formatPEN(precio)}</span>
+                  {antes !== null && (
+                    <span className="block text-[11px] font-normal text-[#111111]/35 line-through">
+                      {formatPEN(antes)}
+                    </span>
+                  )}
                 </span>
               </button>
-            ))}
+              );
+            })}
 
             <button
               onClick={goToAll}

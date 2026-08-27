@@ -20,6 +20,7 @@ const updateSchema = z.object({
   name: z.string().min(2).optional(),
   description: z.string().optional(),
   price: z.number().positive().optional(),
+  comparePrice: z.number().positive().nullable().optional(),
   stock: z.number().int().min(0).optional(),
   imageUrl: z.string().optional().nullable(),
   imageUrls: z.array(z.string()).optional(),
@@ -88,6 +89,9 @@ export async function PUT(
         ...prismaData,
         ...(categoryId !== undefined && { categoryId }),
         ...(data.price !== undefined && { price: new Prisma.Decimal(data.price) }),
+        ...(data.comparePrice !== undefined && {
+          comparePrice: data.comparePrice === null ? null : new Prisma.Decimal(data.comparePrice),
+        }),
         ...(data.stockHombre !== undefined && { stockHombre: data.stockHombre }),
         ...(data.stockMujer !== undefined && { stockMujer: data.stockMujer }),
         ...(stockAlmacenH !== undefined && { stockAlmacenHombre: stockAlmacenH }),

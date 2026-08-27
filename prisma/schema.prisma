@@ -86,6 +86,12 @@ model Product {
   categoryId       String?
   categoryRef      Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   price            Decimal     @db.Decimal(10, 2)
+  /// Precio tachado cuando el producto está en oferta; nulo si no lo está.
+  /// OJO con la dirección: `price` es siempre lo que se cobra y `comparePrice`
+  /// el precio anterior, más alto. Así el cobro, el orden por precio y el
+  /// filtro por rango siguen operando sobre lo que el comprador paga. El editor
+  /// presenta los dos campos al revés y traduce al guardar.
+  comparePrice     Decimal?    @db.Decimal(10, 2)
   stock            Int
   sku              String?     @unique
   sizes            String[]    @default([])

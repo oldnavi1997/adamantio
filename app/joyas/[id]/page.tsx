@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { OG_LADO, ogImageUrl } from "@/lib/media";
 import { ImageGallery } from "@/components/product/ImageGallery";
 import { ProductDetails } from "@/components/product/ProductDetails";
-import { formatPEN } from "@/lib/utils";
+import { formatPEN, precioConOferta } from "@/lib/utils";
 import { resolveEngravingSamples } from "@/lib/engraving";
 import { productThumbnail } from "@/lib/media";
 
@@ -59,6 +59,7 @@ export default async function ProductPage({ params }: Props) {
 
   const images = product.imageUrls.length > 0 ? product.imageUrls : (product.imageUrl ? [product.imageUrl] : []);
   const image = productThumbnail(product);
+  const { precio, antes, descuento } = precioConOferta(product);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://adamantio.pe";
 
   const jsonLd = {
@@ -71,7 +72,8 @@ export default async function ProductPage({ params }: Props) {
     brand: { "@type": "Brand", name: "Adamantio" },
     offers: {
       "@type": "Offer",
-      price: Number(product.price).toFixed(2),
+      // Es el precio rebajado si hay oferta: `price` es siempre lo que se cobra.
+      price: precio.toFixed(2),
       priceCurrency: "PEN",
       availability: product.stock > 0
         ? "https://schema.org/InStock"
@@ -113,8 +115,16 @@ export default async function ProductPage({ params }: Props) {
           {/* Price */}
           <div className="flex items-baseline gap-4">
             <span className="text-xl font-normal text-[#111111]">
-              {formatPEN(Number(product.price))}
+              {formatPEN(precio)}
             </span>
+            {antes !== null && (
+              <>
+                <span className="text-base text-[#111111]/35 line-through">{formatPEN(antes)}</span>
+                <span className="bg-[#d4af37] text-[#111111] text-[9px] font-semibold uppercase tracking-[0.15em] px-2 py-1 rounded-full">
+                  -{descuento}%
+                </span>
+              </>
+            )}
             {product.freeShipping && (
               <span className="bg-green-50 text-green-700 text-[9px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded-full">
                 Envío gratis

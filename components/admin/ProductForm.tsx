@@ -18,6 +18,7 @@ const productSchema = z.object({
   sku: z.string().optional(),
   description: z.string().optional(),
   price: z.string().min(1, "Precio requerido"),
+  precioOferta: z.string().optional(),
   stockHombre: z.string(),
   stockMujer: z.string(),
   stockAlmacenH: z.string(),
@@ -36,6 +37,20 @@ const productSchema = z.object({
   precioVentaHombre: z.string().optional(),
   precioVentaMujer: z.string().optional(),
   precioVentaPareja: z.string().optional(),
+}).superRefine((data, ctx) => {
+  const oferta = data.precioOferta?.trim();
+  if (!oferta) return;                       // vacío = sin oferta, es lo normal
+  const valor = parseFloat(oferta);
+  const precio = parseFloat(data.price);
+  if (!Number.isFinite(valor) || valor <= 0) {
+    ctx.addIssue({ code: "custom", path: ["precioOferta"], message: "Importe inválido" });
+  } else if (Number.isFinite(precio) && valor >= precio) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["precioOferta"],
+      message: "La oferta tiene que ser menor que el precio",
+    });
+  }
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -75,7 +90,10 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           name: product.name,
           sku: product.sku || "",
           description: product.description || "",
-          price: product.price.toString(),
+          // Guardado: price = lo que se cobra, comparePrice = el tachado. En el
+          // editor se ve al derecho, así que aquí se invierte de vuelta.
+          price: (product.comparePrice ?? product.price).toString(),
+          precioOferta: product.comparePrice ? product.price.toString() : "",
           stockHombre: product.esPar
             ? String(posStock?.stockHombre ?? 0)
             : String((posStock?.stockHombre ?? 0) + (posStock?.stockMujer ?? 0)),
@@ -140,10 +158,17 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
       const sM = data.esPar ? (parseInt(data.stockMujer) || 0) : 0;
       const sAH = parseInt(data.stockAlmacenH) || 0;
       const sAM = data.esPar ? (parseInt(data.stockAlmacenM) || 0) : 0;
+      // `precioOferta` es solo del formulario: se queda fuera del cuerpo y se
+      // traduce a price/comparePrice, que es como lo guarda la BD.
+      const { precioOferta, ...resto } = data;
+      const oferta = precioOferta?.trim() ? parseFloat(precioOferta) : null;
+      const precio = parseFloat(data.price);
+      const enOferta = oferta !== null && oferta > 0 && oferta < precio;
       const body = {
-        ...data,
+        ...resto,
         sku: data.sku?.trim() || null,
-        price: parseFloat(data.price),
+        price: enOferta ? oferta : precio,
+        comparePrice: enOferta ? precio : null,
         stock: sH + sM + sAH + sAM,
         stockHombre: sH,
         stockMujer: sM,
@@ -285,6 +310,21 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           error={errors.price?.message}
           {...register("price")}
         />
+        <div>
+          <Input
+            label="Precio de oferta (PEN)"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Vacío = sin oferta"
+            error={errors.precioOferta?.message}
+            {...register("precioOferta")}
+          />
+          <p className="text-xs text-gray-500 mt-1.5">
+            Si lo rellenas, es lo que se cobra: el precio de arriba se muestra tachado con su
+            porcentaje de descuento. Vacíalo para terminar la oferta.
+          </p>
+        </div>
         {esPar ? (
           <div className="space-y-3">
             <div>

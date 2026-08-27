@@ -8,6 +8,8 @@ export type SpotlightItem = {
   id: string;
   name: string;
   price: string;
+  /** Precio tachado si el producto está en oferta. Ya formateado, como `price`. */
+  priceAntes?: string | null;
   href: string;
   video: string;
   poster: string;
@@ -165,6 +167,7 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
         .vs-text { flex: 1; min-width: 0; text-align: left; }
         .vs-name { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.02em; color: #eee; margin-bottom: 0.15rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .vs-price { font-size: 0.82rem; color: #c8a96e; font-weight: 600; }
+        .vs-price-antes { font-size: 0.72rem; color: #888; font-weight: 400; text-decoration: line-through; margin-left: 0.35rem; }
         .vs-arrow { color: #666; flex-shrink: 0; transition: color 0.2s, transform 0.2s; }
         .vs-info:hover .vs-arrow { color: #c8a96e; transform: translateX(2px); }
         .vs-nav { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.25rem; padding: 0 1.5rem; }
@@ -237,7 +240,10 @@ export function VideoSpotlight({ items: ITEMS }: { items: SpotlightItem[] }) {
                 <img src={thumbDeliveryUrl(item.poster)} alt={item.name} className="vs-thumb" loading="lazy" width={44} height={44} />
                 <div className="vs-text">
                   <p className="vs-name">{item.name}</p>
-                  <p className="vs-price">S/ {item.price}</p>
+                  <p className="vs-price">
+                    S/ {item.price}
+                    {item.priceAntes && <span className="vs-price-antes">S/ {item.priceAntes}</span>}
+                  </p>
                 </div>
                 <svg className="vs-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 18l6-6-6-6" />

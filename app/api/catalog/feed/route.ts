@@ -19,6 +19,7 @@ export async function GET() {
       name: true,
       description: true,
       price: true,
+      comparePrice: true,
       stock: true,
       imageUrl: true,
       imageUrls: true,
@@ -28,11 +29,13 @@ export async function GET() {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
 
-  const headers = ["id", "title", "description", "availability", "condition", "price", "link", "image_link", "brand"];
+  const headers = ["id", "title", "description", "availability", "condition", "price", "sale_price", "link", "image_link", "brand"];
 
   const rows = products.map((p) => {
     const availability = p.stock > 0 ? "in stock" : "out of stock";
-    const price = `${Number(p.price).toFixed(2)} PEN`;
+    const enOferta = p.comparePrice != null && Number(p.comparePrice) > Number(p.price);
+    const price = `${Number(enOferta ? p.comparePrice : p.price).toFixed(2)} PEN`;
+    const salePrice = enOferta ? `${Number(p.price).toFixed(2)} PEN` : "";
     const link = `${appUrl}/joyas/${p.id}`;
     const imageLink = productThumbnail(p) ?? "";
     const description = p.description ?? "Sin descripción";
@@ -44,6 +47,7 @@ export async function GET() {
       escapeCsvField(availability),
       "new",
       escapeCsvField(price),
+      escapeCsvField(salePrice),
       escapeCsvField(link),
       escapeCsvField(imageLink),
       "Adamantio",

@@ -33,7 +33,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { formatPEN } from "@/lib/utils";
+import { formatPEN, precioConOferta } from "@/lib/utils";
 import { productThumbnail } from "@/lib/media";
 
 interface Category {
@@ -51,6 +51,7 @@ interface ProductItem {
   name: string;
   sku: string | null;
   price: string | number;
+  comparePrice?: string | number | null;
   isActive: boolean;
   imageUrl: string | null;
   imageUrls: string[];
@@ -747,7 +748,12 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                         </div>
                       </td>
                       <td className="py-2.5 px-3 text-right text-[#111111]/70">
-                        {formatPEN(Number(p.price))}
+                        {formatPEN(precioConOferta(p).precio)}
+                        {precioConOferta(p).antes !== null && (
+                          <span className="block text-[11px] text-[#111111]/40 line-through">
+                            {formatPEN(precioConOferta(p).antes!)}
+                          </span>
+                        )}
                       </td>
                       <td className="py-2.5 px-3 text-center">
                         <span

@@ -15,6 +15,30 @@ export function formatPEN(amount: number | string) {
   }).format(num);
 }
 
+/**
+ * Resuelve el estado de oferta de un producto.
+ *
+ * `price` es siempre lo que se cobra y `comparePrice` el precio anterior, más
+ * alto — nulo si no hay oferta. Que la comparación viva aquí y no en cada vista
+ * es lo que garantiza que el umbral y el redondeo del porcentaje sean uno solo.
+ *
+ * `antes > precio` es defensivo: un `comparePrice` igual o menor no es una
+ * oferta, y pintarlo daría un `-0%` o un descuento negativo.
+ */
+export function precioConOferta(p: { price: unknown; comparePrice?: unknown }): {
+  precio: number;
+  antes: number | null;
+  descuento: number;
+} {
+  const precio = Number(p.price);
+  const antes = p.comparePrice == null ? null : Number(p.comparePrice);
+  const enOferta = antes !== null && antes > precio;
+  return {
+    precio,
+    antes: enOferta ? antes : null,
+    descuento: enOferta ? Math.round((1 - precio / antes!) * 100) : 0,
+  };
+}
 
 export function getPrimaryCategory(product: { category?: string | null }): { name: string } | undefined {
   if (!product.category) return undefined;

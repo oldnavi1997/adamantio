@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ProductWithCategory } from "@/types";
-import { formatPEN } from "@/lib/utils";
+import { formatPEN, precioConOferta } from "@/lib/utils";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { productThumbnail } from "@/lib/media";
 
@@ -12,6 +12,15 @@ interface ProductCardProps {
 
 export function ProductCard({ product, view = "dense" }: ProductCardProps) {
   const imageUrl = productThumbnail(product);
+  const { precio, antes, descuento } = precioConOferta(product);
+
+  // Arriba a la izquierda a propósito: la derecha es del corazón de la
+  // wishlist y el centro se lo come el velo de "Sin stock".
+  const etiquetaOferta = antes !== null && (
+    <span className="bg-[#d4af37] text-[#111111] text-[9px] font-semibold uppercase tracking-[0.15em] px-2 py-1">
+      -{descuento}%
+    </span>
+  );
 
   if (view === "dense") {
     return (
@@ -40,14 +49,20 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
               </span>
             </div>
           )}
+          {etiquetaOferta && <div className="absolute top-2 left-2 z-10">{etiquetaOferta}</div>}
           <WishlistButton product={product} variant="card" />
         </div>
         <div className="mt-2 text-center">
           <p className="text-xs font-medium text-[#111111] line-clamp-1 leading-snug">
             {product.name}
           </p>
-          <p className="text-[11px] text-[#111111]/50 mt-0.5">
-            {formatPEN(Number(product.price))}
+          <p className="text-[11px] mt-0.5">
+            <span className={antes !== null ? "text-[#111111] font-medium" : "text-[#111111]/50"}>
+              {formatPEN(precio)}
+            </span>
+            {antes !== null && (
+              <span className="text-[#111111]/35 line-through ml-1.5">{formatPEN(antes)}</span>
+            )}
           </p>
         </div>
       </Link>
@@ -78,11 +93,14 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
           </div>
         )}
 
-        {product.freeShipping && (
-          <div className="absolute top-3 left-3">
-            <span className="bg-[#111111] text-white text-[9px] font-medium uppercase tracking-[0.15em] px-2.5 py-1">
-              Envío gratis
-            </span>
+        {(etiquetaOferta || product.freeShipping) && (
+          <div className="absolute top-3 left-3 z-10 flex flex-col items-start gap-1.5">
+            {etiquetaOferta}
+            {product.freeShipping && (
+              <span className="bg-[#111111] text-white text-[9px] font-medium uppercase tracking-[0.15em] px-2.5 py-1">
+                Envío gratis
+              </span>
+            )}
           </div>
         )}
         {product.stock === 0 && (
@@ -113,8 +131,16 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
         </h3>
         <div className="mt-3 flex items-center gap-2.5">
           <span className="font-semibold text-sm text-[#111111]">
-            {formatPEN(Number(product.price))}
+            {formatPEN(precio)}
           </span>
+          {antes !== null && (
+            <>
+              <span className="text-sm text-[#111111]/35 line-through">{formatPEN(antes)}</span>
+              <span className="text-[10px] font-medium text-[#d4af37] tracking-wider">
+                -{descuento}%
+              </span>
+            </>
+          )}
         </div>
       </div>
     </Link>
