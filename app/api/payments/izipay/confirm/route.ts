@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderPaidPush } from "@/lib/push";
 import { izipayConfigured } from "@/lib/izipay";
 import { procesarResultadoIzipay } from "@/lib/izipay-result";
 
@@ -38,8 +39,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (resultado.aprobado && !resultado.yaProcesada) {
-      // Fuera de la transacción: hace red y se traga sus propios errores.
+      // Fuera de la transacción: hacen red y se tragan sus propios errores.
+      // El push va también aquí y no sólo en el IPN: si el navegador llega
+      // primero, el IPN ve `yaProcesada` y el POS nunca se enteraría de la venta.
       sendOrderConfirmation(resultado.orderId).catch(console.error);
+      sendOrderPaidPush(resultado.orderId).catch(console.error);
     }
 
     return NextResponse.json({

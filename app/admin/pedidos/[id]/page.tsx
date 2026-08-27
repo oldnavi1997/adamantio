@@ -8,6 +8,7 @@ import { OrderStatusBadge, PaymentStatusBadge } from "@/components/admin/OrderSt
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { formatPEN } from "@/lib/utils";
+import { PROVIDER_LABELS, type PaymentProvider } from "@/lib/shipping";
 import { OrderStatus } from "@/app/generated/prisma/client";
 
 export default function AdminOrderDetailPage({
@@ -130,7 +131,7 @@ export default function AdminOrderDetailPage({
             <div className="mt-4 pt-4 border-t border-gray-100 text-sm space-y-1">
               <p className="text-gray-500">
                 Pasarela: <span className="font-medium">
-                  {order.paymentProvider === "izipay" ? "Izipay" : "Mercado Pago"}
+                  {PROVIDER_LABELS[order.paymentProvider as PaymentProvider] ?? order.paymentProvider}
                 </span>
               </p>
               {latestPayment.mpPaymentId && (
