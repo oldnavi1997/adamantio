@@ -6,7 +6,7 @@ import { Edit, Trash2, Search, X, Tag, ChevronDown, ChevronUp, ChevronsUpDown } 
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect, useMemo } from "react";
-import { formatPEN, cn } from "@/lib/utils";
+import { formatPEN, cn, precioConOferta } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Category } from "@/app/generated/prisma/client";
 import { PosStockData, AdminProductRow } from "@/app/admin/productos/page";
@@ -640,8 +640,21 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                   <td className="py-3.5 px-4 text-[#111111]/55 text-sm">
                     {product.category ?? "—"}
                   </td>
-                  <td className="py-3.5 px-4 text-right font-medium text-sm tabular-nums">
-                    {formatPEN(product.price)}
+                  <td className="py-3.5 px-4 text-right text-sm tabular-nums">
+                    {(() => {
+                      const { precio, antes, descuento } = precioConOferta(product);
+                      return (
+                        <>
+                          <span className="font-medium">{formatPEN(precio)}</span>
+                          {antes !== null && (
+                            <span className="block text-[11px] text-[#111111]/40">
+                              <span className="line-through">{formatPEN(antes)}</span>
+                              <span className="text-[#d4af37] ml-1.5">-{descuento}%</span>
+                            </span>
+                          )}
+                        </>
+                      );
+                    })()}
                   </td>
                   {/* Stock Tienda POS */}
                   <td className="py-3.5 px-4 text-right">

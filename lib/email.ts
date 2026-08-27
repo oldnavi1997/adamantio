@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { complaintCode, formatLimaDate, formatLimaDateTime } from "@/lib/complaints";
+import { COURIER_LABELS, destinoResumen, esRecojo, type Courier } from "@/lib/shipping";
 
 let _resend: Resend | null = null;
 function getResend() {
@@ -47,7 +48,7 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
       return;
     }
 
-    const recipientEmail = order.user?.email ?? order.guestEmail;
+    const recipientEmail = order.contactEmail ?? order.user?.email;
     if (!recipientEmail) {
       console.warn(`sendOrderConfirmation: no recipient email for order ${orderId}`);
       return;
@@ -60,15 +61,15 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
     const freeShipping = shippingCost === 0;
     const address = order.address;
     const recipientName = address?.fullName ?? null;
-    const greeting = recipientName ? `Hola, ${recipientName.split(" ")[0]}` : "Hola";
+    const greeting = recipientName ? `Hola, ${escapeHtml(recipientName.split(" ")[0])}` : "Hola";
 
     const itemsHtml = order.items
       .map((item) => {
         const imageUrl = item.product?.imageUrl ?? null;
         const lineTotal = Number(item.productPrice) * item.quantity;
         const extras = [
-          item.selectedSize ? `<span style="font-size:12px;color:#666666;">Talla: ${item.selectedSize}</span>` : "",
-          item.engravingText ? `<span style="font-size:12px;color:#666666;">Grabado: &ldquo;${item.engravingText}&rdquo;</span>` : "",
+          item.selectedSize ? `<span style="font-size:12px;color:#666666;">Talla: ${escapeHtml(item.selectedSize)}</span>` : "",
+          item.engravingText ? `<span style="font-size:12px;color:#666666;">Grabado: &ldquo;${escapeHtml(item.engravingText)}&rdquo;</span>` : "",
         ]
           .filter(Boolean)
           .join("<br>");
@@ -78,12 +79,12 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
           <td style="padding:12px 0;border-bottom:1px solid #eeeeee;vertical-align:top;width:72px;">
             ${
               imageUrl
-                ? `<img src="${imageUrl}" alt="${item.productName}" width="60" height="60" style="border-radius:6px;object-fit:cover;display:block;">`
+                ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.productName)}" width="60" height="60" style="border-radius:6px;object-fit:cover;display:block;">`
                 : `<div style="width:60px;height:60px;background:#f4f4f4;border-radius:6px;display:inline-block;"></div>`
             }
           </td>
           <td style="padding:12px 12px;border-bottom:1px solid #eeeeee;vertical-align:top;">
-            <div style="font-size:14px;font-weight:600;color:#111111;line-height:1.3;">${item.productName}</div>
+            <div style="font-size:14px;font-weight:600;color:#111111;line-height:1.3;">${escapeHtml(item.productName)}</div>
             <div style="font-size:13px;color:#888888;margin-top:3px;">Cant.: ${item.quantity} × ${formatPEN(Number(item.productPrice))}</div>
             ${extras ? `<div style="margin-top:4px;">${extras}</div>` : ""}
           </td>
@@ -94,13 +95,28 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
       })
       .join("");
 
+    // Con Shalom el destino es una agencia y en recojo es el local, no un
+    // domicilio: conviene que el comprador lo relea tal como lo eligió. Nulo en
+    // los pedidos anteriores a que se guardara el courier, y no se pinta.
+    const courier = order.courier as Courier | null;
+    const envioHtml = courier
+      ? `<div style="font-size:12px;color:#888888;text-transform:uppercase;letter-spacing:0.08em;padding-bottom:6px;">
+          ${
+            esRecojo(courier)
+              ? escapeHtml(COURIER_LABELS[courier])
+              : `Envío por ${escapeHtml(COURIER_LABELS[courier])} — ${escapeHtml(destinoResumen(courier).toLowerCase())}`
+          }
+        </div>`
+      : "";
+
     const addressHtml = address
       ? `
       <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
         <tr><td style="background:#f7f7f7;border-radius:8px;padding:14px 18px;">
-          <div style="font-size:13px;color:#555555;">${address.street}${address.district ? `, ${address.district}` : ""}</div>
-          <div style="font-size:13px;color:#555555;">${address.city}, ${address.state} ${address.postalCode}</div>
-          <div style="font-size:13px;color:#555555;">${address.country}</div>
+          ${envioHtml}
+          <div style="font-size:13px;color:#555555;">${escapeHtml(address.street)}${address.district ? `, ${escapeHtml(address.district)}` : ""}</div>
+          <div style="font-size:13px;color:#555555;">${escapeHtml(address.city)}, ${escapeHtml(address.state)} ${escapeHtml(address.postalCode)}</div>
+          <div style="font-size:13px;color:#555555;">${escapeHtml(address.country)}</div>
         </td></tr>
       </table>`
       : "";
@@ -112,21 +128,21 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td style="font-size:13px;color:#888888;padding:3px 0;width:120px;">Nombre</td>
-              <td style="font-size:13px;color:#111111;font-weight:600;padding:3px 0;">${address.fullName}</td>
+              <td style="font-size:13px;color:#111111;font-weight:600;padding:3px 0;">${escapeHtml(address.fullName)}</td>
             </tr>
             ${address.documentType && address.documentNumber ? `
             <tr>
-              <td style="font-size:13px;color:#888888;padding:3px 0;">${address.documentType}</td>
-              <td style="font-size:13px;color:#111111;padding:3px 0;">${address.documentNumber}</td>
+              <td style="font-size:13px;color:#888888;padding:3px 0;">${escapeHtml(address.documentType)}</td>
+              <td style="font-size:13px;color:#111111;padding:3px 0;">${escapeHtml(address.documentNumber)}</td>
             </tr>` : ""}
             <tr>
               <td style="font-size:13px;color:#888888;padding:3px 0;">Email</td>
-              <td style="font-size:13px;color:#111111;padding:3px 0;">${recipientEmail}</td>
+              <td style="font-size:13px;color:#111111;padding:3px 0;">${escapeHtml(recipientEmail)}</td>
             </tr>
             ${address.phone ? `
             <tr>
               <td style="font-size:13px;color:#888888;padding:3px 0;">Teléfono</td>
-              <td style="font-size:13px;color:#111111;padding:3px 0;">${address.phone}</td>
+              <td style="font-size:13px;color:#111111;padding:3px 0;">${escapeHtml(address.phone)}</td>
             </tr>` : ""}
           </table>
         </td></tr>
@@ -463,7 +479,11 @@ export async function sendComplaintEmails(complaintId: string): Promise<boolean>
   }
 }
 
-/** El detalle del reclamo es texto libre del consumidor y se interpola en HTML. */
+/**
+ * Todo lo que escribe el comprador —el detalle del reclamo, el grabado, la
+ * agencia de destino, su nombre— se interpola en el HTML de estos correos.
+ * Escapa `& < > "`, así que sirve igual dentro de un atributo entrecomillado.
+ */
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")

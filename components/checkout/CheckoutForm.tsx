@@ -13,6 +13,10 @@ import {
   OLVA_PRICE_BY_DEPARTMENT,
   getShippingCost,
   getPaymentFee,
+  COURIER_LABELS,
+  DESTINO_COPY,
+  TIENDA,
+  esRecojo,
   type PaymentProvider,
 } from "@/lib/shipping";
 
@@ -32,18 +36,36 @@ const shippingSchema = z.object({
   documentType: z.enum(["DNI", "CE"]),
   documentNumber: z.string(),
   phone: z.string().min(5, "Teléfono requerido"),
-  street: z.string().min(3, "Ingresa tu dirección"),
-  department: z.string().min(1, "Selecciona un departamento"),
-  province: z.string().min(1, "Selecciona una provincia"),
-  district: z.string().min(1, "Selecciona un distrito"),
-  postalCode: z.string().min(1, "Código postal requerido"),
-  courier: z.enum(["shalom", "olva"]),
+  street: z.string(),
+  department: z.string(),
+  province: z.string(),
+  district: z.string(),
+  postalCode: z.string(),
+  courier: z.enum(["shalom", "olva", "tienda"]),
 }).superRefine((data, ctx) => {
   if (data.documentType === "DNI" && !/^\d{8}$/.test(data.documentNumber)) {
     ctx.addIssue({ code: "custom", path: ["documentNumber"], message: "DNI debe tener 8 dígitos" });
   }
   if (data.documentType === "CE" && (data.documentNumber.length < 5 || data.documentNumber.length > 12)) {
     ctx.addIssue({ code: "custom", path: ["documentNumber"], message: "Carnet debe tener entre 5 y 12 caracteres" });
+  }
+  // Recojo en tienda: no hay nada más que pedir. La dirección del local la
+  // escribe el servidor al crear la orden, no el comprador.
+  if (esRecojo(data.courier)) return;
+
+  const ubicacion = [
+    ["department", "Selecciona un departamento"],
+    ["province", "Selecciona una provincia"],
+    ["district", "Selecciona un distrito"],
+    ["postalCode", "Código postal requerido"],
+  ] as const;
+  for (const [path, message] of ubicacion) {
+    if (!data[path]) ctx.addIssue({ code: "custom", path: [path], message });
+  }
+
+  // Qué falta depende del courier: Shalom solo entrega en agencia.
+  if (data.street.trim().length < 3) {
+    ctx.addIssue({ code: "custom", path: ["street"], message: DESTINO_COPY[data.courier].error });
   }
 });
 
@@ -84,6 +106,7 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, freeShip
 
   // Mismo cálculo que `create-order`, desde el mismo módulo: el importe que se
   // previsualiza aquí es el que se va a cobrar.
+  const recojo = esRecojo(courier);
   const shippingCost = isTestMode || freeShipping ? 0 : getShippingCost(courier, department);
   const beforeCommission = subtotal + shippingCost;
   const mpCommission = isTestMode ? 0 : getPaymentFee(paymentProvider, beforeCommission);
@@ -141,10 +164,9 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, freeShip
         <Input label="Teléfono *" type="tel" error={errors.phone?.message} {...register("phone")} />
       </div>
 
-      {/* Dirección */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <h3 className="font-semibold text-[#111111]">Dirección de envío</h3>
-        <Input label="Dirección (calle y número) *" error={errors.street?.message} {...register("street")} />
+      {/* Ubicación — en recojo no hay nada que ubicar */}
+      <div className={`bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4 ${recojo ? "hidden" : ""}`}>
+        <h3 className="font-semibold text-[#111111]">Ubicación de entrega</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Departamento *</label>
@@ -178,20 +200,44 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, freeShip
       {/* Courier */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
         <h3 className="font-semibold text-[#111111]">Método de envío</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {(["shalom", "olva"] as const).map((c) => {
-            const price = c === "shalom" ? SHALOM_PRICE : (OLVA_PRICE_BY_DEPARTMENT[department] ?? 15);
-            const label = c === "shalom" ? "Shalom" : "Olva Courier";
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {(["shalom", "olva", "tienda"] as const).map((c) => {
+            const price =
+              c === "tienda" ? 0 : c === "shalom" ? SHALOM_PRICE : (OLVA_PRICE_BY_DEPARTMENT[department] ?? 15);
+            const label = COURIER_LABELS[c];
             return (
               <label key={c} className={`flex items-center gap-3 border rounded-lg p-4 cursor-pointer transition-colors ${courier === c ? "border-[#111111] bg-gray-50" : "border-gray-200 hover:border-gray-300"}`}>
                 <input type="radio" value={c} {...register("courier")} className="accent-[#111111]" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-[#111111]">{label}</p>
-                  <p className="text-xs text-gray-500">S/ {price.toFixed(2)}</p>
+                  <p className="text-xs text-gray-500">{price === 0 ? "Gratis" : `S/ ${price.toFixed(2)}`}</p>
                 </div>
               </label>
             );
           })}
+        </div>
+        <div className="pt-4 border-t border-gray-100">
+          {recojo ? (
+            <div className="text-sm">
+              <p className="text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.15em] mb-1.5">
+                Recoges en
+              </p>
+              <p className="text-[#111111]">{TIENDA.street}</p>
+              <p className="text-gray-500 text-xs mt-0.5">
+                {TIENDA.district}, {TIENDA.department}
+              </p>
+              <p className="text-gray-500 text-xs mt-2">
+                Te avisamos por correo cuando tu pedido esté listo para recoger.
+              </p>
+            </div>
+          ) : (
+            <Input
+              label={`${DESTINO_COPY[courier].label} *`}
+              placeholder={DESTINO_COPY[courier].placeholder}
+              error={errors.street?.message}
+              {...register("street")}
+            />
+          )}
         </div>
       </div>
 
@@ -201,7 +247,7 @@ export function CheckoutForm({ onSubmit, loading, subtotal, isTestMode, freeShip
           <span>Subtotal</span><span>S/ {subtotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-[#111111]/60">
-          <span>Envío ({courier === "shalom" ? "Shalom" : "Olva"})</span>
+          <span>Envío ({COURIER_LABELS[courier]})</span>
           <span>{shippingCost === 0 ? "Gratis" : `S/ ${shippingCost.toFixed(2)}`}</span>
         </div>
         <div className="flex justify-between text-[#111111]/60">

@@ -10,6 +10,8 @@ const productCreateSchema = z.object({
   name: z.string().min(2),
   description: z.string().default(""),
   price: z.number().positive(),
+  /// Precio tachado de la oferta. Siempre mayor que `price`; null si no hay.
+  comparePrice: z.number().positive().nullable().optional(),
   stock: z.number().int().min(0).default(0),
   stockHombre: z.number().int().min(0).default(0),
   stockMujer: z.number().int().min(0).default(0),
@@ -105,6 +107,7 @@ export async function POST(request: NextRequest) {
         ...prismaData,
         categoryId,
         price: new Prisma.Decimal(data.price),
+        comparePrice: data.comparePrice == null ? null : new Prisma.Decimal(data.comparePrice),
         stockAlmacenHombre: stockAlmacenH,
         stockAlmacenMujer: stockAlmacenM,
         stockAlmacen: stockAlmacenH + stockAlmacenM,

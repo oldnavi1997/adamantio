@@ -22,7 +22,7 @@ export async function sendOrderPaidPush(orderId: string): Promise<void> {
 
     if (!order || tokens.length === 0) return;
 
-    const buyer = order.user?.fullName ?? order.guestEmail ?? "Cliente web";
+    const buyer = order.user?.fullName ?? order.contactEmail ?? "Cliente web";
     const total = new Intl.NumberFormat("es-PE", {
       style: "currency",
       currency: "PEN",

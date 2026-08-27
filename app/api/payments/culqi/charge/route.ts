@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "La orden no es de Culqi" }, { status: 400 });
     }
 
-    const email = order.user?.email ?? order.guestEmail ?? "";
+    const email = order.contactEmail ?? order.user?.email ?? "";
     const resultado = await crearCargo(order, {
       email,
       tokenId: data.tokenId,

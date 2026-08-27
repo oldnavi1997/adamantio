@@ -24,6 +24,7 @@ export type AdminProductRow = {
   imageUrls: string[];
   category: string | null;
   price: number;
+  comparePrice: number | null;
   sku: string | null;
   esPar: boolean;
   isActive: boolean;
@@ -40,6 +41,7 @@ export default async function AdminProductsPage() {
         imageUrls: true,
         category: true,
         price: true,
+        comparePrice: true,
         sku: true,
         esPar: true,
         isActive: true,
@@ -73,6 +75,7 @@ export default async function AdminProductsPage() {
       imageUrls: p.imageUrls,
       category: p.category,
       price: Number(p.price), // Decimal → number (serializable hacia el cliente)
+      comparePrice: p.comparePrice == null ? null : Number(p.comparePrice),
       sku: p.sku,
       esPar: p.esPar,
       isActive: p.isActive,

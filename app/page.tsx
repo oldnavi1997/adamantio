@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { OG_DEFECTO } from "@/lib/seo";
+import { precioConOferta } from "@/lib/utils";
 
 export const metadata: Metadata = {
   // `absolute` evita la plantilla "%s | Adamantio" del layout: el título de la
@@ -56,7 +57,7 @@ export default async function HomePage() {
   const spotlightProducts = spotlightProductIds.length
     ? await prisma.product.findMany({
         where: { id: { in: spotlightProductIds }, isActive: true },
-        select: { id: true, name: true, price: true },
+        select: { id: true, name: true, price: true, comparePrice: true },
       })
     : [];
   const spotlightById = new Map(spotlightProducts.map((p) => [p.id, p]));
@@ -68,6 +69,7 @@ export default async function HomePage() {
       id: c.productId,
       name: product.name,
       price: Number(product.price).toFixed(2),
+      priceAntes: precioConOferta(product).antes?.toFixed(2) ?? null,
       href: `/joyas/${c.productId}`,
       video: c.video,
       poster: c.poster,

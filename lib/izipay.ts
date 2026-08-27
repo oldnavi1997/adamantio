@@ -102,7 +102,7 @@ export async function crearFormToken(order: Order & { address: Address | null })
       currency: "PEN",
       orderId: order.id,
       customer: {
-        email: order.guestEmail ?? undefined,
+        email: order.contactEmail ?? undefined,
         reference: order.userId ?? undefined,
         billingDetails: {
           firstName: order.address?.fullName || undefined,

@@ -86,6 +86,12 @@ model Product {
   categoryId       String?
   categoryRef      Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   price            Decimal     @db.Decimal(10, 2)
+  /// Precio tachado cuando el producto está en oferta; nulo si no lo está.
+  /// OJO con la dirección: `price` es siempre lo que se cobra y `comparePrice`
+  /// el precio anterior, más alto. Así el cobro, el orden por precio y el
+  /// filtro por rango siguen operando sobre lo que el comprador paga. El editor
+  /// presenta los dos campos al revés y traduce al guardar.
+  comparePrice     Decimal?    @db.Decimal(10, 2)
   stock            Int
   sku              String?     @unique
   sizes            String[]    @default([])
@@ -163,9 +169,16 @@ model Order {
   user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   addressId    String?
   address      Address?    @relation(fields: [addressId], references: [id], onDelete: SetNull)
-  guestEmail   String?
+  /// Correo de contacto tal como se escribió en el checkout. Se guarda siempre,
+  /// haya sesión o no: el comprador puede querer la confirmación en una dirección
+  /// distinta a la de su cuenta, y antes se descartaba. La columna sigue
+  /// llamándose `guestEmail` en la BD porque la comparte el POS.
+  contactEmail String?  @map("guestEmail")
   total        Decimal     @db.Decimal(10, 2)
   shippingCost Decimal     @default(0) @db.Decimal(10, 2)
+  /// Courier elegido en el checkout: "shalom" | "olva". Nulo en las órdenes
+  /// anteriores a que se empezara a guardar.
+  courier      String?
   /// Comisión de la pasarela trasladada al comprador. Se llama `mp*` por
   /// herencia de Mercado Pago, pero la escribe cualquier proveedor.
   mpCommission Decimal     @default(0) @db.Decimal(10, 2)
