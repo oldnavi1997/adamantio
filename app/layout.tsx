@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { Analytics } from "@vercel/analytics/next";
 import { StoreChrome } from "@/components/layout/StoreChrome";
 import { CookieBanner } from "@/components/layout/CookieBanner";
+import { OG_DEFECTO } from "@/lib/seo";
 
 const jost = Jost({
   subsets: ["latin"],
@@ -27,6 +28,13 @@ export const metadata: Metadata = {
     siteName: "Adamantio",
     locale: "es_PE",
     type: "website",
+    images: [OG_DEFECTO],
+  },
+  twitter: {
+    // `summary` y no `summary_large_image`: la tarjeta grande es 2:1 y
+    // recortaría la imagen cuadrada.
+    card: "summary",
+    images: [OG_DEFECTO.url],
   },
 };
 
