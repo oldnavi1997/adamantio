@@ -40,12 +40,12 @@ export function PaymentProcessingOverlay({
   useEffect(() => {
     if (!visible) return;
     const alPulsar = (e: KeyboardEvent) => {
-      // Deja pasar lo que ocurra dentro del formulario de Izipay: durante un
-      // desafío 3DS el comprador todavía tiene que poder escribir.
-      const dentroDeIzipay = (e.target as HTMLElement | null)?.closest?.(
-        "#izipay-form, [class*='kr-']"
+      // Deja pasar lo que ocurra dentro del formulario de la pasarela: durante
+      // un desafío 3DS el comprador todavía tiene que poder escribir.
+      const dentroDeLaPasarela = (e.target as HTMLElement | null)?.closest?.(
+        "#izipay-form, [class*='kr-'], [class*='culqi'], [id*='culqi']"
       );
-      if (dentroDeIzipay) return;
+      if (dentroDeLaPasarela) return;
       e.preventDefault();
       e.stopPropagation();
     };

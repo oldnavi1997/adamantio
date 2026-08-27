@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import type { Address, Order } from "@/app/generated/prisma/client";
+import { aCentimos } from "@/lib/utils";
 
 /**
  * Cliente de Izipay Perú sobre la pasarela Lyra/Krypton V4 (`api.micuentaweb.pe`).
@@ -130,11 +131,6 @@ export async function crearFormToken(order: Order & { address: Address | null })
     throw new Error(`Izipay CreatePayment falló (${res.status}): ${detalle ?? "sin detalle"}`);
   }
   return formToken as string;
-}
-
-/** S/149.00 → 14900. Redondea para no arrastrar el error binario de los flotantes. */
-export function aCentimos(soles: number): number {
-  return Math.round(soles * 100);
 }
 
 // ─── Validación de firma ───

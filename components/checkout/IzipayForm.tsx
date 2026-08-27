@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatPEN } from "@/lib/utils";
 import { PaymentProcessingOverlay } from "@/components/checkout/PaymentProcessingOverlay";
+import { cargarCss, cargarScript } from "@/components/checkout/cargar-recursos";
 
 interface IzipayFormProps {
   total: number;
@@ -23,37 +24,6 @@ const CONTENEDOR = "izipay-form";
 
 /** Corta el overlay si la pasarela nunca responde, para no dejar la página muerta. */
 const LIMITE_PROCESANDO_MS = 4 * 60 * 1000;
-
-function cargarCss(href: string) {
-  if (document.querySelector(`link[href="${href}"]`)) return;
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = href;
-  document.head.appendChild(link);
-}
-
-function cargarScript(src: string, atributos: Record<string, string> = {}): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const existente = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`);
-    if (existente) {
-      if (existente.dataset.cargado === "1") return resolve();
-      existente.addEventListener("load", () => resolve());
-      existente.addEventListener("error", () => reject(new Error("No se pudo cargar Izipay")));
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = src;
-    // `kr-public-key` tiene que estar puesto ANTES de que el script se ejecute:
-    // el cliente Krypton lo lee de su propia etiqueta al inicializarse.
-    for (const [k, v] of Object.entries(atributos)) script.setAttribute(k, v);
-    script.onload = () => {
-      script.dataset.cargado = "1";
-      resolve();
-    };
-    script.onerror = () => reject(new Error("No se pudo cargar Izipay"));
-    document.head.appendChild(script);
-  });
-}
 
 /**
  * Pago con Izipay (pasarela Lyra/Krypton V4) en formulario embebido.
@@ -156,13 +126,17 @@ export function IzipayForm({ total, orderId, onPaymentResult }: IzipayFormProps)
       if (!res.ok) throw new Error(data.error || "No se pudo iniciar el pago");
 
       cargarCss(data.cssUrl);
-      await cargarScript(data.jsUrl, {
-        // Krypton tiene una lista cerrada de idiomas y "es-PE" no está en ella;
-        // el propio ejemplo de Izipay usa el castellano de España.
-        "kr-language": "es-ES",
-        "kr-public-key": data.publicKey,
-      });
-      await cargarScript(data.themeJsUrl);
+      await cargarScript(
+        data.jsUrl,
+        {
+          // Krypton tiene una lista cerrada de idiomas y "es-PE" no está en ella;
+          // el propio ejemplo de Izipay usa el castellano de España.
+          "kr-language": "es-ES",
+          "kr-public-key": data.publicKey,
+        },
+        "Izipay"
+      );
+      await cargarScript(data.themeJsUrl, {}, "Izipay");
 
       const KR = window.KR;
       if (!KR) throw new Error("El formulario de Izipay no se cargó");

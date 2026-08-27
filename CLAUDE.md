@@ -30,7 +30,7 @@ Next.js 16 App Router, React 19. No `src/` dir. All pages under `app/`, componen
 **Key sections:**
 - `app/` — pages + API routes (App Router)
 - `components/` — organized by domain: `ui/`, `layout/`, `home/`, `catalog/`, `product/`, `cart/`, `checkout/`, `admin/`
-- `lib/` — prisma, auth, mercadopago, cloudinary, algolia, email, utils
+- `lib/` — prisma, auth, cloudinary, algolia, email, push, utils; payments: `mercadopago`, `izipay`(+`izipay-result`), `culqi`(+`culqi-result`), `fulfillment`, `shipping`
 - `stores/` — Zustand cart store (`adamantio-cart` key in localStorage)
 - `types/` — shared TypeScript types (`ProductWithCategory`, `OrderWithItems`, `CartItem`, `ColorVariantProduct`)
 - `prisma/` — schema, migrations, seed, algolia-seed, importWoo
@@ -76,15 +76,48 @@ No `tailwind.config.ts`. Custom theme configured via `@theme {}` block in `app/g
 
 NextAuth 4 with JWT strategy. `lib/auth.ts` adds `id` and `role` to JWT token and session. Types augmented in `types/next-auth.d.ts`. Admin credential: `admin@adamantio.com / admin123`.
 
-## Payment Flow (Mercado Pago)
+## Payment Flow (Culqi, Izipay)
 
-Checkout API (no redirect) with `@mercadopago/sdk-react` CardPayment Brick:
-1. `POST /api/payments/create-order` → creates Order PENDING in DB, returns `{ orderId, total }`
-2. CardPayment Brick tokenizes card
-3. `POST /api/payments/process` → calls `paymentClient.create()`, updates Order status, returns result inline
-4. Result shown inline on `/checkout` page (no redirect to success/failure pages)
+The checkout offers **two** gateways, both resolved inline on `/checkout` — no redirect. Every
+one starts with `POST /api/payments/create-order`, which creates the Order `PENDING` and fixes
+the real amount: prices come from the DB, and `getPaymentFee(provider, base)` decides the
+commission passed on to the buyer, so **switching gateway recreates the order**.
 
-Pages `checkout/success`, `checkout/failure`, `checkout/pending` exist only for external deep links (e.g., from confirmation emails).
+Each gateway is behind a credentials feature flag (`culqiConfigured()`, `izipayConfigured()`).
+Without keys its tab is not rendered and its routes return 503, so the app deploys unconfigured.
+Both answer with the same shape — `{ status, paymentId, statusDetail }` — so `CheckoutClient`
+doesn't branch per gateway. With no gateway configured there is no fallback: the payment step
+renders a notice instead of a broken form.
+
+**Mercado Pago was withdrawn from the checkout**, not deleted. `/api/payments/process`, the IPN
+at `/api/payments/webhook`, `lib/mercadopago.ts`, `components/checkout/CardPaymentBrick.tsx`,
+its `getPaymentFee` branch and its `PROVIDER_LABELS` entry all stay, so existing `mercadopago`
+orders still resolve and the admin still labels them. To bring it back, restore its tab and
+branch in `CheckoutClient`. Note the brick also carried the dev-only "Simular pago aprobado"
+button (`devBypass`), which went with it. `MP_ACCESS_TOKEN` is still required: the surviving
+routes construct the client at module load.
+
+- **Izipay** (Lyra/Krypton V4) — `POST /api/payments/izipay/session` returns a `formToken`; the
+  embedded form charges; `/izipay/confirm` and the IPN `/izipay/webhook` both validate the
+  `kr-hash` **over the raw string** before parsing. Two different keys sign it; see `lib/izipay.ts`.
+- **Culqi** (card + Yape) — the browser only tokenizes with the Custom Checkout;
+  `POST /api/payments/culqi/charge` runs the charge server-side. HTTP 201 = paid, **200 = 3DS
+  required** (answer `auth_required`, the browser runs `Culqi3DS.initAuthentication` and calls
+  again with `authentication3DS`; same token and `device_finger_print_id` both times), 4xx =
+  rejected. `metadata.orderId` is the only link back to the order, and `/culqi/webhook`
+  re-fetches the charge rather than trusting its body.
+
+### Never approve an order outside `aprobarOrden`
+
+`lib/fulfillment.ts` is the single approval path. It does a compare-and-swap on
+`Order.stockDeducted` inside a transaction, locks the product rows with `SELECT … FOR UPDATE`
+(the POS writes the same rows) and upserts the `Payment`. Every gateway has two racing paths —
+browser response and webhook — so a plain `order.update({ status: "PAID" })` would double-deduct
+stock. Callers only send the email/push when `yaProcesada` is false, and use `after()` from
+`next/server` for it: on Vercel the lambda freezes as soon as it responds.
+
+Pages `checkout/success`, `checkout/failure`, `checkout/pending` exist only for external deep
+links (e.g., from confirmation emails); the live flow goes to `/pedido/confirmacion/[orderId]`.
 
 ## Product Model (Jewelry Fields)
 
@@ -155,7 +188,7 @@ Note this `buildCommand` overrides whatever build command is configured in the V
 - To add a schema change locally: edit `prisma/schema.prisma`, hand-write `prisma/migrations/<timestamp>_<name>/migration.sql`, apply it with `npx prisma db execute --file <path>` (note: `db execute` has no `--schema` flag), record it with `npx prisma migrate resolve --applied <timestamp>_<name>`, then `npx prisma generate`.
 - Before touching production, run `npx prisma migrate status` against it. Columns applied by hand without being recorded make `migrate deploy` fail with *already exists*; the fix is `migrate resolve --applied` on that one migration, never `--rolled-back` and never editing an applied migration's SQL.
 
-Required environment variables: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `MP_ACCESS_TOKEN`, `NEXT_PUBLIC_MP_PUBLIC_KEY`, `NEXT_PUBLIC_APP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `COMPLAINTS_EMAIL`. See `.env.example` for the full list.
+Required environment variables: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `MP_ACCESS_TOKEN`, `NEXT_PUBLIC_MP_PUBLIC_KEY`, `NEXT_PUBLIC_APP_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `COMPLAINTS_EMAIL`. Optional per gateway: `IZIPAY_*` (four keys) and `CULQI_PUBLIC_KEY` / `CULQI_SECRET_KEY` — each set is all-or-nothing, and its absence just hides that gateway. See `.env.example` for the full list.
 
 ## Hydration Notes
 

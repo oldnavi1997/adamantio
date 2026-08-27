@@ -31,3 +31,12 @@ export function slugify(text: string): string {
     .replace(/-+/g, "-")
     .trim();
 }
+
+/**
+ * S/149.00 → 14900. Las pasarelas peruanas (Izipay, Culqi) cobran en la unidad
+ * mínima de la moneda. Se redondea para no arrastrar el error binario de los
+ * flotantes: `1.15 * 100` es 114.99999999999999.
+ */
+export function aCentimos(soles: number): number {
+  return Math.round(soles * 100);
+}

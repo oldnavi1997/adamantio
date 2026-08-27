@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/cart";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
-import { CardPaymentBrick } from "@/components/checkout/CardPaymentBrick";
 import { IzipayForm } from "@/components/checkout/IzipayForm";
+import { CulqiForm } from "@/components/checkout/CulqiForm";
 import { PaymentResult } from "@/components/checkout/PaymentResult";
 import { ShippingFormData } from "@/types";
 import type { PaymentProvider } from "@/lib/shipping";
@@ -20,7 +20,13 @@ interface PaymentResultData {
   error?: string;
 }
 
-export function CheckoutClient({ izipayEnabled }: { izipayEnabled: boolean }) {
+export function CheckoutClient({
+  izipayEnabled,
+  culqiEnabled,
+}: {
+  izipayEnabled: boolean;
+  culqiEnabled: boolean;
+}) {
   const { items, subtotal, clearCart } = useCartStore();
   const router = useRouter();
   const [step, setStep] = useState<Step>("form");
@@ -33,8 +39,28 @@ export function CheckoutClient({ izipayEnabled }: { izipayEnabled: boolean }) {
   const [shippingCost, setShippingCost] = useState(0);
   const [mpCommission, setMpCommission] = useState(0);
   const [provider, setProvider] = useState<PaymentProvider>(
-    izipayEnabled ? "izipay" : "mercadopago"
+    culqiEnabled ? "culqi" : "izipay"
   );
+
+  /**
+   * Sólo se ofrecen las pasarelas con credenciales configuradas. Con una sola
+   * habilitada el selector no se pinta: no hay nada que elegir.
+   *
+   * **Mercado Pago está retirado del checkout.** No es que le falten
+   * credenciales: no se ofrece. `/api/payments/process` y su webhook siguen en
+   * pie para las órdenes que ya existan, y `getPaymentFee` conserva su tarifa,
+   * así que reponerlo es devolver aquí su pestaña y su rama en
+   * `formularioDePago`, más el import de `CardPaymentBrick`.
+   *
+   * Ojo con el efecto secundario: el brick era también el que traía el botón
+   * "Simular pago aprobado" de desarrollo (`devBypass`), que se va con él.
+   */
+  const pestañas = (
+    [
+      { id: "culqi", label: "Culqi", activo: "bg-[#00A19B] text-white", habilitada: culqiEnabled },
+      { id: "izipay", label: "Izipay", activo: "bg-[#e30613] text-white", habilitada: izipayEnabled },
+    ] as const
+  ).filter((t) => t.habilitada);
 
   const sub = subtotal();
   const isTestMode = items.some((i) => i.testMode);
@@ -110,6 +136,33 @@ export function CheckoutClient({ izipayEnabled }: { izipayEnabled: boolean }) {
     }
   };
 
+  const formularioDePago = (idOrden: string) => {
+    if (provider === "culqi" && culqiEnabled) {
+      return (
+        <CulqiForm
+          total={total}
+          orderId={idOrden}
+          email={email}
+          onPaymentResult={handlePaymentResult}
+        />
+      );
+    }
+    if (provider === "izipay" && izipayEnabled) {
+      return <IzipayForm total={total} orderId={idOrden} onPaymentResult={handlePaymentResult} />;
+    }
+    // Sin Mercado Pago ya no hay pasarela de último recurso: si ninguna tiene
+    // credenciales el comprador tiene que enterarse, no quedarse ante un hueco.
+    return (
+      <div className="bg-white rounded-xl border border-red-100 shadow-sm p-6 text-center space-y-2">
+        <p className="text-sm font-medium text-[#111111]">Los pagos no están disponibles</p>
+        <p className="text-xs text-[#111111]/60 leading-relaxed">
+          Estamos teniendo un problema con nuestra pasarela de pagos. Tu pedido quedó
+          guardado; escríbenos y lo completamos contigo.
+        </p>
+      </div>
+    );
+  };
+
   const handlePaymentResult = (result: PaymentResultData) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (result.status === "approved" && orderId) {
@@ -162,12 +215,9 @@ export function CheckoutClient({ izipayEnabled }: { izipayEnabled: boolean }) {
                   total={total}
                 />
               </div>
-              {izipayEnabled && (
+              {pestañas.length > 1 && (
                 <div className="flex border border-gray-200 rounded-xl overflow-hidden">
-                  {([
-                    { id: "izipay" as const, label: "Izipay", activo: "bg-[#e30613] text-white" },
-                    { id: "mercadopago" as const, label: "Tarjeta", activo: "bg-[#111111] text-white" },
-                  ]).map((t, i) => (
+                  {pestañas.map((t, i) => (
                     <button
                       key={t.id}
                       type="button"
@@ -183,20 +233,7 @@ export function CheckoutClient({ izipayEnabled }: { izipayEnabled: boolean }) {
                 </div>
               )}
 
-              {provider === "izipay" && izipayEnabled ? (
-                <IzipayForm
-                  total={total}
-                  orderId={orderId}
-                  onPaymentResult={handlePaymentResult}
-                />
-              ) : (
-                <CardPaymentBrick
-                  total={total}
-                  orderId={orderId}
-                  email={email}
-                  onPaymentResult={handlePaymentResult}
-                />
-              )}
+              {formularioDePago(orderId)}
             </>
           )}
 

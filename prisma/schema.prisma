@@ -169,12 +169,13 @@ model Order {
   /// Comisión de la pasarela trasladada al comprador. Se llama `mp*` por
   /// herencia de Mercado Pago, pero la escribe cualquier proveedor.
   mpCommission Decimal     @default(0) @db.Decimal(10, 2)
-  /// Pasarela con la que se cobró: "mercadopago" | "izipay".
+  /// Pasarela con la que se cobró: "mercadopago" | "izipay" | "culqi".
   paymentProvider String   @default("mercadopago")
   status       OrderStatus @default(PENDING)
   /// Guarda de idempotencia. Un único `updateMany` sobre este flag decide quién
-  /// aprueba la orden: con Izipay, la respuesta del navegador y el IPN compiten
-  /// en cada venta y sin esto el stock se descontaría dos veces.
+  /// aprueba la orden: con Izipay la respuesta del navegador y el IPN compiten en
+  /// cada venta, y con Culqi el cargo y su webhook hacen lo mismo; sin esto el
+  /// stock se descontaría dos veces.
   stockDeducted Boolean    @default(false)
   stockNote    String?
   createdAt    DateTime    @default(now())

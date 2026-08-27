@@ -23,17 +23,31 @@ export function getShippingCost(courier: Courier, department: string): number {
   return OLVA_PRICE_BY_DEPARTMENT[department] ?? 15;
 }
 
-export type PaymentProvider = "mercadopago" | "izipay";
+export type PaymentProvider = "mercadopago" | "izipay" | "culqi";
+
+/** Etiquetas para el panel de administración. */
+export const PROVIDER_LABELS: Record<PaymentProvider, string> = {
+  culqi: "Culqi",
+  izipay: "Izipay",
+  mercadopago: "Mercado Pago",
+};
 
 const IGV = 1.18;
+
+/** Culqi cobra el fijo en dólares; el tipo de cambio es el referencial acordado. */
+const CULQI_FIJO_USD = 0.2;
+const CULQI_TIPO_CAMBIO = 3.85;
 
 /**
  * Comisión de la pasarela que se traslada al comprador.
  *
  * - Mercado Pago: 3.29% + IGV, más S/1 + IGV fijo.
  * - Izipay: 3.44% + IGV, más S/0.69 + IGV de comisión del canal virtual.
+ * - Culqi: 3.44% + USD 0.20. OJO: esta tarifa ya viene con IGV incluido, por eso
+ *   —a diferencia de las otras dos— no se multiplica por `IGV`. No es un olvido.
  */
 export function getPaymentFee(provider: PaymentProvider, base: number): number {
+  if (provider === "culqi") return base * 0.0344 + CULQI_FIJO_USD * CULQI_TIPO_CAMBIO;
   if (provider === "izipay") return base * 0.0344 * IGV + 0.69 * IGV;
   return base * 0.0329 * IGV + 1.18;
 }

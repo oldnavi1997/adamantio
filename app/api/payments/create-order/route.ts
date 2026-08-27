@@ -28,7 +28,12 @@ const createOrderSchema = z.object({
   }),
   // La pasarela decide la comisión que se suma al total, así que hay que
   // conocerla antes de crear la orden.
-  paymentProvider: z.enum(["mercadopago", "izipay"]).default("mercadopago"),
+  //
+  // "mercadopago" sigue en el enum aunque el checkout ya no lo ofrezca: hay
+  // órdenes viejas con ese valor y su ruta de cobro sigue en pie. Lo que cambia
+  // es el defecto, para que una petición sin el campo no acabe con la comisión
+  // de una pasarela que nadie puede pagar.
+  paymentProvider: z.enum(["mercadopago", "izipay", "culqi"]).default("culqi"),
 });
 
 export async function POST(request: NextRequest) {
