@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Lock } from "lucide-react";
 import { formatPEN } from "@/lib/utils";
 import { PaymentProcessingOverlay } from "@/components/checkout/PaymentProcessingOverlay";
 import { cargarCss, cargarScript } from "@/components/checkout/cargar-recursos";
+import { MarcasDeTarjeta } from "@/components/ui/MarcasDeTarjeta";
 
 interface IzipayFormProps {
   total: number;
@@ -246,6 +248,28 @@ export function IzipayForm({ total, orderId, onPaymentResult }: IzipayFormProps)
         sale roto. Vacío no ocupa nada, así que no estorba.
       */}
       <div id={CONTENEDOR} />
+
+      {/*
+        Señal de confianza bajo el formulario, en la línea de la que muestra
+        Culqi en su modal. Krypton no trae ninguna: su propio aviso de pago
+        seguro ("Formulario de pago con encriptación de 256-bit TLS") sólo se
+        renderiza en el modo popin, y aquí el formulario va embebido.
+
+        El texto se ciñe a lo que es cierto: el cobro lo procesa Izipay y los
+        datos de la tarjeta no pasan por nuestro servidor. Deliberadamente NO
+        se reproduce el sello de PCI DSS que sí luce Culqi: el certificado es
+        de la pasarela, no de Adamantio, y exhibirlo aquí sería atribuirse una
+        certificación ajena.
+      */}
+      {formMontado && (
+        <div className="flex flex-col items-center gap-2 pt-1">
+          <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-[#111111]/40">
+            <Lock className="h-3 w-3" aria-hidden="true" />
+            Pago seguro procesado por Izipay · Cifrado TLS de 256 bits
+          </p>
+          <MarcasDeTarjeta className="[&_svg]:h-5" />
+        </div>
+      )}
 
       {!formMontado && (
         <button
