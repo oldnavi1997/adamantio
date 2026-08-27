@@ -31,6 +31,7 @@ export default async function AdminDashboard() {
         orderBy: { createdAt: "desc" },
         include: {
           address: true,
+          user: { select: { email: true } },
           payments: { orderBy: { createdAt: "desc" }, take: 1 },
         },
       }),
@@ -134,7 +135,7 @@ export default async function AdminDashboard() {
                 {recentOrders.map((order) => {
                   const latestPayment = order.payments[0];
                   const clientName = order.address?.fullName ?? "—";
-                  const clientEmail = order.guestEmail ?? order.address?.phone ?? "—";
+                  const clientEmail = order.contactEmail ?? order.user?.email ?? order.address?.phone ?? "—";
                   return (
                     <tr
                       key={order.id}

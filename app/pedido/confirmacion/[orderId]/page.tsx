@@ -4,6 +4,7 @@ import Image from "next/image";
 import { CheckCircle, Clock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatPEN } from "@/lib/utils";
+import { COURIER_LABELS, destinoResumen, type Courier } from "@/lib/shipping";
 
 export const dynamic = "force-dynamic";
 
@@ -27,8 +28,12 @@ export default async function OrderConfirmationPage({ params }: Props) {
 
   const isApproved = order.status === "PAID";
   const shortId = order.id.slice(-8).toUpperCase();
-  const recipientEmail = order.user?.email ?? order.guestEmail ?? "";
+  const recipientEmail = order.contactEmail ?? order.user?.email ?? "";
   const address = order.address;
+  // Los pedidos anteriores a que se guardara el courier no lo tienen, y con
+  // Shalom el campo es una agencia, no una calle.
+  const courier = order.courier as Courier | null;
+  const destinoLabel = courier ? destinoResumen(courier) : "Dirección";
 
   const total = Number(order.total);
   const shippingCost = Number(order.shippingCost);
@@ -153,7 +158,8 @@ export default async function OrderConfirmationPage({ params }: Props) {
               {/* Dirección */}
               <div className="space-y-1">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Dirección</p>
-                <Row label="Calle" value={address.street} />
+                {courier && <Row label="Entrega" value={COURIER_LABELS[courier]} />}
+                <Row label={destinoLabel} value={address.street} />
                 {address.district && <Row label="Distrito" value={address.district} />}
                 <Row label="Provincia" value={address.city} />
                 <Row label="Departamento" value={address.state} />

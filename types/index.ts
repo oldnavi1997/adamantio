@@ -47,5 +47,5 @@ export type ShippingFormData = {
   province: string;
   district: string;
   postalCode: string;
-  courier: "shalom" | "olva";
+  courier: "shalom" | "olva" | "tienda";
 };

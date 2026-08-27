@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
-import { getShippingCost, getPaymentFee } from "@/lib/shipping";
+import { getShippingCost, getPaymentFee, esRecojo, TIENDA } from "@/lib/shipping";
 
 const createOrderSchema = z.object({
   items: z.array(z.object({
@@ -19,12 +19,19 @@ const createOrderSchema = z.object({
     documentType: z.enum(["DNI", "CE"]),
     documentNumber: z.string().min(1),
     phone: z.string().min(1),
-    street: z.string().min(1),
-    department: z.string().min(1),
-    province: z.string().min(1),
-    district: z.string().min(1),
-    postalCode: z.string().min(1),
-    courier: z.enum(["shalom", "olva"]),
+    street: z.string(),
+    department: z.string(),
+    province: z.string(),
+    district: z.string(),
+    postalCode: z.string(),
+    courier: z.enum(["shalom", "olva", "tienda"]),
+  }).superRefine((shipping, ctx) => {
+    if (esRecojo(shipping.courier)) return;
+    for (const campo of ["street", "department", "province", "district", "postalCode"] as const) {
+      if (!shipping[campo]) {
+        ctx.addIssue({ code: "custom", path: [campo], message: "Falta la dirección de envío" });
+      }
+    }
   }),
   // La pasarela decide la comisión que se suma al total, así que hay que
   // conocerla antes de crear la orden.
@@ -97,6 +104,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Create address
+    //
+    // En recojo la dirección es la del local y la fija el servidor: lo que
+    // mandara el navegador en esos campos da igual, no se usa.
+    const recojo = esRecojo(shipping.courier);
+    const destino = recojo
+      ? {
+          street: TIENDA.street,
+          district: TIENDA.district,
+          city: TIENDA.province,
+          state: TIENDA.department,
+          postalCode: TIENDA.postalCode,
+        }
+      : {
+          street: shipping.street,
+          district: shipping.district,
+          city: shipping.province,
+          state: shipping.department,
+          postalCode: shipping.postalCode,
+        };
+
     const address = await prisma.address.create({
       data: {
         userId,
@@ -104,11 +131,7 @@ export async function POST(request: NextRequest) {
         phone: shipping.phone,
         documentType: shipping.documentType,
         documentNumber: shipping.documentNumber,
-        street: shipping.street,
-        district: shipping.district,
-        city: shipping.province,
-        state: shipping.department,
-        postalCode: shipping.postalCode,
+        ...destino,
         country: "Peru",
       },
     });
@@ -118,9 +141,10 @@ export async function POST(request: NextRequest) {
       data: {
         userId,
         addressId: address.id,
-        guestEmail: userId ? null : shipping.email,
+        contactEmail: shipping.email,
         total,
         shippingCost,
+        courier: shipping.courier,
         mpCommission,
         paymentProvider,
         status: "PENDING",

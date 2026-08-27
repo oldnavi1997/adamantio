@@ -9,7 +9,7 @@ import { IzipayForm } from "@/components/checkout/IzipayForm";
 import { CulqiForm } from "@/components/checkout/CulqiForm";
 import { PaymentResult } from "@/components/checkout/PaymentResult";
 import { ShippingFormData } from "@/types";
-import type { PaymentProvider } from "@/lib/shipping";
+import { COURIER_LABELS, TIENDA, esRecojo, type PaymentProvider } from "@/lib/shipping";
 
 type Step = "form" | "payment" | "result";
 
@@ -191,10 +191,16 @@ export function CheckoutClient({
                 <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-start justify-between gap-4">
                   <div className="space-y-0.5 text-sm">
                     <p className="font-medium text-[#111111]">{savedShipping.firstName} {savedShipping.lastName} · {savedShipping.documentType} {savedShipping.documentNumber}</p>
-                    <p className="text-gray-500">{savedShipping.street}, {savedShipping.district}</p>
-                    <p className="text-gray-500">{savedShipping.province}, {savedShipping.department} {savedShipping.postalCode}</p>
+                    {esRecojo(savedShipping.courier) ? (
+                      <p className="text-gray-500">{TIENDA.street} · {TIENDA.district}, {TIENDA.department}</p>
+                    ) : (
+                      <>
+                        <p className="text-gray-500">{savedShipping.street}, {savedShipping.district}</p>
+                        <p className="text-gray-500">{savedShipping.province}, {savedShipping.department} {savedShipping.postalCode}</p>
+                      </>
+                    )}
                     <p className="text-gray-500">{savedShipping.email} · {savedShipping.phone}</p>
-                    <p className="text-gray-400 text-xs capitalize">Courier: {savedShipping.courier === "shalom" ? "Shalom" : "Olva"}</p>
+                    <p className="text-gray-400 text-xs">Entrega: {COURIER_LABELS[savedShipping.courier]}</p>
                   </div>
                   <button
                     type="button"

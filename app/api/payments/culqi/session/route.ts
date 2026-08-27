@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       publicKey: process.env.CULQI_PUBLIC_KEY,
       amount,
       currency: "PEN",
-      email: order.user?.email ?? order.guestEmail ?? "",
+      email: order.contactEmail ?? order.user?.email ?? "",
       jsUrl: js,
       tresDSUrl: tresDS,
       // Culqi3DS lo exige para devolver el resultado del reto a nuestra página.
