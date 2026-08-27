@@ -3,16 +3,21 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { OG_DEFECTO } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Adamantio – Joyería y Accesorios en Perú",
+  // `absolute` evita la plantilla "%s | Adamantio" del layout: el título de la
+  // home ya es la marca, y encadenarla daba "… en Perú | Adamantio".
+  title: { absolute: "Adamantio – Joyería y Accesorios en Perú" },
   description: "Descubrí collares, pulseras, anillos y aretes en plata 925 con mensajes secretos. El regalo con significado. Envío a todo Perú.",
   openGraph: {
     title: "Adamantio – Joyería y Accesorios en Perú",
     description: "Descubrí collares, pulseras, anillos y aretes en plata 925 con mensajes secretos. El regalo con significado. Envío a todo Perú.",
     url: "/",
     type: "website",
+    images: [OG_DEFECTO],
   },
+  twitter: { card: "summary", images: [OG_DEFECTO.url] },
 };
 import { HeroSection } from "@/components/home/HeroSection";
 import { TrustBar } from "@/components/home/CategoryGrid";

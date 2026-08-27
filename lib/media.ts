@@ -119,3 +119,34 @@ export function productThumbnail(product: {
   if (product.imageUrl && !isVideoUrl(product.imageUrl)) return product.imageUrl;
   return null;
 }
+
+const IMAGE_UPLOAD = "/image/upload/";
+
+/** Lado de la imagen social. Cuadrada: ver `ogImageUrl`. */
+export const OG_LADO = 1200;
+
+/**
+ * URL de la imagen que se ve al compartir un enlace en WhatsApp, Facebook o X.
+ *
+ * **Va en 1:1 a propósito.** Los scrapers de mensajería eligen el formato de la
+ * tarjeta leyendo los `og:image:width`/`og:image:height` que declara el HTML,
+ * sin descargar la imagen. Las fotos del catálogo ya son cuadradas —medido: 12
+ * de 12 a 1.00—, así que declarar 1200x630, como se hacía, reservaba una tarjeta
+ * apaisada y la foto salía recortada o con franjas.
+ *
+ * `c_pad` no recorta nunca: si algún día entra una foto que no sea cuadrada, la
+ * encaja sobre un fondo en vez de comerse la joya. `f_jpg` es deliberado, los
+ * scrapers tratan mal el WebP en el que está el catálogo.
+ *
+ * Si la URL no es de Cloudinary se devuelve intacta: es lo único que se puede
+ * hacer, y sigue siendo válida como og:image.
+ */
+export function ogImageUrl(url: string, fondo: "auto" | "white" = "auto"): string {
+  const entrega = `c_pad,b_${fondo},ar_1:1,w_${OG_LADO},f_jpg,q_auto`;
+  if (isVideoUrl(url)) return withVideoTransform(videoPosterUrl(url), entrega);
+
+  const i = url.indexOf(IMAGE_UPLOAD);
+  if (i === -1 || url.includes(entrega)) return url;
+  const corte = i + IMAGE_UPLOAD.length;
+  return `${url.slice(0, corte)}${entrega}/${url.slice(corte)}`;
+}

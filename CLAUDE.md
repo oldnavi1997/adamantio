@@ -70,7 +70,48 @@ error.errors[0].message
 
 ## Critical: Tailwind 4
 
-No `tailwind.config.ts`. Custom theme configured via `@theme {}` block in `app/globals.css`. Custom colors: `primary` (#1a1a2e), `accent` (#c9a84c), `surface` (#f8f7f4).
+No `tailwind.config.ts`. Theme lives in the `@theme {}` block of `app/globals.css`.
+
+**Do not pick colors from the `@theme` tokens — they are almost entirely unused.** The block
+defines `--color-primary: #111827`, `--color-primary-dark: #030712`, `--color-surface: #f3f4f6`,
+`--color-border: #e5e7eb` and `--color-muted: #9ca3af`. There is **no `accent` token.** Across the
+whole repo `bg-primary` and `text-primary` appear once each, both in
+`components/layout/CookieBanner.tsx` — which also writes `bg-[var(--color-accent,#c9a84c)]`
+against a variable that does not exist, so it always renders the fallback. That phantom
+`accent` is where this file's previous (wrong) color list came from.
+
+The palette that actually ships is written as literal hex:
+
+| Role | Value | Notes |
+|---|---|---|
+| Text, borders, dark buttons | `#111111` | 625 uses. Tint with opacity suffixes (`/70`, `/60`, `/40`, `/30`, `/20`) rather than reaching for a lighter grey. |
+| Surfaces / off-white | `#f8f7f4` | |
+| Gold accent | `#d4af37` | The site gold. `#c9a84c` is a minority leftover (23 uses) — **do not** treat it as the accent. |
+| Dark-button hover | `hover:bg-[#333]` | Pairs with `bg-[#111111]`. |
+
+A slate palette (`#1e293b` / `#334155`) used to coexist in the drawers, the search bar, the FAQ
+accordion and the legal pages. **It has been removed — 112 occurrences migrated to `#111111`.**
+Do not reintroduce it: a new color should come from the table above.
+
+**The three slide-over panels are a deliberate exception to `#f8f7f4`.** The cart drawer, the
+wishlist drawer and the mobile category menu (`components/cart/CartDrawer.tsx`,
+`components/wishlist/WishlistDrawer.tsx`, the block after `{/* Backdrop */}` in
+`components/layout/Navbar.tsx`) sit on **white**, with the two `@theme` neutrals for everything
+else — `#e5e7eb` (`--color-border`) for structure: panel edge, header, footer, control outlines;
+`#f3f4f6` (`--color-surface`) for row separators and filled surfaces. Text stays `#111111` with
+opacity suffixes and the gold stays `#d4af37`. The warm neutrals (`#d5d5d5`, `#eaeaea`, `#f4f4f4`)
+look dirty on white and were removed from all three.
+
+The mobile category menu is the **typographic reference** for those panels: only `text-sm`,
+`text-xs`, `text-[10px]`, `uppercase` and `tracking-wider`, with no `font-light`. Weights survive
+only where they mark data rather than decoration — the item counter, the quantity and the price.
+Keep the three panels in step with each other when touching any of them.
+
+Two traps when normalizing colors here. First, mapping two hex values onto one **destroys any
+hover built on the difference between them** — `bg-[#1e293b] … hover:bg-[#334155]` in the cart
+drawer would have silently lost its hover. Check every base/hover pair on the same property
+before a bulk replace. Second, opacity does the work in most pairs
+(`text-[#111111]/60 hover:text-[#111111]`), so those are safe as long as the suffix survives.
 
 ## Auth
 
@@ -96,6 +137,13 @@ orders still resolve and the admin still labels them. To bring it back, restore 
 branch in `CheckoutClient`. Note the brick also carried the dev-only "Simular pago aprobado"
 button (`devBypass`), which went with it. `MP_ACCESS_TOKEN` is still required: the surviving
 routes construct the client at module load.
+
+Its CSS was **deleted** from `app/globals.css` (~120 lines: `.checkout-processing-*`,
+`.checkout-spinner`, `@keyframes checkout-spin`, all `.yape-*`, carrying Mercado Pago's brand
+blue `#009ee3`). `CardPaymentBrick.tsx` would render unstyled today; recover the rules with
+`git show e9fef7b:app/globals.css` if the gateway comes back. The `#izipay-form .kr-embedded`
+rules right below stayed — they cannot be scoped, since they target classes the Krypton client
+generates.
 
 - **Izipay** (Lyra/Krypton V4) — `POST /api/payments/izipay/session` returns a `formToken`; the
   embedded form charges; `/izipay/confirm` and the IPN `/izipay/webhook` both validate the

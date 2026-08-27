@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/utils";
 
 export const revalidate = 3600; // regenerar cada hora
 
@@ -34,5 +35,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // DB unavailable during build
   }
 
-  return [...staticRoutes, ...productRoutes];
+  // Las categorías son URLs con query (`/joyas?category=<slug>`), que es como
+  // las enlaza el menú. Van al sitemap porque ahora cada una tiene su propio
+  // título, descripción, imagen y canonical: sin declararlas, Google depende de
+  // llegar a ellas rastreando el menú.
+  let categoryRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const categories = await prisma.category.findMany({
+      select: { name: true, updatedAt: true },
+    });
+    categoryRoutes = categories.map((c) => ({
+      url: `${baseUrl}/joyas?category=${slugify(c.name)}`,
+      lastModified: c.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+  } catch {
+    // DB unavailable during build
+  }
+
+  return [...staticRoutes, ...categoryRoutes, ...productRoutes];
 }

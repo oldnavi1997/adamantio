@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { OG_LADO, ogImageUrl } from "@/lib/media";
 import { ImageGallery } from "@/components/product/ImageGallery";
 import { ProductDetails } from "@/components/product/ProductDetails";
 import { formatPEN } from "@/lib/utils";
@@ -18,7 +19,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Producto no encontrado" };
 
   const description = product.description || `${product.name} | Adamantio`;
-  const image = productThumbnail(product);
+  // Cuadrada y en JPG: ver `ogImageUrl`. Antes se declaraba 1200x630 sobre una
+  // foto cuadrada, y WhatsApp reservaba una tarjeta apaisada.
+  const foto = productThumbnail(product);
+  const image = foto ? ogImageUrl(foto) : null;
   const url = `${process.env.NEXT_PUBLIC_APP_URL}/joyas/${id}`;
 
   return {
@@ -31,11 +35,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: "Adamantio",
       type: "website",
       ...(image && {
-        images: [{ url: image, width: 1200, height: 630, alt: product.name }],
+        images: [{ url: image, width: OG_LADO, height: OG_LADO, alt: product.name }],
       }),
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary",
       title: product.name,
       description,
       ...(image && { images: [image] }),

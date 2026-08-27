@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Política de Privacidad | Adamantio",
+  title: "Política de Privacidad",
   description:
     "Conoce cómo Adamantio recopila, utiliza y protege tu información personal.",
 };
@@ -11,7 +11,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <section className="space-y-4">
       <h2
         style={{ fontFamily: "var(--font-sans, sans-serif)" }}
-        className="text-xl font-light text-[#1e293b] tracking-wide"
+        className="text-xl font-light text-[#111111] tracking-wide"
       >
         {title}
       </h2>
@@ -21,12 +21,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function P({ children }: { children: React.ReactNode }) {
-  return <p className="text-[#334155]/70 text-[15px] leading-relaxed">{children}</p>;
+  return <p className="text-[#111111]/70 text-[15px] leading-relaxed">{children}</p>;
 }
 
 function Ul({ children }: { children: React.ReactNode }) {
   return (
-    <ul className="list-disc list-outside pl-5 space-y-2 text-[#334155]/70 text-[15px] leading-relaxed">
+    <ul className="list-disc list-outside pl-5 space-y-2 text-[#111111]/70 text-[15px] leading-relaxed">
       {children}
     </ul>
   );
@@ -40,7 +40,7 @@ export default function PoliticaPrivacidadPage() {
           <p className="text-[10px] text-[#d4af37] uppercase tracking-[0.3em] mb-3">Adamantio</p>
           <h1
             style={{ fontFamily: "var(--font-sans, sans-serif)" }}
-            className="text-3xl font-light text-[#1e293b] tracking-wide"
+            className="text-3xl font-light text-[#111111] tracking-wide"
           >
             Política de Privacidad
           </h1>
@@ -51,7 +51,7 @@ export default function PoliticaPrivacidadPage() {
       <div className="max-w-3xl mx-auto px-5 sm:px-8 py-16 space-y-12">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-[#334155]/60 hover:text-[#1e293b] transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-[#111111]/60 hover:text-[#111111] transition-colors"
         >
           ← Volver al inicio
         </Link>
