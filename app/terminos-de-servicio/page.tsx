@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Términos de Servicio | Adamantio",
+  title: "Términos de Servicio",
   description:
     "Lee los términos de servicio de Adamantio: condiciones de uso, compras, precios y responsabilidades.",
 };
@@ -11,7 +11,7 @@ function Section({ number, title, children }: { number?: string; title: string; 
     <section className="space-y-4">
       <h2
         style={{ fontFamily: "var(--font-sans, sans-serif)" }}
-        className="text-xl font-light text-[#1e293b] tracking-wide"
+        className="text-xl font-light text-[#111111] tracking-wide"
       >
         {number ? `${number} – ${title}` : title}
       </h2>
@@ -21,7 +21,7 @@ function Section({ number, title, children }: { number?: string; title: string; 
 }
 
 function P({ children }: { children: React.ReactNode }) {
-  return <p className="text-[#334155]/70 text-[15px] leading-relaxed">{children}</p>;
+  return <p className="text-[#111111]/70 text-[15px] leading-relaxed">{children}</p>;
 }
 
 export default function TerminosDeServicioPage() {
@@ -32,7 +32,7 @@ export default function TerminosDeServicioPage() {
           <p className="text-[10px] text-[#d4af37] uppercase tracking-[0.3em] mb-3">Adamantio</p>
           <h1
             style={{ fontFamily: "var(--font-sans, sans-serif)" }}
-            className="text-3xl font-light text-[#1e293b] tracking-wide"
+            className="text-3xl font-light text-[#111111] tracking-wide"
           >
             Términos de Servicio
           </h1>
@@ -43,7 +43,7 @@ export default function TerminosDeServicioPage() {
       <div className="max-w-3xl mx-auto px-5 sm:px-8 py-16 space-y-12">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-[#334155]/60 hover:text-[#1e293b] transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-[#111111]/60 hover:text-[#111111] transition-colors"
         >
           ← Volver al inicio
         </Link>

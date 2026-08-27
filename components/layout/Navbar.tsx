@@ -298,10 +298,9 @@ export function Navbar({ categories }: NavbarProps) {
 
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${
+        className={`fixed inset-0 z-50 md:hidden bg-black/30 backdrop-blur-[2px] transition-opacity duration-300 ${
           menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
-        style={{ backgroundColor: "rgba(17,24,39,0.45)" }}
         onClick={closeMenu}
         aria-hidden="true"
       />
@@ -321,6 +320,9 @@ export function Navbar({ categories }: NavbarProps) {
         aria-modal="true"
         aria-label="Menú de navegación"
       >
+        {/* Línea dorada superior, igual que en los drawers de carrito y favoritos */}
+        <div className="h-[2px] bg-gradient-to-r from-[#d4af37]/0 via-[#d4af37] to-[#d4af37]/0" />
+
         {/* Drawer header */}
         <div
           className="flex items-center justify-between px-4 h-[60px]"
@@ -337,7 +339,7 @@ export function Navbar({ categories }: NavbarProps) {
           </Link>
           <button
             onClick={closeMenu}
-            className="text-[#9ca3af] hover:text-[#111827] transition-colors p-1"
+            className="w-8 h-8 flex items-center justify-center text-[#111111]/40 hover:text-[#111111] hover:bg-[#f3f4f6] rounded-full transition-all duration-200"
             aria-label="Cerrar menú"
           >
             <X className="h-4 w-4" />
@@ -349,7 +351,7 @@ export function Navbar({ categories }: NavbarProps) {
           <Link
             href="/joyas"
             onClick={closeMenu}
-            className="py-2.5 text-sm text-[#374151] hover:text-[#111827] transition-colors border-b border-[#f3f4f6]"
+            className="py-2.5 text-sm text-[#111111]/70 hover:text-[#111111] transition-colors border-b border-[#f3f4f6]"
           >
             Ver todo
           </Link>
@@ -359,7 +361,7 @@ export function Navbar({ categories }: NavbarProps) {
               <div key={cat.id}>
                 <button
                   onClick={() => setOpenMobileCatId((v) => v === cat.id ? null : cat.id)}
-                  className="flex items-center justify-between w-full py-2.5 text-sm text-[#374151] hover:text-[#111827] transition-colors duration-200 border-b border-[#f3f4f6]"
+                  className="flex items-center justify-between w-full py-2.5 text-sm text-[#111111]/70 hover:text-[#111111] transition-colors duration-200 border-b border-[#f3f4f6]"
                 >
                   {cat.name}
                   <ChevronDown
@@ -372,14 +374,14 @@ export function Navbar({ categories }: NavbarProps) {
                     <Link
                       href={`/joyas?category=${slugify(cat.name)}`}
                       onClick={closeMenu}
-                      className="py-2 text-xs text-[#9ca3af] hover:text-[#111827] transition-colors"
+                      className="py-2 text-xs text-[#111111]/50 hover:text-[#111111] transition-colors"
                     >
                       Ver todo — {cat.name}
                     </Link>
                     {cat.children.map((child) =>
                       child.children.length > 0 ? (
                         <div key={child.id} className="mt-1">
-                          <p className="text-[10px] uppercase tracking-wider text-[#9ca3af] mb-1">
+                          <p className="text-[10px] uppercase tracking-wider text-[#111111]/40 mb-1">
                             {child.name}
                           </p>
                           {child.children.map((gc) => (
@@ -387,7 +389,7 @@ export function Navbar({ categories }: NavbarProps) {
                               key={gc.id}
                               href={`/joyas?category=${slugify(gc.name)}`}
                               onClick={closeMenu}
-                              className="block pl-3 py-1.5 text-sm text-[#374151] hover:text-[#111827] transition-colors"
+                              className="block pl-3 py-1.5 text-sm text-[#111111]/60 hover:text-[#111111] transition-colors"
                             >
                               {gc.name}
                             </Link>
@@ -398,7 +400,7 @@ export function Navbar({ categories }: NavbarProps) {
                           key={child.id}
                           href={`/joyas?category=${slugify(child.name)}`}
                           onClick={closeMenu}
-                          className="block py-1.5 text-sm text-[#374151] hover:text-[#111827] transition-colors"
+                          className="block py-1.5 text-sm text-[#111111]/60 hover:text-[#111111] transition-colors"
                         >
                           {child.name}
                         </Link>
@@ -412,7 +414,7 @@ export function Navbar({ categories }: NavbarProps) {
                 key={cat.id}
                 href={`/joyas?category=${slugify(cat.name)}`}
                 onClick={closeMenu}
-                className="py-2.5 text-sm text-[#374151] hover:text-[#111827] transition-colors duration-200 border-b border-[#f3f4f6]"
+                className="py-2.5 text-sm text-[#111111]/70 hover:text-[#111111] transition-colors duration-200 border-b border-[#f3f4f6]"
               >
                 {cat.name}
               </Link>

@@ -133,7 +133,7 @@ export default function PreguntasFrecuentesPage() {
           <p className="text-[10px] text-[#d4af37] uppercase tracking-[0.3em] mb-3">Adamantio</p>
           <h1
             style={{ fontFamily: "var(--font-sans, sans-serif)" }}
-            className="text-3xl font-light text-[#1e293b] tracking-wide"
+            className="text-3xl font-light text-[#111111] tracking-wide"
           >
             Preguntas frecuentes
           </h1>
@@ -145,7 +145,7 @@ export default function PreguntasFrecuentesPage() {
       <div className="max-w-3xl mx-auto px-5 sm:px-8 py-16 space-y-12">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-[#334155]/60 hover:text-[#1e293b] transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-[#111111]/60 hover:text-[#111111] transition-colors"
         >
           ← Volver al inicio
         </Link>
@@ -154,7 +154,7 @@ export default function PreguntasFrecuentesPage() {
           <section key={i} className="space-y-2">
             <h2
               style={{ fontFamily: "var(--font-sans, sans-serif)" }}
-              className="text-xl font-light text-[#1e293b] tracking-wide mb-4"
+              className="text-xl font-light text-[#111111] tracking-wide mb-4"
             >
               {category.title}
             </h2>
@@ -165,7 +165,7 @@ export default function PreguntasFrecuentesPage() {
         ))}
 
         <div className="pt-4 border-t border-[#d5d5d5]">
-          <p className="text-[#334155]/70 text-[15px] leading-relaxed">
+          <p className="text-[#111111]/70 text-[15px] leading-relaxed">
             ¿No encontraste lo que buscabas? Escríbenos a{" "}
             <a href="mailto:contacto@adamantio.com.ar" className="text-[#d4af37] hover:underline">
               contacto@adamantio.com.ar

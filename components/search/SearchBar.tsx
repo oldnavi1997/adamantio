@@ -136,12 +136,12 @@ function SearchDrawer({ open, onClose }: { open: boolean; onClose: () => void })
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") goToAll(); }}
               placeholder="Buscar en Adamantio..."
-              className="flex-1 bg-transparent text-[13px] text-[#1e293b] placeholder-[#94a3b8] focus:outline-none"
+              className="flex-1 bg-transparent text-[13px] text-[#111111] placeholder-[#94a3b8] focus:outline-none"
             />
             {query ? (
               <button
                 onClick={() => clear()}
-                className="text-[#94a3b8] hover:text-[#1e293b] transition-colors shrink-0"
+                className="text-[#94a3b8] hover:text-[#111111] transition-colors shrink-0"
                 aria-label="Limpiar"
               >
                 <X className="h-4 w-4" />
@@ -149,7 +149,7 @@ function SearchDrawer({ open, onClose }: { open: boolean; onClose: () => void })
             ) : (
               <button
                 onClick={onClose}
-                className="text-[#94a3b8] hover:text-[#1e293b] transition-colors shrink-0"
+                className="text-[#94a3b8] hover:text-[#111111] transition-colors shrink-0"
                 aria-label="Cerrar búsqueda"
               >
                 <X className="h-4 w-4" />
@@ -177,14 +177,14 @@ function SearchDrawer({ open, onClose }: { open: boolean; onClose: () => void })
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-[#1e293b] truncate leading-tight">
+                  <p className="text-[13px] font-medium text-[#111111] truncate leading-tight">
                     {hit.name}
                   </p>
                   <p className="text-[11px] text-[#94a3b8] mt-0.5 truncate">
                     {hit.brand || hit.category}
                   </p>
                 </div>
-                <span className="text-[13px] font-semibold text-[#1e293b] shrink-0 ml-2">
+                <span className="text-[13px] font-semibold text-[#111111] shrink-0 ml-2">
                   {formatPEN(hit.price)}
                 </span>
               </button>
@@ -250,7 +250,7 @@ export function SearchBar({ className, open: controlledOpen, onOpen, onClose, tr
     <>
       <button
         onClick={handleOpen}
-        className={className ?? "text-[#334155]/60 hover:text-[#1e293b] transition-colors"}
+        className={className ?? "text-[#111111]/60 hover:text-[#111111] transition-colors"}
         aria-label="Buscar"
         aria-expanded={isOpen}
       >

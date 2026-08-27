@@ -33,7 +33,7 @@ function Field({
         {required && <span className="text-[#d4af37]"> *</span>}
       </label>
       {children}
-      {hint && <p className="mt-1 text-[11px] text-[#334155]/50">{hint}</p>}
+      {hint && <p className="mt-1 text-[11px] text-[#111111]/50">{hint}</p>}
     </div>
   );
 }
@@ -56,12 +56,12 @@ function FormSection({
         <p className="text-[10px] text-[#d4af37] uppercase tracking-[0.3em] mb-2">{step}</p>
         <h3
           style={{ fontFamily: "var(--font-sans, sans-serif)" }}
-          className="text-lg font-light text-[#1e293b] tracking-wide"
+          className="text-lg font-light text-[#111111] tracking-wide"
         >
           {title}
         </h3>
         {description && (
-          <p className="mt-2 text-[13px] text-[#334155]/60 leading-relaxed">{description}</p>
+          <p className="mt-2 text-[13px] text-[#111111]/60 leading-relaxed">{description}</p>
         )}
       </div>
       {children}
@@ -145,16 +145,16 @@ export function ReclamacionForm() {
         <p className="text-[10px] text-[#d4af37] uppercase tracking-[0.3em]">Reclamo registrado</p>
         <h3
           style={{ fontFamily: "var(--font-sans, sans-serif)" }}
-          className="text-2xl font-light text-[#1e293b] tracking-wide"
+          className="text-2xl font-light text-[#111111] tracking-wide"
         >
           Hoja N.º {result.code}
         </h3>
-        <p className="text-[#334155]/70 text-[15px] leading-relaxed">
+        <p className="text-[#111111]/70 text-[15px] leading-relaxed">
           Guarda este número como constancia de tu presentación. Te responderemos a más tardar el{" "}
-          <strong className="text-[#1e293b]">{result.dueAt}</strong>, dentro del plazo de quince (15)
+          <strong className="text-[#111111]">{result.dueAt}</strong>, dentro del plazo de quince (15)
           días hábiles.
         </p>
-        <p className="text-[#334155]/70 text-[15px] leading-relaxed">
+        <p className="text-[#111111]/70 text-[15px] leading-relaxed">
           {result.copySent
             ? "Enviamos una copia de la hoja de reclamación al correo que registraste. Si no la ves, revisa tu carpeta de spam."
             : "No pudimos enviar la copia por correo en este momento, pero tu reclamo quedó registrado con el número de arriba. Escríbenos por WhatsApp citando ese número si necesitas la copia."}
@@ -227,7 +227,7 @@ export function ReclamacionForm() {
             onChange={(e) => setIsMinor(e.target.checked)}
             className="mt-0.5 w-4 h-4 accent-[#d4af37]"
           />
-          <span className="text-[13px] text-[#334155]/70 leading-relaxed">
+          <span className="text-[13px] text-[#111111]/70 leading-relaxed">
             El consumidor reclamante es menor de edad. En ese caso el reglamento exige consignar los
             datos del padre o apoderado.
           </span>
@@ -269,8 +269,8 @@ export function ReclamacionForm() {
                 key={option}
                 className={`flex-1 px-4 py-3 border cursor-pointer text-sm transition-colors ${
                   goodType === option
-                    ? "border-[#d4af37] bg-[#d4af37]/5 text-[#1e293b]"
-                    : "border-[#111111]/15 bg-white text-[#334155]/70 hover:border-[#111111]/30"
+                    ? "border-[#d4af37] bg-[#d4af37]/5 text-[#111111]"
+                    : "border-[#111111]/15 bg-white text-[#111111]/70 hover:border-[#111111]/30"
                 }`}
               >
                 <input
@@ -345,8 +345,8 @@ export function ReclamacionForm() {
                   onChange={() => setType(option.value)}
                   className="sr-only"
                 />
-                <span className="block text-sm text-[#1e293b]">{option.title}</span>
-                <span className="block mt-1 text-[12px] text-[#334155]/60 leading-relaxed">
+                <span className="block text-sm text-[#111111]">{option.title}</span>
+                <span className="block mt-1 text-[12px] text-[#111111]/60 leading-relaxed">
                   {option.description}
                 </span>
               </label>
@@ -376,12 +376,12 @@ export function ReclamacionForm() {
       {/* Conformidad */}
       <div className="border-t border-[#111111]/10 pt-8 space-y-5">
         <div className="p-5 rounded-lg border border-[#d4af37]/30 bg-[#d4af37]/5 space-y-3">
-          <p className="text-[13px] text-[#334155]/75 leading-relaxed">
+          <p className="text-[13px] text-[#111111]/75 leading-relaxed">
             El proveedor debe dar respuesta al reclamo en un plazo no mayor a{" "}
-            <strong className="text-[#1e293b]">quince (15) días hábiles</strong>, ampliable por
+            <strong className="text-[#111111]">quince (15) días hábiles</strong>, ampliable por
             quince (15) días hábiles adicionales previa comunicación al consumidor.
           </p>
-          <p className="text-[13px] text-[#334155]/75 leading-relaxed">
+          <p className="text-[13px] text-[#111111]/75 leading-relaxed">
             La formulación del reclamo no impide acudir a otras vías de solución de controversias ni
             es requisito previo para interponer una denuncia ante el Indecopi.
           </p>
@@ -389,7 +389,7 @@ export function ReclamacionForm() {
 
         <label className="flex items-start gap-3 cursor-pointer">
           <input type="checkbox" name="accepted" required className="mt-0.5 w-4 h-4 accent-[#d4af37]" />
-          <span className="text-[13px] text-[#334155]/70 leading-relaxed">
+          <span className="text-[13px] text-[#111111]/70 leading-relaxed">
             Declaro que la información consignada es veraz y que me encuentro conforme con los
             términos de mi reclamo o queja. Autorizo que Adamantio me contacte por correo o teléfono
             para atenderlo, conforme a la{" "}

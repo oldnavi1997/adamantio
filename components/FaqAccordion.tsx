@@ -19,7 +19,7 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
             onClick={() => setOpenIndex(openIndex === i ? null : i)}
             className="w-full flex items-center justify-between py-4 text-left gap-4 group"
           >
-            <span className="text-[15px] text-[#1e293b] font-light leading-snug group-hover:text-[#d4af37] transition-colors">
+            <span className="text-[15px] text-[#111111] font-light leading-snug group-hover:text-[#d4af37] transition-colors">
               {item.question}
             </span>
             <ChevronDown
@@ -30,7 +30,7 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
             />
           </button>
           {openIndex === i && (
-            <p className="pb-5 text-[#334155]/70 text-[15px] leading-relaxed whitespace-pre-line">
+            <p className="pb-5 text-[#111111]/70 text-[15px] leading-relaxed whitespace-pre-line">
               {item.answer}
             </p>
           )}
