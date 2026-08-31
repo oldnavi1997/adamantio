@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { paymentClient } from "@/lib/mercadopago";
 import { PaymentStatus } from "@/app/generated/prisma/client";
@@ -30,6 +30,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
+    // Atada a una constante: el narrowing de una propiedad no sobrevive dentro
+    // del closure que recibe `after`.
+    const orderId = payment.external_reference;
+
     const paymentStatus = mapMpStatus(payment.status ?? "pending");
 
     if (paymentStatus === PaymentStatus.APPROVED) {
@@ -50,7 +54,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (!resultado.yaProcesada) {
-        await sendOrderPaidPush(payment.external_reference);
+        after(() => sendOrderPaidPush(orderId));
         await sendOrderConfirmation(payment.external_reference);
       }
     } else {

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { sendOrderPaidPush } from "@/lib/push";
 import { sendOrderConfirmation } from "@/lib/email";
 import { consultarCargo, culqiConfigured } from "@/lib/culqi";
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     // Recién aprobado → push y correo, una sola vez. Si la respuesta directa del
     // cargo llegó primero, `yaProcesada` corta aquí y no se duplica nada.
     if (resultado.aprobado && !resultado.yaProcesada) {
-      await sendOrderPaidPush(resultado.orderId);
+      after(() => sendOrderPaidPush(resultado.orderId));
       await sendOrderConfirmation(resultado.orderId);
     }
 
