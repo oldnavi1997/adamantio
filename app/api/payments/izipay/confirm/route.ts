@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { z } from "zod";
 import { sendOrderConfirmation } from "@/lib/email";
 import { sendOrderPaidPush } from "@/lib/push";
@@ -42,8 +42,13 @@ export async function POST(request: NextRequest) {
       // Fuera de la transacción: hacen red y se tragan sus propios errores.
       // El push va también aquí y no sólo en el IPN: si el navegador llega
       // primero, el IPN ve `yaProcesada` y el POS nunca se enteraría de la venta.
-      sendOrderConfirmation(resultado.orderId).catch(console.error);
-      sendOrderPaidPush(resultado.orderId).catch(console.error);
+      //
+      // `after` y no una promesa suelta: en Vercel la función serverless se
+      // congela al devolver la respuesta y el envío se quedaba a medias. Como el
+      // navegador casi siempre le gana la carrera al IPN, y el IPN entonces ve
+      // `yaProcesada` y no reintenta, las ventas por Izipay quedaban sin aviso.
+      after(() => sendOrderConfirmation(resultado.orderId));
+      after(() => sendOrderPaidPush(resultado.orderId));
     }
 
     return NextResponse.json({
