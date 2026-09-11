@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { Prisma } from "@/app/generated/prisma/client";
 import { indexProduct, deleteFromIndex } from "@/lib/algolia-sync";
+import { uniqueProductSlug } from "@/lib/product-slug";
 
 export async function GET(
   _request: NextRequest,
@@ -74,8 +75,15 @@ export async function PUT(
 
     const existing = await prisma.product.findUnique({
       where: { id },
-      select: { stockHombre: true, stockMujer: true, stockAlmacenHombre: true, stockAlmacenMujer: true },
+      select: { slug: true, name: true, stockHombre: true, stockMujer: true, stockAlmacenHombre: true, stockAlmacenMujer: true },
     });
+
+    // El slug no sigue al nombre: una vez publicada, la URL es la que está
+    // en Google, en los correos y en los enlaces que ya compartió la gente.
+    // Solo se rellena cuando falta, que es el caso de lo que crea el POS.
+    const slug = existing?.slug
+      ? undefined
+      : await uniqueProductSlug(data.name ?? existing?.name ?? "", id);
 
     const newStockHombre = data.stockHombre ?? existing?.stockHombre ?? 0;
     const newStockMujer  = data.stockMujer  ?? existing?.stockMujer  ?? 0;
@@ -87,6 +95,7 @@ export async function PUT(
       where: { id },
       data: {
         ...prismaData,
+        ...(slug && { slug }),
         ...(categoryId !== undefined && { categoryId }),
         ...(data.price !== undefined && { price: new Prisma.Decimal(data.price) }),
         ...(data.comparePrice !== undefined && {

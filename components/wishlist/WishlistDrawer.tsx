@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useWishlistStore } from "@/stores/wishlist";
 import { useCartStore } from "@/stores/cart";
 import { WishlistItem } from "@/types";
-import { formatPEN } from "@/lib/utils";
+import { formatPEN, productPath } from "@/lib/utils";
 
 export function WishlistDrawer() {
   const { isDrawerOpen, closeDrawer, items, removeItem, count } = useWishlistStore();
@@ -137,7 +137,7 @@ export function WishlistDrawer() {
                 <div key={item.id} className="flex gap-4 py-5">
                   {/* Imagen */}
                   <Link
-                    href={`/joyas/${item.id}`}
+                    href={productPath(item)}
                     onClick={closeDrawer}
                     className="relative w-[72px] h-[72px] flex-shrink-0 bg-[#f3f4f6] overflow-hidden"
                   >
@@ -159,7 +159,7 @@ export function WishlistDrawer() {
                   {/* Info */}
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div className="flex items-start justify-between gap-2">
-                      <Link href={`/joyas/${item.id}`} onClick={closeDrawer} className="min-w-0">
+                      <Link href={productPath(item)} onClick={closeDrawer} className="min-w-0">
                         <h6
                           className="text-[#111111] text-sm leading-snug line-clamp-2"
                           style={{ fontFamily: "var(--font-sans, sans-serif)" }}
@@ -182,7 +182,7 @@ export function WishlistDrawer() {
                     <div className="flex items-center justify-between mt-3">
                       {item.stock > 0 && item.sizes && item.sizes.length > 0 ? (
                         <Link
-                          href={`/joyas/${item.id}`}
+                          href={productPath(item)}
                           onClick={closeDrawer}
                           className="flex items-center gap-1.5 text-[10px] text-[#111111]/60 hover:text-[#111111] uppercase tracking-wider transition-colors"
                         >

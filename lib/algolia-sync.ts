@@ -3,6 +3,7 @@ import { isVideoUrl } from "./media";
 
 type SyncProduct = {
   id: string;
+  slug?: string | null;
   name: string;
   description: string;
   price: unknown;
@@ -24,7 +25,7 @@ export async function indexProduct(p: SyncProduct) {
       price: Number(p.price),
       // El tachado, para que el buscador pinte la oferta igual que el catálogo.
       comparePrice: p.comparePrice == null ? null : Number(p.comparePrice),
-      slug: p.id,
+      slug: p.slug || p.id,
       // Solo fotos: el buscador muestra <img>, un video rompería la miniatura.
       images: [p.imageUrl, ...p.imageUrls].filter((u): u is string => !!u && !isVideoUrl(u)),
       stock: p.stock,

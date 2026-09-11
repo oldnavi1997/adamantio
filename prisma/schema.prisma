@@ -76,6 +76,9 @@ model RefreshToken {
 model Product {
   id               String      @id @default(cuid())
   name             String
+  /// Tramo legible de la URL: /joyas/<slug>. Opcional porque el POS escribe en
+  /// esta misma tabla y no lo rellena; cuando falta, la web cae al `id`.
+  slug             String?     @unique
   description      String
   imageUrl         String?
   imageUrls        String[]    @default([])

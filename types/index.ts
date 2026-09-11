@@ -28,6 +28,9 @@ export type CartItem = {
 
 export type WishlistItem = {
   id: string;
+  // Para armar el enlace desde el cajón sin volver a consultar la base.
+  // Opcional: las listas guardadas antes del slug no lo traen.
+  slug?: string | null;
   name: string;
   price: number;
   imageUrl?: string;

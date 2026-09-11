@@ -41,6 +41,23 @@ Next.js 16 App Router, React 19. No `src/` dir. All pages under `app/`, componen
 
 **Product catalog:** Lives under `/joyas/` (not `/lentes/` — this was the optics-era route).
 
+**Product URLs are slugs**, not cuids: `/joyas/anillo-de-amor-a-primera-vista`. `Product.slug`
+is `String? @unique`. It is **nullable on purpose** — the POS writes this table without going
+through the web and leaves it empty — so never build a product link by hand: use `productPath()`
+from `lib/utils.ts`, which falls back to the `id`. The route accepts both the slug and the `id`
+and answers a **308 to the canonical** when the two differ, which is what keeps every link
+already shared, indexed or emailed alive.
+
+The slug is generated once, on create (`POST /api/products`), by `uniqueProductSlug()` in
+`lib/product-slug.ts`. **Renaming a product does not move its URL** — `PUT /api/products/[id]`
+only fills the slug in when it is missing, which is how POS-created products get one. For a bulk
+pass over whatever the POS left behind, run `npx tsx prisma/backfill-slugs.ts`.
+
+`slugFromName()` in `lib/utils.ts` and the SQL in
+`prisma/migrations/20260911120000_add_product_slug` must fold accents and strip punctuation the
+same way; the migration backfills every existing row, so a divergence would mean old and new
+products slug differently.
+
 ## Critical: Prisma 7
 
 This project uses **Prisma 7**, which has breaking changes vs Prisma 5:

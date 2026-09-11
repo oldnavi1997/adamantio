@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
-import { slugify } from "@/lib/utils";
+import { slugify, productPath } from "@/lib/utils";
 
 export const revalidate = 3600; // regenerar cada hora
 
@@ -23,10 +23,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const products = await prisma.product.findMany({
       where: { isActive: true },
-      select: { id: true, updatedAt: true },
+      select: { id: true, slug: true, updatedAt: true },
     });
     productRoutes = products.map((p) => ({
-      url: `${baseUrl}/joyas/${p.id}`,
+      url: `${baseUrl}${productPath(p)}`,
       lastModified: p.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.8,

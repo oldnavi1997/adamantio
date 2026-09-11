@@ -1,21 +1,32 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { OG_LADO, ogImageUrl } from "@/lib/media";
 import { ImageGallery } from "@/components/product/ImageGallery";
 import { ProductDetails } from "@/components/product/ProductDetails";
-import { formatPEN, precioConOferta } from "@/lib/utils";
+import { formatPEN, precioConOferta, productPath } from "@/lib/utils";
 import { resolveEngravingSamples } from "@/lib/engraving";
 import { productThumbnail } from "@/lib/media";
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
+}
+
+/**
+ * El tramo de la URL puede ser el slug o, en enlaces viejos y en productos que
+ * el POS creó sin slug, el `id`. Se aceptan los dos y la página redirige al
+ * canónico, para no partir en dos la autoridad de cada ficha en Google.
+ */
+function buscarProducto(param: string) {
+  return prisma.product.findFirst({
+    where: { OR: [{ slug: param }, { id: param }] },
+  });
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
-  const product = await prisma.product.findUnique({ where: { id } });
+  const { slug } = await params;
+  const product = await buscarProducto(slug);
   if (!product) return { title: "Producto no encontrado" };
 
   const description = product.description || `${product.name} | Adamantio`;
@@ -23,11 +34,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // foto cuadrada, y WhatsApp reservaba una tarjeta apaisada.
   const foto = productThumbnail(product);
   const image = foto ? ogImageUrl(foto) : null;
-  const url = `${process.env.NEXT_PUBLIC_APP_URL}/joyas/${id}`;
+  const url = `${process.env.NEXT_PUBLIC_APP_URL}${productPath(product)}`;
 
   return {
     title: product.name,
     description,
+    alternates: { canonical: url },
     openGraph: {
       title: product.name,
       description,
@@ -48,12 +60,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const { id } = await params;
-  const product = await prisma.product.findUnique({
-    where: { id, isActive: true },
-  });
+  const { slug } = await params;
+  const product = await buscarProducto(slug);
 
-  if (!product) notFound();
+  if (!product || !product.isActive) notFound();
+
+  // Llegó por el `id` teniendo slug: 308 al canónico.
+  if (product.slug && product.slug !== slug) permanentRedirect(productPath(product));
 
   const engravingSamples = product.engravingEnabled ? await resolveEngravingSamples(product) : [];
 
@@ -68,7 +81,7 @@ export default async function ProductPage({ params }: Props) {
     name: product.name,
     description: product.description ?? product.name,
     ...(image && { image }),
-    url: `${baseUrl}/joyas/${product.id}`,
+    url: `${baseUrl}${productPath(product)}`,
     brand: { "@type": "Brand", name: "Adamantio" },
     offers: {
       "@type": "Offer",
@@ -78,7 +91,7 @@ export default async function ProductPage({ params }: Props) {
       availability: product.stock > 0
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      url: `${baseUrl}/joyas/${product.id}`,
+      url: `${baseUrl}${productPath(product)}`,
     },
   };
 
