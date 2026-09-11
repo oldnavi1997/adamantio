@@ -432,7 +432,6 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
                 <input
                   type="number"
                   min="0"
-                  disabled={!porTalla}
                   value={stockTallas[s]?.tienda ?? 0}
                   onChange={(e) =>
                     setStockTallas((prev) => ({
@@ -440,13 +439,12 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
                       [s]: { tienda: parseInt(e.target.value) || 0, almacen: prev[s]?.almacen ?? 0 },
                     }))
                   }
-                  className="w-20 px-2 py-1 border border-gray-300 rounded text-sm disabled:bg-gray-50 disabled:text-gray-400"
+                  className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
                 />
                 <label className="text-xs text-gray-500">Almacén</label>
                 <input
                   type="number"
                   min="0"
-                  disabled={!porTalla}
                   value={stockTallas[s]?.almacen ?? 0}
                   onChange={(e) =>
                     setStockTallas((prev) => ({
@@ -454,7 +452,7 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
                       [s]: { tienda: prev[s]?.tienda ?? 0, almacen: parseInt(e.target.value) || 0 },
                     }))
                   }
-                  className="w-20 px-2 py-1 border border-gray-300 rounded text-sm disabled:bg-gray-50 disabled:text-gray-400"
+                  className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
                 />
                 <button
                   type="button"
