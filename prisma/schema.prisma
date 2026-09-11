@@ -307,6 +307,9 @@ model SaleItem {
   descuento      Float    @default(0)
   subtotal       Float
   generoVenta    String?
+  /// Talla vendida. La escribe el punto de venta; la web no la usa, pero se
+  /// declara para que el esquema no quede a la deriva respecto a la base.
+  talla          String?
 }
 
 model StockEntry {
@@ -316,6 +319,8 @@ model StockEntry {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   cantidad  Int
+  /// Talla a la que entró la mercadería. La escribe el punto de venta.
+  talla     String?
   costo     Float?
   nota      String?
   createdAt DateTime @default(now())

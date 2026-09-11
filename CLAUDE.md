@@ -237,6 +237,35 @@ precio de cabecera y los controles de compra. `opcionesDeVariante` se calcula en
 Component y viaja como objeto plano, para que el `Decimal` de Prisma no cruce al navegador y la
 descripción se siga renderizando en el servidor.
 
+## Inventario por talla
+
+`Product.sizes` solo dice **qué** tallas existen. Las cantidades viven en `product_sizes`, una
+fila por talla con `stockTienda` y `stockAlmacen`. `lib/tallas.ts` es la única fuente de verdad.
+
+- **Todo el código pregunta por `Product.stockPorTalla`, nunca por `sizes.length`.** Esa bandera
+  en falso significa «como antes de esta función», y es lo que permite activarlo producto por
+  producto después de contar.
+- **Los cuatro contadores escalares pasan a ser un resumen derivado** cuando la bandera está
+  activa: `stockHombre` es la suma de `stockTienda`, `stockAlmacenHombre` la de `stockAlmacen`,
+  y el lado «dama» queda en cero. Por eso el catálogo, Algolia, el feed y el inventario del POS
+  siguen leyendo `stock` y siguen acertando. **Nunca escribas los escalares a mano en un
+  producto por talla**: usa `resumenEscalares()`.
+- **Excluyente con `esPar`**, con un CHECK en la base. La talla es el único eje de un producto
+  que se vende por talla.
+- **El descuento pone la condición dentro del `where` del `updateMany`**, nunca lee y luego
+  escribe. Es lo que evita que dos compras simultáneas de la última unidad dejen la fila en
+  negativo.
+- Un pedido creado antes de activar la bandera llega sin talla. No se lanza —la orden ya está
+  cobrada y el compare-and-swap ya se consumió— sino que queda anotado en `Order.stockNote`.
+
+`lib/tallas.ts` tiene una copia gemela en el punto de venta
+(`D:Cursoradamantio-puntoventalib	allas.ts`). **Comparten contrato: si cambia uno, cambia
+el otro**, o las dos mitades dejarán de cuadrar sobre la misma base.
+
+Los traslados entre almacén y tienda del POS mueven unidades por lado hombre/dama, sin saber de
+tallas, así que **rechazan los productos con `stockPorTalla`** hasta que exista un traslado talla
+a talla. Es lo único que queda fuera.
+
 ## Currency & Locale
 
 Peru. Currency: PEN (Soles). Use `formatPEN()` from `lib/utils.ts`. `formatARS` is a deprecated alias. Locale `es-PE`.
