@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { getShippingCost, getPaymentFee, esRecojo, TIENDA } from "@/lib/shipping";
 import { piezasDeVariante, resolverLinea } from "@/lib/variantes";
+import { resolverTalla } from "@/lib/tallas";
 
 const createOrderSchema = z.object({
   items: z.array(z.object({
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
     const productIds = [...new Set(items.map((i) => i.id))];
     const products = await prisma.product.findMany({
       where: { id: { in: productIds }, isActive: true },
+      include: { tallas: true },
     });
 
     if (products.length !== productIds.length) {
@@ -81,6 +83,25 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
+      // Talla. Es excluyente con las variantes de pareja, así que un producto
+      // nunca cae en las dos validaciones.
+      if (product.stockPorTalla) {
+        if (!item.selectedSize) {
+          return NextResponse.json(
+            { error: `Elige una talla para «${product.name}»` },
+            { status: 400 }
+          );
+        }
+        if (!resolverTalla(product, item.selectedSize)) {
+          return NextResponse.json(
+            {
+              error: `La talla ${item.selectedSize} de «${product.name}» se agotó. Vuelve a elegir en la ficha del producto.`,
+            },
+            { status: 400 }
+          );
+        }
+      }
+
       lineas.push({ item, product, variante: resuelta.variante, precio: resuelta.precio });
     }
 
@@ -98,8 +119,31 @@ export async function POST(request: NextRequest) {
       piezas.set(l.product.id, acc);
     }
 
+    // Por talla se cuenta aparte: dos líneas del mismo anillo en tallas
+    // distintas no son intercambiables, y agrupar solo por producto las
+    // sumaría como si lo fueran.
+    const porTalla = new Map<string, number>();
+    for (const l of lineas) {
+      if (!l.product.stockPorTalla || !l.item.selectedSize) continue;
+      const clave = `${l.product.id}\u0000${l.item.selectedSize}`;
+      porTalla.set(clave, (porTalla.get(clave) ?? 0) + l.item.quantity);
+    }
+    for (const [clave, pedidas] of porTalla) {
+      const [productId, talla] = clave.split("\u0000");
+      const product = products.find((p) => p.id === productId)!;
+      const disponible = resolverTalla(product, talla);
+      if (!disponible || disponible.total < pedidas) {
+        return NextResponse.json(
+          { error: `Solo quedan ${disponible?.total ?? 0} de la talla ${talla} de «${product.name}»` },
+          { status: 400 }
+        );
+      }
+    }
+
     for (const [productId, acc] of piezas) {
       const product = products.find((p) => p.id === productId)!;
+      // Los que van por talla ya se validaron arriba, fila a fila.
+      if (product.stockPorTalla) continue;
       if (!product.esPar) {
         // Sin cambios: hay productos creados por el POS con stock agregado y
         // los contadores por lado en cero, y exigirles los sub-stocks los

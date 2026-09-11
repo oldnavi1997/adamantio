@@ -1,6 +1,7 @@
 import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { ETIQUETA_CORTA, esVariante, piezasDeVariante } from "@/lib/variantes";
+import { resumenEscalares } from "@/lib/tallas";
 
 /**
  * Punto único de aprobación de una orden.
@@ -36,6 +37,7 @@ type ProductoBloqueado = {
   id: string;
   name: string;
   esPar: boolean;
+  stockPorTalla: boolean;
   stock: number;
   stockHombre: number;
   stockMujer: number;
@@ -58,13 +60,76 @@ async function bloquearProductos(
 ): Promise<ProductoBloqueado[]> {
   if (productIds.length === 0) return [];
   return tx.$queryRaw<ProductoBloqueado[]>`
-    SELECT id, name, "esPar", stock, "stockHombre", "stockMujer",
+    SELECT id, name, "esPar", "stockPorTalla", stock, "stockHombre", "stockMujer",
            "stockAlmacen", "stockAlmacenHombre", "stockAlmacenMujer"
     FROM "Product"
     WHERE id IN (${Prisma.join(productIds)})
     ORDER BY id
     FOR UPDATE
   `;
+}
+
+/**
+ * Descuenta una línea de un producto que lleva inventario por talla.
+ *
+ * La condición de stock va DENTRO del `where` del `updateMany`: si otra venta
+ * se llevó la última unidad entre medias, la actualización no afecta a ninguna
+ * fila y nos enteramos, en vez de leer primero y escribir sobre un dato viejo.
+ * Es el patrón que el punto de venta ya usa en sus traslados.
+ *
+ * No se lanza cuando no cuadra. La orden ya está cobrada y el
+ * compare-and-swap ya se consumió: un throw la dejaría sin aprobar y el
+ * webhook reintentaría en bucle. Se descuenta lo que se pueda y queda escrito
+ * en la nota para que el dueño lo vea.
+ */
+async function descontarTalla(
+  tx: Prisma.TransactionClient,
+  p: ProductoBloqueado,
+  talla: string | null,
+  qty: number
+): Promise<string> {
+  const fila = talla
+    ? await tx.productSize.findUnique({
+        where: { productId_talla: { productId: p.id, talla } },
+      })
+    : null;
+
+  // Un pedido creado antes de activar la bandera, o con una talla que ya no
+  // existe, no tiene de dónde descontar. Se deja constancia y se sigue: el
+  // resumen se recalcula igual y el dueño ve qué pasó.
+  if (!fila) {
+    await sincronizarEscalares(tx, p.id);
+    return `${p.name}: SIN TALLA${talla ? ` («${talla}» ya no existe)` : ""}, revisar a mano`;
+  }
+
+  // Igual que con los escalares: si el almacén cubre la cantidad sale de ahí.
+  const columna = fila.stockAlmacen >= qty ? "stockAlmacen" : "stockTienda";
+  const { count } = await tx.productSize.updateMany({
+    where: { id: fila.id, [columna]: { gte: qty } },
+    data: { [columna]: { decrement: qty } },
+  });
+
+  await sincronizarEscalares(tx, p.id);
+
+  const donde = columna === "stockAlmacen" ? "ALMACÉN" : "TIENDA";
+  if (count !== 1) {
+    return `${p.name} (talla ${fila.talla}): SIN STOCK para ${qty}, revisar a mano`;
+  }
+  return `${p.name} (talla ${fila.talla}): descontado de ${donde}`;
+}
+
+/**
+ * Reescribe los cuatro contadores del producto a partir de sus tallas.
+ *
+ * Son un resumen, no una fuente: es lo que hace que el catálogo, Algolia, el
+ * feed y el inventario del punto de venta sigan leyendo `stock` y acertando.
+ */
+async function sincronizarEscalares(tx: Prisma.TransactionClient, productId: string) {
+  const filas = await tx.productSize.findMany({
+    where: { productId },
+    select: { stockTienda: true, stockAlmacen: true },
+  });
+  await tx.product.update({ where: { id: productId }, data: resumenEscalares(filas) });
 }
 
 export async function aprobarOrden(
@@ -110,6 +175,15 @@ export async function aprobarOrden(
         if (!p) continue;
 
         const qty = item.quantity;
+
+        // Inventario por talla. Es excluyente con `esPar` —hay un CHECK en la
+        // base— así que se resuelve entero aquí y la línea no sigue.
+        if (p.stockPorTalla) {
+          const nota = await descontarTalla(tx, p, item.selectedSize, qty);
+          notas.push(nota);
+          continue;
+        }
+
         const variante = esVariante(item.variante) ? item.variante : null;
         const unidad = piezasDeVariante(variante, p.esPar);
         const necH = unidad.hombre * qty;

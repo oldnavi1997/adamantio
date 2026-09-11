@@ -3,13 +3,14 @@
 import { useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/Button";
-import { ProductWithCategory } from "@/types";
+import { ProductConTallas, ProductWithCategory } from "@/types";
 import { useCartStore } from "@/stores/cart";
 import AccordionItem from "@/components/product/AccordionItem";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { productThumbnail } from "@/lib/media";
 import { formatPEN } from "@/lib/utils";
 import { useVariante } from "@/components/product/VarianteContext";
+import { tallasDeProducto } from "@/lib/tallas";
 import {
   detallesVisibles,
   parseLineas,
@@ -25,7 +26,7 @@ import {
 const MAX_ENGRAVING = 30;
 
 interface Props {
-  product: ProductWithCategory;
+  product: ProductConTallas;
   engravingSamples?: string[];
 }
 
@@ -37,7 +38,11 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
   const [engravingText, setEngravingText] = useState("");
   const [emblaRef] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" });
 
-  const hasSizes = product.sizes && product.sizes.length > 0;
+  // Con inventario por talla manda la tabla, que sabe cuánto queda de cada
+  // una. Sin él, la lista plana de siempre: todas ofrecidas.
+  const tallas = tallasDeProducto(product);
+  const hasSizes = tallas.length > 0 || (product.sizes && product.sizes.length > 0);
+  const stockDeTalla = (t: string) => tallas.find((x) => x.talla === t)?.total ?? null;
   const canAdd = (!hasSizes || !!selectedSize) && (!opciones.porVariante || !!seleccionada);
 
   const handleAddToCart = () => {
@@ -59,7 +64,7 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
       price: seleccionada?.precio ?? Number(product.price),
       image: productThumbnail(product) ?? undefined,
       imageUrl: productThumbnail(product) ?? undefined,
-      stock: seleccionada?.stock ?? product.stock,
+      stock: (selectedSize ? stockDeTalla(selectedSize) : null) ?? seleccionada?.stock ?? product.stock,
       quantity: 1,
       size: selectedSize ?? undefined,
       engravingText: trimmed || undefined,
@@ -125,23 +130,36 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
             Talla{selectedSize ? <span className="text-[#111111] font-semibold">: {selectedSize}</span> : ""}
           </p>
           <div className="flex flex-wrap gap-2">
-            {product.sizes.map((size) => (
-              <button
-                key={size}
-                type="button"
-                onClick={() => setSelectedSize(size === selectedSize ? null : size)}
-                className={`w-10 h-10 rounded-full border text-xs font-medium transition-colors ${
-                  selectedSize === size
-                    ? "bg-[#111111] text-white border-[#111111]"
-                    : "border-[#111111]/20 text-[#111111]/60 hover:border-[#111111]/60 hover:text-[#111111]"
-                }`}
-              >
-                {size}
-              </button>
-            ))}
+            {(tallas.length > 0 ? tallas.map((t) => t.talla) : product.sizes).map((size) => {
+              const quedan = stockDeTalla(size);
+              const agotada = quedan === 0;
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  disabled={agotada}
+                  title={agotada ? `Talla ${size} agotada` : undefined}
+                  onClick={() => setSelectedSize(size === selectedSize ? null : size)}
+                  className={`w-10 h-10 rounded-full border text-xs font-medium transition-colors ${
+                    agotada
+                      ? "border-[#111111]/10 text-[#111111]/25 line-through cursor-not-allowed"
+                      : selectedSize === size
+                        ? "bg-[#111111] text-white border-[#111111]"
+                        : "border-[#111111]/20 text-[#111111]/60 hover:border-[#111111]/60 hover:text-[#111111]"
+                  }`}
+                >
+                  {size}
+                </button>
+              );
+            })}
           </div>
           {!selectedSize && (
             <p className="text-[10px] text-[#111111]/35">Selecciona una talla para continuar</p>
+          )}
+          {selectedSize && (stockDeTalla(selectedSize) ?? 99) <= 3 && (
+            <p className="text-[10px] text-[#111111]/50">
+              Quedan {stockDeTalla(selectedSize)} de la talla {selectedSize}
+            </p>
           )}
         </div>
       )}
