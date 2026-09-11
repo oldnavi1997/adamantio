@@ -89,6 +89,7 @@ export function CheckoutClient({
           quantity: i.quantity,
           engravingText: i.engravingText,
           selectedSize: i.size,
+          variante: i.variante,
         })),
         shipping: shippingData,
         paymentProvider: pasarela,

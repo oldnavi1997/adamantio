@@ -8,6 +8,8 @@ import { useCartStore } from "@/stores/cart";
 import AccordionItem from "@/components/product/AccordionItem";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { productThumbnail } from "@/lib/media";
+import { formatPEN } from "@/lib/utils";
+import { useVariante } from "@/components/product/VarianteContext";
 import {
   detallesVisibles,
   parseLineas,
@@ -30,24 +32,34 @@ interface Props {
 export function ProductDetails({ product, engravingSamples = [] }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const openDrawer = useCartStore((s) => s.openDrawer);
+  const { opciones, variante, elegir, seleccionada } = useVariante();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [engravingText, setEngravingText] = useState("");
   const [emblaRef] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" });
 
   const hasSizes = product.sizes && product.sizes.length > 0;
-  const canAdd = !hasSizes || !!selectedSize;
+  const canAdd = (!hasSizes || !!selectedSize) && (!opciones.porVariante || !!seleccionada);
 
   const handleAddToCart = () => {
     if (!canAdd) return;
     const trimmed = engravingText.trim();
+    // La clave solo crece cuando hay algo que distinguir. Mantener intacto el
+    // formato de las líneas sin variante evita que un carrito ya guardado en
+    // el navegador deje de fusionarse con lo que se añada a partir de ahora.
+    const base = `${product.id}__${selectedSize ?? ""}__${trimmed}`;
     addItem({
       id: product.id,
-      cartKey: (selectedSize || trimmed) ? `${product.id}__${selectedSize ?? ""}__${trimmed}` : undefined,
+      cartKey: seleccionada
+        ? `${base}__${seleccionada.id}`
+        : (selectedSize || trimmed)
+          ? base
+          : undefined,
+      variante: seleccionada?.id,
       name: product.name,
-      price: Number(product.price),
+      price: seleccionada?.precio ?? Number(product.price),
       image: productThumbnail(product) ?? undefined,
       imageUrl: productThumbnail(product) ?? undefined,
-      stock: product.stock,
+      stock: seleccionada?.stock ?? product.stock,
       quantity: 1,
       size: selectedSize ?? undefined,
       engravingText: trimmed || undefined,
@@ -73,6 +85,39 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
 
   return (
     <>
+      {/* Variante: solo anillo de hombre, solo de dama, o la pareja */}
+      {opciones.porVariante && opciones.variantes.length > 1 && (
+        <div className="space-y-2.5" role="radiogroup" aria-label="Elige tu opción">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-[#111111]/50">Elige tu opción</p>
+          <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${opciones.variantes.length}, minmax(0, 1fr))` }}>
+            {opciones.variantes.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                role="radio"
+                aria-checked={variante === v.id}
+                onClick={() => elegir(v.id)}
+                className={`flex flex-col items-center gap-0.5 rounded-2xl border px-2 py-3 transition-colors ${
+                  variante === v.id
+                    ? "bg-[#111111] text-white border-[#111111]"
+                    : "border-[#111111]/20 text-[#111111]/60 hover:border-[#111111]/60 hover:text-[#111111]"
+                }`}
+              >
+                <span className="text-xs font-medium">{v.etiquetaCorta}</span>
+                <span className="text-[10px] tabular-nums opacity-70">{formatPEN(v.precio)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Una sola variante comprable: no hay nada que elegir, pero sí que decir */}
+      {opciones.porVariante && opciones.variantes.length === 1 && (
+        <p className="text-[10px] uppercase tracking-[0.2em] text-[#111111]/50">
+          {opciones.variantes[0].etiqueta}
+        </p>
+      )}
+
       {/* Tallas */}
       {hasSizes && (
         <div className="space-y-2.5">
@@ -143,6 +188,15 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
               <p className="text-[11px] text-[#111111]/50">
                 Escribe el texto que aparecerá grabado en tu joya. Puedes ver ejemplos a continuación.
               </p>
+
+              {/* Quien compra una pareja necesita saber si paga un grabado o dos. */}
+              {seleccionada && (
+                <p className="text-[11px] text-[#111111]/50">
+                  {seleccionada.id === "PAREJA"
+                    ? "El grabado se aplica a los dos anillos."
+                    : "El grabado se aplica al anillo que elegiste."}
+                </p>
+              )}
 
               {/* Carousel estilo galería móvil */}
               {engravingSamples.length > 0 && (

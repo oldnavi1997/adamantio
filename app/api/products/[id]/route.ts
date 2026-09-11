@@ -42,7 +42,6 @@ const updateSchema = z.object({
   stockAlmacenM: z.number().int().min(0).optional(),
   esPar: z.boolean().optional(),
   categoria: z.enum(["ANILLO", "COLLAR", "PULSERA", "ARETE", "OTRO"]).optional().nullable(),
-  precioCosto: z.number().min(0).optional().nullable(),
   stockMinimo: z.number().int().min(0).optional(),
   precioVentaHombre: z.number().min(0).optional(),
   precioVentaMujer: z.number().min(0).optional(),

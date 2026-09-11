@@ -1,5 +1,6 @@
 import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { ETIQUETA_CORTA, esVariante, piezasDeVariante } from "@/lib/variantes";
 
 /**
  * Punto único de aprobación de una orden.
@@ -91,9 +92,12 @@ export async function aprobarOrden(
       });
       if (!order) throw new Error(`aprobarOrden: orden ${orderId} no encontrada`);
 
-      // 2. Descuento de stock. La regla es la de siempre: si el almacén cubre
-      //    la cantidad sale de ahí, si no de tienda; un producto `esPar`
-      //    consume el doble del stock agregado.
+      // 2. Descuento de stock. Si el almacén cubre la cantidad sale de ahí, si
+      //    no de tienda. Cuántas piezas de cada lado consume la línea lo dice
+      //    `piezasDeVariante`, que es también donde vive la compatibilidad:
+      //    una variante nula sobre un producto `esPar` es la pareja completa,
+      //    que es como se vendía antes y como se cobraron las órdenes que
+      //    puedan estar todavía sin pagar.
       const productIds = [...new Set(order.items.map((i) => i.productId).filter(Boolean))] as string[];
       const bloqueados = await bloquearProductos(tx, productIds);
       const porProducto = new Map(bloqueados.map((p) => [p.id, p]));
@@ -106,44 +110,52 @@ export async function aprobarOrden(
         if (!p) continue;
 
         const qty = item.quantity;
-        const agregado = p.esPar ? qty * 2 : qty;
+        const variante = esVariante(item.variante) ? item.variante : null;
+        const unidad = piezasDeVariante(variante, p.esPar);
+        const necH = unidad.hombre * qty;
+        const necM = unidad.mujer * qty;
+        const agregado = necH + necM;
 
-        const cabeEnAlmacen = p.esPar
-          ? p.stockAlmacenHombre >= qty && p.stockAlmacenMujer >= qty
-          : p.stockAlmacenHombre >= qty;
+        const cabeEnAlmacen = p.stockAlmacenHombre >= necH && p.stockAlmacenMujer >= necM;
 
+        // Las escrituras van condicionadas a que la línea consuma ese lado. No
+        // es cosmética: reescribir una columna que el pedido no toca amplía sin
+        // motivo el choque con el POS, que escribe estas mismas filas.
         if (cabeEnAlmacen) {
           await tx.product.update({
             where: { id: p.id },
             data: {
-              stockAlmacenHombre: Math.max(0, p.stockAlmacenHombre - qty),
-              ...(p.esPar && { stockAlmacenMujer: Math.max(0, p.stockAlmacenMujer - qty) }),
+              ...(necH > 0 && { stockAlmacenHombre: Math.max(0, p.stockAlmacenHombre - necH) }),
+              ...(necM > 0 && { stockAlmacenMujer: Math.max(0, p.stockAlmacenMujer - necM) }),
               stockAlmacen: Math.max(0, p.stockAlmacen - agregado),
               stock: Math.max(0, p.stock - agregado),
             },
           });
-          notas.push(`${p.name}: descontado de ALMACÉN`);
         } else {
           await tx.product.update({
             where: { id: p.id },
             data: {
-              stockHombre: Math.max(0, p.stockHombre - qty),
-              ...(p.esPar && { stockMujer: Math.max(0, p.stockMujer - qty) }),
+              ...(necH > 0 && { stockHombre: Math.max(0, p.stockHombre - necH) }),
+              ...(necM > 0 && { stockMujer: Math.max(0, p.stockMujer - necM) }),
               stock: Math.max(0, p.stock - agregado),
             },
           });
-          notas.push(`${p.name}: descontado de TIENDA`);
         }
+
+        // La etiqueta nunca lleva `|`: el admin parte esta nota por ese carácter.
+        const queEs = variante ? ` (${ETIQUETA_CORTA[variante]})` : "";
+        notas.push(`${p.name}${queEs}: descontado de ${cabeEnAlmacen ? "ALMACÉN" : "TIENDA"}`);
 
         // La fila bloqueada se queda desfasada si el mismo producto aparece en
         // dos líneas del pedido; se actualiza en memoria para que la segunda
         // decida con el stock real.
-        p.stockAlmacenHombre = cabeEnAlmacen ? Math.max(0, p.stockAlmacenHombre - qty) : p.stockAlmacenHombre;
-        if (p.esPar && cabeEnAlmacen) p.stockAlmacenMujer = Math.max(0, p.stockAlmacenMujer - qty);
-        if (cabeEnAlmacen) p.stockAlmacen = Math.max(0, p.stockAlmacen - agregado);
-        if (!cabeEnAlmacen) {
-          p.stockHombre = Math.max(0, p.stockHombre - qty);
-          if (p.esPar) p.stockMujer = Math.max(0, p.stockMujer - qty);
+        if (cabeEnAlmacen) {
+          p.stockAlmacenHombre = Math.max(0, p.stockAlmacenHombre - necH);
+          p.stockAlmacenMujer = Math.max(0, p.stockAlmacenMujer - necM);
+          p.stockAlmacen = Math.max(0, p.stockAlmacen - agregado);
+        } else {
+          p.stockHombre = Math.max(0, p.stockHombre - necH);
+          p.stockMujer = Math.max(0, p.stockMujer - necM);
         }
         p.stock = Math.max(0, p.stock - agregado);
       }

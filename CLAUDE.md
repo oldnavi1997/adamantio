@@ -190,6 +190,53 @@ Product schema uses jewelry-specific fields: `material`, `color`, `stonetype`, `
 
 `ColorVariantProduct` type uses `color` (not `frameColor`). Variants are linked via `ProductColorVariant` junction table (self-referential on Product).
 
+## Venta por variante (anillos de pareja)
+
+Un producto con `esPar` se puede comprar entero o por mitades: **solo el anillo de hombre, solo
+el de dama, o la pareja**. `lib/variantes.ts` es la única fuente de verdad y **nadie debe leer
+`precioVenta*` ni `stockHombre`/`stockMujer` por su cuenta**.
+
+- `opcionesDeVariante(product)` dice qué se puede comprar, a qué precio y con cuánto stock.
+  **`porVariante: false` significa "compórtate como antes de esta función"**, y es lo que
+  pregunta todo el código: nunca `esPar` a pelo.
+- `piezasDeVariante(variante, esPar)` dice cuántas piezas de cada lado consume una unidad. Ahí
+  vive la regla que mantiene compatible todo lo anterior: **una variante nula sobre un producto
+  `esPar` es la pareja completa.** Eso cubre los carritos ya guardados en el navegador y las
+  órdenes creadas antes del despliegue que se paguen después.
+- `resolverLinea(product, pedida)` decide qué se cobra y qué se guarda. **Rechaza en vez de
+  degradar**: bajar en silencio de "anillo de hombre" a "pareja" le cobraría el doble al
+  comprador.
+
+**El guard es por variante, no por producto.** Una mitad solo se ofrece si su `precioVenta*` es
+mayor que cero y le queda stock de ese lado. La mayoría del catálogo tiene esos campos en cero,
+así que leerlos a ciegas vendería anillos a S/0. Si no hay ninguna mitad vendible, el producto
+vuelve a ser una pareja y punto.
+
+**El precio de la pareja sale de `Product.price`, no de `precioVentaPareja`.** `price` es lo que
+ya usan el catálogo, Algolia, el JSON-LD y el descuento contra `comparePrice`; dos fuentes para
+el mismo número acabarían divergiendo y la ficha cobraría algo distinto de lo anunciado.
+`precioVentaPareja` no se escribe a mano: el formulario de producto lo deriva del precio que
+cobra la web al guardar, oferta incluida, para que el mostrador y la tienda en línea no puedan
+separarse. Para alinear lo que quedó escrito antes, o lo que cree el POS directamente en la
+tabla, está `npx tsx prisma/backfill-precio-pareja.ts` (sin argumentos dice qué haría).
+
+**`precioCosto` ya no existe para la web.** La columna sigue en la base con los valores que
+tenía, pero no está declarada en `schema.prisma` ni la aceptan las rutas de productos: nadie la
+usaba ni en la web ni en el POS. Borrarla del todo habría que coordinarlo con el POS, que
+comparte la tabla.
+
+**`stockMinimo` es del POS y solo del POS.** Sigue en el schema y en las rutas —un producto nuevo
+nace con 5— pero el formulario ni lo muestra ni lo envía. Si lo enviara, cada edición desde la
+web pisaría con el valor por defecto el umbral que el POS tenga puesto.
+
+`OrderItem.variante` es `TEXT` nullable con un `CHECK`, no un enum: `Genero` es compartido con el
+POS y no tiene un valor para "pareja". El POS resuelve lo mismo con `SaleItem.generoVenta`.
+
+En la ficha, `components/product/VarianteContext.tsx` comparte la variante elegida entre el
+precio de cabecera y los controles de compra. `opcionesDeVariante` se calcula en el Server
+Component y viaja como objeto plano, para que el `Decimal` de Prisma no cruce al navegador y la
+descripción se siga renderizando en el servidor.
+
 ## Currency & Locale
 
 Peru. Currency: PEN (Soles). Use `formatPEN()` from `lib/utils.ts`. `formatARS` is a deprecated alias. Locale `es-PE`.

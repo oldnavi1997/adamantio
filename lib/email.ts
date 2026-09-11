@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { complaintCode, formatLimaDate, formatLimaDateTime } from "@/lib/complaints";
 import { COURIER_LABELS, destinoResumen, esRecojo, type Courier } from "@/lib/shipping";
+import { ETIQUETA_VARIANTE, esVariante } from "@/lib/variantes";
 
 let _resend: Resend | null = null;
 function getResend() {
@@ -68,6 +69,9 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
         const imageUrl = item.product?.imageUrl ?? null;
         const lineTotal = Number(item.productPrice) * item.quantity;
         const extras = [
+          // La etiqueta sale del mapa, nunca el valor crudo de la columna: es
+          // un vocabulario cerrado y así no hay nada que escapar.
+          esVariante(item.variante) ? `<span style="font-size:12px;color:#666666;">${ETIQUETA_VARIANTE[item.variante]}</span>` : "",
           item.selectedSize ? `<span style="font-size:12px;color:#666666;">Talla: ${escapeHtml(item.selectedSize)}</span>` : "",
           item.engravingText ? `<span style="font-size:12px;color:#666666;">Grabado: &ldquo;${escapeHtml(item.engravingText)}&rdquo;</span>` : "",
         ]

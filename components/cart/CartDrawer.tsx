@@ -6,6 +6,7 @@ import Link from "next/link";
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/stores/cart";
 import { formatPEN } from "@/lib/utils";
+import { ETIQUETA_VARIANTE } from "@/lib/variantes";
 
 export function CartDrawer() {
   const {
@@ -158,6 +159,11 @@ export function CartDrawer() {
                           >
                             {item.name}
                           </h6>
+                          {item.variante && (
+                            <p className="text-[10px] text-[#111111]/40 mt-0.5">
+                              {ETIQUETA_VARIANTE[item.variante]}
+                            </p>
+                          )}
                           {item.size && (
                             <p className="text-[10px] text-[#111111]/40 mt-0.5">Talla: {item.size}</p>
                           )}

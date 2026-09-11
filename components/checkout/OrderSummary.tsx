@@ -1,5 +1,6 @@
 import { CartItem } from "@/types";
 import { formatPEN } from "@/lib/utils";
+import { ETIQUETA_VARIANTE } from "@/lib/variantes";
 import Image from "next/image";
 
 interface OrderSummaryProps {
@@ -26,6 +27,9 @@ export function OrderSummary({ items, subtotal, shippingCost, mpCommission, tota
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-[#111111] font-medium leading-tight line-clamp-2">{item.name}</p>
+                {item.variante && (
+                  <p className="text-xs text-gray-400 mt-0.5">{ETIQUETA_VARIANTE[item.variante]}</p>
+                )}
                 {item.size && <p className="text-xs text-gray-400 mt-0.5">Talla: {item.size}</p>}
                 {item.engravingText && <p className="text-xs text-gray-400 mt-0.5">Grabado: {item.engravingText}</p>}
                 <p className="text-xs text-gray-500 mt-1">×{item.quantity}</p>

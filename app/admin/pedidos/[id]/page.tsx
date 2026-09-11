@@ -13,6 +13,7 @@ import { formatPEN } from "@/lib/utils";
 import { COURIER_LABELS, PROVIDER_LABELS, type Courier, type PaymentProvider } from "@/lib/shipping";
 import { productThumbnail } from "@/lib/media";
 import { OrderStatus } from "@/app/generated/prisma/client";
+import { ETIQUETA_VARIANTE, esVariante } from "@/lib/variantes";
 
 export default function AdminOrderDetailPage({
   params,
@@ -225,6 +226,9 @@ export default function AdminOrderDetailPage({
                 <p className="font-medium text-gray-800">
                   {item.productName} <span className="text-gray-400 font-normal">x{item.quantity}</span>
                 </p>
+                {esVariante(item.variante) && (
+                  <p className="text-xs text-gray-500 mt-0.5">{ETIQUETA_VARIANTE[item.variante]}</p>
+                )}
                 {item.selectedSize && (
                   <p className="text-xs text-gray-500 mt-0.5">Talla: {item.selectedSize}</p>
                 )}
