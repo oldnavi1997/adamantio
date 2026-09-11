@@ -36,7 +36,6 @@ const productSchema = z.object({
   stockMinimo: z.string().optional(),
   precioVentaHombre: z.string().optional(),
   precioVentaMujer: z.string().optional(),
-  precioVentaPareja: z.string().optional(),
 }).superRefine((data, ctx) => {
   const oferta = data.precioOferta?.trim();
   if (!oferta) return;                       // vacío = sin oferta, es lo normal
@@ -114,7 +113,6 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           stockMinimo: String(product.stockMinimo ?? "5"),
           precioVentaHombre: String(product.precioVentaHombre ?? ""),
           precioVentaMujer: String(product.precioVentaMujer ?? ""),
-          precioVentaPareja: String(product.precioVentaPareja ?? ""),
         }
       : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, esPar: false, stockHombre: "0", stockMujer: "0", stockAlmacenH: "0", stockAlmacenM: "0", sku: "" },
   });
@@ -183,7 +181,10 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
         stockMinimo: parseInt(data.stockMinimo || "5") || 5,
         precioVentaHombre: parseFloat(data.precioVentaHombre || "0") || 0,
         precioVentaMujer: parseFloat(data.precioVentaMujer || "0") || 0,
-        precioVentaPareja: parseFloat(data.precioVentaPareja || "0") || 0,
+        // El precio de pareja del POS no se escribe a mano: es el mismo número
+        // que cobra la web, y tenerlo dos veces en el formulario solo servía
+        // para que una promoción bajara uno y dejara el otro atrás.
+        precioVentaPareja: enOferta ? oferta : precio,
       };
 
       const url = product ? `/api/products/${product.id}` : "/api/products";
@@ -341,6 +342,19 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
             porcentaje de descuento. Vacíalo para terminar la oferta.
           </p>
         </div>
+        {esPar && (
+          <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 space-y-2">
+            <p className="text-sm font-medium text-gray-700">Precio de cada anillo por separado</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="♂ Hombre (PEN)" type="number" step="0.01" min="0" {...register("precioVentaHombre")} />
+              <Input label="♀ Dama (PEN)" type="number" step="0.01" min="0" {...register("precioVentaMujer")} />
+            </div>
+            <p className="text-xs text-gray-500">
+              Con los dos cargados, la ficha deja elegir entre el anillo de hombre, el de dama o
+              la pareja. Si alguno queda en cero, el producto se sigue vendiendo solo como par.
+            </p>
+          </div>
+        )}
         {esPar ? (
           <div className="space-y-3">
             <div>
@@ -373,13 +387,10 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           <Input label="Precio costo (PEN)" type="number" step="0.01" min="0" {...register("precioCosto")} />
           <Input label="Stock mínimo (alerta)" type="number" min="0" {...register("stockMinimo")} />
         </div>
-        {esPar && (
-          <div className="grid grid-cols-3 gap-4">
-            <Input label="Precio venta ♂ Hombre" type="number" step="0.01" min="0" {...register("precioVentaHombre")} />
-            <Input label="Precio venta ♀ Dama" type="number" step="0.01" min="0" {...register("precioVentaMujer")} />
-            <Input label="Precio venta ♀♂ Pareja" type="number" step="0.01" min="0" {...register("precioVentaPareja")} />
-          </div>
-        )}
+        <p className="text-xs text-gray-500">
+          El precio de la pareja no se escribe aquí: es el mismo que cobra la web, y se guarda
+          solo al grabar.
+        </p>
       </div>
 
       {/* Tallas */}

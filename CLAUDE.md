@@ -215,7 +215,10 @@ vuelve a ser una pareja y punto.
 **El precio de la pareja sale de `Product.price`, no de `precioVentaPareja`.** `price` es lo que
 ya usan el catálogo, Algolia, el JSON-LD y el descuento contra `comparePrice`; dos fuentes para
 el mismo número acabarían divergiendo y la ficha cobraría algo distinto de lo anunciado.
-`precioVentaPareja` se queda para el POS.
+`precioVentaPareja` no se escribe a mano: el formulario de producto lo deriva del precio que
+cobra la web al guardar, oferta incluida, para que el mostrador y la tienda en línea no puedan
+separarse. Para alinear lo que quedó escrito antes, o lo que cree el POS directamente en la
+tabla, está `npx tsx prisma/backfill-precio-pareja.ts` (sin argumentos dice qué haría).
 
 `OrderItem.variante` es `TEXT` nullable con un `CHECK`, no un enum: `Genero` es compartido con el
 POS y no tiene un valor para "pareja". El POS resuelve lo mismo con `SaleItem.generoVenta`.
