@@ -33,7 +33,6 @@ const productCreateSchema = z.object({
   testMode: z.boolean().default(false),
   esPar: z.boolean().default(false),
   categoria: z.enum(["ANILLO", "COLLAR", "PULSERA", "ARETE", "OTRO"]).optional().nullable(),
-  precioCosto: z.number().min(0).optional().nullable(),
   stockMinimo: z.number().int().min(0).default(5),
   precioVentaHombre: z.number().min(0).default(0),
   precioVentaMujer: z.number().min(0).default(0),

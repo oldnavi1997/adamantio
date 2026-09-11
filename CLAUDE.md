@@ -220,6 +220,15 @@ cobra la web al guardar, oferta incluida, para que el mostrador y la tienda en l
 separarse. Para alinear lo que quedó escrito antes, o lo que cree el POS directamente en la
 tabla, está `npx tsx prisma/backfill-precio-pareja.ts` (sin argumentos dice qué haría).
 
+**`precioCosto` ya no existe para la web.** La columna sigue en la base con los valores que
+tenía, pero no está declarada en `schema.prisma` ni la aceptan las rutas de productos: nadie la
+usaba ni en la web ni en el POS. Borrarla del todo habría que coordinarlo con el POS, que
+comparte la tabla.
+
+**`stockMinimo` es del POS y solo del POS.** Sigue en el schema y en las rutas —un producto nuevo
+nace con 5— pero el formulario ni lo muestra ni lo envía. Si lo enviara, cada edición desde la
+web pisaría con el valor por defecto el umbral que el POS tenga puesto.
+
 `OrderItem.variante` es `TEXT` nullable con un `CHECK`, no un enum: `Genero` es compartido con el
 POS y no tiene un valor para "pareja". El POS resuelve lo mismo con `SaleItem.generoVenta`.
 

@@ -106,12 +106,16 @@ model Product {
   esPar            Boolean     @default(false)
 
   // ─── Campos POS ───────────────────────────────────
+  // La columna `precioCosto` sigue existiendo en la base y conserva los valores
+  // que ya tenía: no se declara aquí porque la web no la usa ni la mantiene.
+  // Borrarla habría que coordinarlo con el POS, que comparte esta tabla.
   categoria          Categoria?
   genero             Genero[]    @default([])
-  precioCosto        Float?
   precioVentaHombre  Float       @default(0)
   precioVentaMujer   Float       @default(0)
   precioVentaPareja  Float       @default(0)
+  /// Umbral de alerta del POS. No se edita desde la web: el formulario no lo
+  /// muestra y tampoco lo envía, para no pisarlo en cada guardado.
   stockMinimo        Int         @default(5)
   stockHombre        Int         @default(0)
   stockMujer         Int         @default(0)

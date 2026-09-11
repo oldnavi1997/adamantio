@@ -32,8 +32,6 @@ const productSchema = z.object({
   testMode: z.boolean(),
   esPar: z.boolean(),
   // POS fields
-  precioCosto: z.string().optional(),
-  stockMinimo: z.string().optional(),
   precioVentaHombre: z.string().optional(),
   precioVentaMujer: z.string().optional(),
 }).superRefine((data, ctx) => {
@@ -109,8 +107,6 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           freeShipping: product.freeShipping,
           testMode: product.testMode,
           esPar: product.esPar,
-          precioCosto: String(product.precioCosto ?? ""),
-          stockMinimo: String(product.stockMinimo ?? "5"),
           precioVentaHombre: String(product.precioVentaHombre ?? ""),
           precioVentaMujer: String(product.precioVentaMujer ?? ""),
         }
@@ -177,8 +173,6 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
         contentImages,
         engravingImages,
         sizes,
-        precioCosto: parseFloat(data.precioCosto || "0") || 0,
-        stockMinimo: parseInt(data.stockMinimo || "5") || 5,
         precioVentaHombre: parseFloat(data.precioVentaHombre || "0") || 0,
         precioVentaMujer: parseFloat(data.precioVentaMujer || "0") || 0,
         // El precio de pareja del POS no se escribe a mano: es el mismo número
@@ -339,7 +333,8 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           />
           <p className="text-xs text-gray-500 mt-1.5">
             Si lo rellenas, es lo que se cobra: el precio de arriba se muestra tachado con su
-            porcentaje de descuento. Vacíalo para terminar la oferta.
+            porcentaje de descuento. Vacíalo para terminar la oferta. El precio de pareja del
+            punto de venta se guarda solo, con este mismo valor.
           </p>
         </div>
         {esPar && (
@@ -378,19 +373,6 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
             <Input label="Almacén" type="number" min="0" {...register("stockAlmacenH")} />
           </div>
         )}
-      </div>
-
-      {/* POS */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-        <h2 className="font-semibold text-[#111111]">Punto de venta (POS)</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <Input label="Precio costo (PEN)" type="number" step="0.01" min="0" {...register("precioCosto")} />
-          <Input label="Stock mínimo (alerta)" type="number" min="0" {...register("stockMinimo")} />
-        </div>
-        <p className="text-xs text-gray-500">
-          El precio de la pareja no se escribe aquí: es el mismo que cobra la web, y se guarda
-          solo al grabar.
-        </p>
       </div>
 
       {/* Tallas */}
