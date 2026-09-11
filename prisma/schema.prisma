@@ -211,6 +211,10 @@ model OrderItem {
   quantity      Int
   engravingText String?
   selectedSize  String?
+  /// Qué mitad de un anillo de pareja se compró: "HOMBRE" | "MUJER" | "PAREJA".
+  /// Nulo en productos que no son par y en las órdenes anteriores a esta
+  /// función, que se resuelven como la pareja completa. Ver `lib/variantes.ts`.
+  variante      String?
 }
 
 model Payment {

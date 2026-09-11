@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { CartItem } from "@/types";
 import { formatPEN } from "@/lib/utils";
+import { ETIQUETA_VARIANTE } from "@/lib/variantes";
 import { useCartStore } from "@/stores/cart";
 
 interface CartItemProps {
@@ -37,6 +38,9 @@ export function CartItemComponent({ item }: CartItemProps) {
         >
           {item.name}
         </h3>
+        {item.variante && (
+          <p className="text-[11px] text-[#111111]/40 mt-0.5">{ETIQUETA_VARIANTE[item.variante]}</p>
+        )}
         {item.size && (
           <p className="text-[11px] text-[#111111]/40 mt-0.5">Talla: {item.size}</p>
         )}

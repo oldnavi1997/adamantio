@@ -53,7 +53,7 @@ export default function CartPage() {
         {/* Items */}
         <div className="lg:col-span-2 bg-white border border-[#111111]/6 px-6">
           {items.map((item) => (
-            <CartItemComponent key={item.id} item={item} />
+            <CartItemComponent key={item.cartKey ?? item.id} item={item} />
           ))}
         </div>
 

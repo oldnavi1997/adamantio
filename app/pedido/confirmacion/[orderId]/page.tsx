@@ -5,6 +5,7 @@ import { CheckCircle, Clock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatPEN } from "@/lib/utils";
 import { COURIER_LABELS, destinoResumen, type Courier } from "@/lib/shipping";
+import { ETIQUETA_VARIANTE, esVariante } from "@/lib/variantes";
 
 export const dynamic = "force-dynamic";
 
@@ -99,6 +100,11 @@ export default async function OrderConfirmationPage({ params }: Props) {
                     <p className="text-xs text-gray-400 mt-0.5">
                       Cant.: {item.quantity} × {formatPEN(Number(item.productPrice).toString())}
                     </p>
+                    {esVariante(item.variante) && (
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {ETIQUETA_VARIANTE[item.variante]}
+                      </p>
+                    )}
                     {item.selectedSize && (
                       <p className="text-xs text-gray-500 mt-0.5">Talla: {item.selectedSize}</p>
                     )}

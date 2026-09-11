@@ -1,4 +1,5 @@
 import { Product, Order, OrderItem, User, Address, Payment } from "@/app/generated/prisma/client";
+import type { Variante } from "@/lib/variantes";
 
 export type ProductWithCategory = Product;
 
@@ -14,6 +15,10 @@ export type OrderWithItems = Order & {
 export type CartItem = {
   id: string;
   cartKey?: string;
+  // Qué mitad de un anillo de pareja es esta línea. Ausente en los productos
+  // normales y en las líneas guardadas antes de que existiera la opción, que
+  // el servidor resuelve como la pareja completa.
+  variante?: Variante;
   name: string;
   price: number;
   image?: string;

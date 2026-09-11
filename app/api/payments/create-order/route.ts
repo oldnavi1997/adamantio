@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { getShippingCost, getPaymentFee, esRecojo, TIENDA } from "@/lib/shipping";
+import { piezasDeVariante, resolverLinea } from "@/lib/variantes";
 
 const createOrderSchema = z.object({
   items: z.array(z.object({
@@ -11,6 +12,7 @@ const createOrderSchema = z.object({
     quantity: z.number().int().positive(),
     engravingText: z.string().optional(),
     selectedSize: z.string().optional(),
+    variante: z.enum(["HOMBRE", "MUJER", "PAREJA"]).optional(),
   })),
   shipping: z.object({
     email: z.string().email(),
@@ -59,27 +61,70 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Algunos productos no están disponibles" }, { status: 400 });
     }
 
-    // Verify stock
-    const qtyByProduct = items.reduce<Record<string, number>>((acc, item) => {
-      acc[item.id] = (acc[item.id] ?? 0) + item.quantity;
-      return acc;
-    }, {});
-
-    for (const [productId, qty] of Object.entries(qtyByProduct)) {
-      const product = products.find((p) => p.id === productId);
-      if (!product || product.stock < qty) {
+    // Qué se cobra por cada línea y qué variante se guarda. El precio sale
+    // siempre de la base; el navegador solo dice cuál eligió.
+    const lineas = [];
+    for (const item of items) {
+      const product = products.find((p) => p.id === item.id)!;
+      const resuelta = resolverLinea(product, item.variante);
+      if (!resuelta.ok) {
         return NextResponse.json(
-          { error: `Stock insuficiente para ${product?.name ?? productId}` },
+          {
+            error: `La opción elegida de «${product.name}» ya no está disponible. Vuelve a elegirla en la ficha del producto.`,
+          },
+          { status: 400 }
+        );
+      }
+      if (resuelta.precio <= 0) {
+        return NextResponse.json(
+          { error: `«${product.name}» no tiene un precio válido` },
+          { status: 400 }
+        );
+      }
+      lineas.push({ item, product, variante: resuelta.variante, precio: resuelta.precio });
+    }
+
+    // Stock. Un anillo de pareja consume una pieza de cada lado, así que hay
+    // que contar los dos por separado: un pedido con la pareja y además el
+    // anillo de hombre necesita dos piezas de hombre y una de dama.
+    type Piezas = { hombre: number; mujer: number; unidades: number };
+    const piezas = new Map<string, Piezas>();
+    for (const l of lineas) {
+      const u = piezasDeVariante(l.variante, l.product.esPar);
+      const acc = piezas.get(l.product.id) ?? { hombre: 0, mujer: 0, unidades: 0 };
+      acc.hombre += u.hombre * l.item.quantity;
+      acc.mujer += u.mujer * l.item.quantity;
+      acc.unidades += l.item.quantity;
+      piezas.set(l.product.id, acc);
+    }
+
+    for (const [productId, acc] of piezas) {
+      const product = products.find((p) => p.id === productId)!;
+      if (!product.esPar) {
+        // Sin cambios: hay productos creados por el POS con stock agregado y
+        // los contadores por lado en cero, y exigirles los sub-stocks los
+        // dejaría incomprables de golpe.
+        if (product.stock < acc.unidades) {
+          return NextResponse.json(
+            { error: `Stock insuficiente para ${product.name}` },
+            { status: 400 }
+          );
+        }
+        continue;
+      }
+      const dispH = product.stockHombre + product.stockAlmacenHombre;
+      const dispM = product.stockMujer + product.stockAlmacenMujer;
+      if (acc.hombre > dispH || acc.mujer > dispM) {
+        const lado = acc.hombre > dispH ? "de hombre" : "de dama";
+        return NextResponse.json(
+          { error: `No queda stock suficiente del anillo ${lado} de «${product.name}»` },
           { status: 400 }
         );
       }
     }
 
     // Calculate costs
-    const subtotal = items.reduce((sum, item) => {
-      const product = products.find((p) => p.id === item.id)!;
-      return sum + Number(product.price) * item.quantity;
-    }, 0);
+    const subtotal = lineas.reduce((sum, l) => sum + l.precio * l.item.quantity, 0);
 
     const isTestMode = products.some((p) => p.testMode);
     const hasFreeShipping = products.some((p) => p.freeShipping);
@@ -149,17 +194,15 @@ export async function POST(request: NextRequest) {
         paymentProvider,
         status: "PENDING",
         items: {
-          create: items.map((item) => {
-            const product = products.find((p) => p.id === item.id)!;
-            return {
-              productId: item.id,
-              productName: product.name,
-              productPrice: Number(product.price),
-              quantity: item.quantity,
-              engravingText: item.engravingText ?? null,
-              selectedSize: item.selectedSize ?? null,
-            };
-          }),
+          create: lineas.map((l) => ({
+            productId: l.item.id,
+            productName: l.product.name,
+            productPrice: l.precio,
+            quantity: l.item.quantity,
+            engravingText: l.item.engravingText ?? null,
+            selectedSize: l.item.selectedSize ?? null,
+            variante: l.variante,
+          })),
         },
       },
     });
