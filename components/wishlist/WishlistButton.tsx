@@ -27,6 +27,7 @@ export function WishlistButton({ product, variant = "card" }: Props) {
     const wasIn = useWishlistStore.getState().has(product.id);
     toggle({
       id: product.id,
+      slug: product.slug,
       name: product.name,
       price: Number(product.price),
       imageUrl: productThumbnail(product) ?? undefined,

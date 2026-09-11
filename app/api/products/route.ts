@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { Prisma } from "@/app/generated/prisma/client";
 import { indexProduct } from "@/lib/algolia-sync";
+import { uniqueProductSlug } from "@/lib/product-slug";
 
 const productCreateSchema = z.object({
   name: z.string().min(2),
@@ -105,6 +106,7 @@ export async function POST(request: NextRequest) {
     const product = await prisma.product.create({
       data: {
         ...prismaData,
+        slug: await uniqueProductSlug(data.name),
         categoryId,
         price: new Prisma.Decimal(data.price),
         comparePrice: data.comparePrice == null ? null : new Prisma.Decimal(data.comparePrice),

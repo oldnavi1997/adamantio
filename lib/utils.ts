@@ -64,3 +64,27 @@ export function slugify(text: string): string {
 export function aCentimos(soles: number): number {
   return Math.round(soles * 100);
 }
+
+/**
+ * Nombre de producto → tramo de URL. Hace lo mismo que `slugify` pero recorta
+ * también los guiones de los bordes, porque esto sí termina a la vista en la
+ * barra de direcciones: "Anillo Ares (Carey)" → "anillo-ares-carey". El SQL
+ * de la migración `20260911120000_add_product_slug` hace lo mismo: si cambia
+ * uno, cambian los dos, o el backfill y las altas dejarían de coincidir.
+ */
+export function slugFromName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * La URL pública de un producto. Cae al `id` mientras no tenga slug: los
+ * productos creados desde el POS no pasan por la web y llegan sin él.
+ */
+export function productPath(product: { id: string; slug?: string | null }): string {
+  return `/joyas/${product.slug || product.id}`;
+}

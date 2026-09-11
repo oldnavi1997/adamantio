@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ProductWithCategory } from "@/types";
-import { formatPEN, precioConOferta } from "@/lib/utils";
+import { formatPEN, precioConOferta, productPath } from "@/lib/utils";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { productThumbnail } from "@/lib/media";
 
@@ -24,7 +24,7 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
 
   if (view === "dense") {
     return (
-      <Link href={`/joyas/${product.id}`} className="group block">
+      <Link href={productPath(product)} className="group block">
         <div className="relative aspect-square bg-[#f5f5f4] overflow-hidden">
           {imageUrl ? (
             <Image
@@ -71,7 +71,7 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
 
   return (
     <Link
-      href={`/joyas/${product.id}`}
+      href={productPath(product)}
       className="group block bg-white border border-[#dadadd] overflow-hidden hover:border-[#1c1c1c]/20 hover:shadow-sm transition-all duration-400"
     >
       {/* Image container */}

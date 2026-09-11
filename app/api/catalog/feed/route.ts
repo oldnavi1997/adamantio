@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { productThumbnail } from "@/lib/media";
+import { productPath } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,7 @@ export async function GET() {
     where: { isActive: true },
     select: {
       id: true,
+      slug: true,
       name: true,
       description: true,
       price: true,
@@ -36,7 +38,7 @@ export async function GET() {
     const enOferta = p.comparePrice != null && Number(p.comparePrice) > Number(p.price);
     const price = `${Number(enOferta ? p.comparePrice : p.price).toFixed(2)} PEN`;
     const salePrice = enOferta ? `${Number(p.price).toFixed(2)} PEN` : "";
-    const link = `${appUrl}/joyas/${p.id}`;
+    const link = `${appUrl}${productPath(p)}`;
     const imageLink = productThumbnail(p) ?? "";
     const description = p.description ?? "Sin descripción";
 
