@@ -97,7 +97,15 @@ model Product {
   comparePrice     Decimal?    @db.Decimal(10, 2)
   stock            Int
   sku              String?     @unique
+  /// Las etiquetas de talla que ofrece la ficha. Las cantidades, cuando se
+  /// llevan, viven en `product_sizes`.
   sizes            String[]    @default([])
+  /// Cuando está activo, el inventario se lleva talla a talla en
+  /// `product_sizes` y los cuatro contadores escalares pasan a ser un
+  /// resumen derivado. Falso significa «compórtate como antes»: es lo que
+  /// permite activarlo producto por producto, después de contar.
+  /// Excluyente con `esPar`; hay un CHECK en la base.
+  stockPorTalla    Boolean     @default(false)
   isActive         Boolean     @default(true)
   engravingEnabled Boolean     @default(false)
   engravingImages  String[]    @default([])
@@ -127,7 +135,28 @@ model Product {
   updatedAt        DateTime    @updatedAt
   orderItems       OrderItem[]
   saleItems        SaleItem[]
+  tallas           ProductSize[]
   stockEntries     StockEntry[]
+}
+
+/// Inventario de una talla concreta de un producto.
+///
+/// Solo manda cuando `Product.stockPorTalla` está activo. Los escalares del
+/// producto (`stockHombre`, `stockAlmacenHombre`, `stockAlmacen`, `stock`)
+/// se derivan de estas filas: ver `resumenEscalares` en `lib/tallas.ts`.
+model ProductSize {
+  id           String  @id @default(cuid())
+  productId    String
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  talla        String
+  stockTienda  Int     @default(0)
+  stockAlmacen Int     @default(0)
+  /// Posición en la ficha; nace del orden de `Product.sizes`.
+  orden        Int     @default(0)
+
+  @@unique([productId, talla])
+  @@index([productId])
+  @@map("product_sizes")
 }
 
 model SiteSetting {
@@ -278,6 +307,9 @@ model SaleItem {
   descuento      Float    @default(0)
   subtotal       Float
   generoVenta    String?
+  /// Talla vendida. La escribe el punto de venta; la web no la usa, pero se
+  /// declara para que el esquema no quede a la deriva respecto a la base.
+  talla          String?
 }
 
 model StockEntry {
@@ -287,6 +319,8 @@ model StockEntry {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   cantidad  Int
+  /// Talla a la que entró la mercadería. La escribe el punto de venta.
+  talla     String?
   costo     Float?
   nota      String?
   createdAt DateTime @default(now())

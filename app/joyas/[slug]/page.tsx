@@ -24,6 +24,7 @@ interface Props {
 function buscarProducto(param: string) {
   return prisma.product.findFirst({
     where: { OR: [{ slug: param }, { id: param }] },
+    include: { tallas: true },
   });
 }
 

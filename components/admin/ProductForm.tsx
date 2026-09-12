@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Category } from "@/app/generated/prisma/client";
-import { ProductWithCategory } from "@/types";
+import { ProductConTallas } from "@/types";
 import { ImageManager } from "@/components/admin/ImageManager";
 import { productThumbnail } from "@/lib/media";
 
@@ -61,7 +61,7 @@ interface PosStock {
 
 interface ProductFormProps {
   categories: Category[];
-  product?: ProductWithCategory;
+  product?: ProductConTallas;
   posStock?: PosStock | null;
 }
 
@@ -70,6 +70,16 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>(product?.imageUrls ?? (product?.imageUrl ? [product.imageUrl] : []));
   const [sizes, setSizes] = useState<string[]>(product?.sizes ?? []);
+  // Cantidades por talla, indexadas por etiqueta. Conviven con `sizes`: esa
+  // lista sigue mandando sobre qué tallas existen y en qué orden.
+  const [stockTallas, setStockTallas] = useState<Record<string, { tienda: number; almacen: number }>>(() => {
+    const inicial: Record<string, { tienda: number; almacen: number }> = {};
+    for (const t of product?.tallas ?? []) {
+      inicial[t.talla] = { tienda: t.stockTienda, almacen: t.stockAlmacen };
+    }
+    return inicial;
+  });
+  const [porTalla, setPorTalla] = useState<boolean>(product?.stockPorTalla ?? false);
   const [sizeInput, setSizeInput] = useState("");
   const [contentImages, setContentImages] = useState<string[]>(product?.contentImages ?? []);
   const [engravingImages, setEngravingImages] = useState<string[]>(product?.engravingImages ?? []);
@@ -114,6 +124,10 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
   });
 
   const esPar = watch("esPar");
+  const totalTallas = sizes.reduce(
+    (n, t) => n + (stockTallas[t]?.tienda ?? 0) + (stockTallas[t]?.almacen ?? 0),
+    0
+  );
   const engravingEnabled = watch("engravingEnabled");
   const prevEsParRef = useRef(esPar);
 
@@ -173,6 +187,13 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
         contentImages,
         engravingImages,
         sizes,
+        stockPorTalla: porTalla,
+        tallas: sizes.map((t, i) => ({
+          talla: t,
+          stockTienda: stockTallas[t]?.tienda ?? 0,
+          stockAlmacen: stockTallas[t]?.almacen ?? 0,
+          orden: i,
+        })),
         precioVentaHombre: parseFloat(data.precioVentaHombre || "0") || 0,
         precioVentaMujer: parseFloat(data.precioVentaMujer || "0") || 0,
         // El precio de pareja del POS no se escribe a mano: es el mismo número
@@ -367,6 +388,15 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
               </div>
             </div>
           </div>
+        ) : porTalla ? (
+          <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+            <p className="text-sm text-gray-700">
+              Stock total: <span className="font-semibold">{totalTallas}</span> unidades
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Se calcula sumando las tallas. Edítalo en la tarjeta «Tallas disponibles».
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             <Input label="Tienda" type="number" min="0" {...register("stockHombre")} />
@@ -392,22 +422,72 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           </Button>
         </div>
         {sizes.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
             {sizes.map((s) => (
-              <span
-                key={s}
-                className="flex items-center gap-1.5 bg-gray-100 text-[#111111] text-sm px-3 py-1 rounded-full"
-              >
-                {s}
+              <div key={s} className="flex items-center gap-3">
+                <span className="w-16 shrink-0 bg-gray-100 text-[#111111] text-sm px-3 py-1 rounded-full text-center">
+                  {s}
+                </span>
+                <label className="text-xs text-gray-500">Tienda</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={stockTallas[s]?.tienda ?? 0}
+                  onChange={(e) =>
+                    setStockTallas((prev) => ({
+                      ...prev,
+                      [s]: { tienda: parseInt(e.target.value) || 0, almacen: prev[s]?.almacen ?? 0 },
+                    }))
+                  }
+                  className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                />
+                <label className="text-xs text-gray-500">Almacén</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={stockTallas[s]?.almacen ?? 0}
+                  onChange={(e) =>
+                    setStockTallas((prev) => ({
+                      ...prev,
+                      [s]: { tienda: prev[s]?.tienda ?? 0, almacen: parseInt(e.target.value) || 0 },
+                    }))
+                  }
+                  className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                />
                 <button
                   type="button"
                   onClick={() => setSizes(sizes.filter((x) => x !== s))}
-                  className="text-gray-400 hover:text-red-500 leading-none"
+                  className="text-gray-400 hover:text-red-500 leading-none px-1"
+                  aria-label={`Quitar talla ${s}`}
                 >
                   ×
                 </button>
-              </span>
+              </div>
             ))}
+          </div>
+        )}
+
+        {sizes.length > 0 && !esPar && (
+          <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 space-y-2">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={porTalla}
+                onChange={(e) => setPorTalla(e.target.checked)}
+                className="accent-[#111111]"
+              />
+              <span className="text-sm font-medium text-gray-700">Llevar inventario por talla</span>
+            </label>
+            <p className="text-xs text-gray-500">
+              Cuenta primero y escribe las cantidades de arriba. Al activarlo, el stock del
+              producto pasa a ser la suma de sus tallas ({totalTallas} unidades ahora mismo) y la
+              tienda deja de ofrecer las tallas agotadas.
+            </p>
+            {porTalla && totalTallas === 0 && (
+              <p className="text-xs text-red-600">
+                Con todas las tallas en cero el producto queda agotado y desaparece del catálogo.
+              </p>
+            )}
           </div>
         )}
       </div>

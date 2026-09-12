@@ -13,7 +13,7 @@ export default async function EditProductPage({
   type PosStockRow = { stockHombre: number; stockMujer: number; stockAlmacenHombre: number; stockAlmacenMujer: number };
 
   const [product, categories] = await Promise.all([
-    prisma.product.findUnique({ where: { id } }),
+    prisma.product.findUnique({ where: { id }, include: { tallas: { orderBy: { orden: "asc" } } } }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);
 

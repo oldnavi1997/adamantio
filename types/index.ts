@@ -1,7 +1,11 @@
-import { Product, Order, OrderItem, User, Address, Payment } from "@/app/generated/prisma/client";
+import { Product, ProductSize, Order, OrderItem, User, Address, Payment } from "@/app/generated/prisma/client";
 import type { Variante } from "@/lib/variantes";
 
 export type ProductWithCategory = Product;
+
+/// El producto tal como lo necesita la ficha: con sus filas de talla, que son
+/// las que saben cuánto queda de cada una.
+export type ProductConTallas = Product & { tallas?: ProductSize[] };
 
 export type OrderWithItems = Order & {
   items: (OrderItem & {

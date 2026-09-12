@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { Prisma } from "@/app/generated/prisma/client";
 import { indexProduct, deleteFromIndex } from "@/lib/algolia-sync";
 import { uniqueProductSlug } from "@/lib/product-slug";
+import { resumenEscalares } from "@/lib/tallas";
 
 export async function GET(
   _request: NextRequest,
@@ -30,6 +31,17 @@ const updateSchema = z.object({
   sizeInfo: z.string().optional(),
   category: z.string().optional().nullable(),
   sizes: z.array(z.string()).optional(),
+  stockPorTalla: z.boolean().optional(),
+  tallas: z
+    .array(
+      z.object({
+        talla: z.string().min(1),
+        stockTienda: z.number().int().min(0),
+        stockAlmacen: z.number().int().min(0),
+        orden: z.number().int().min(0),
+      })
+    )
+    .optional(),
   sku: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   engravingEnabled: z.boolean().optional(),
@@ -62,7 +74,7 @@ export async function PUT(
     const body = await request.json();
     const data = updateSchema.parse(body);
 
-    const { stockAlmacenH, stockAlmacenM, ...prismaData } = data;
+    const { stockAlmacenH, stockAlmacenM, tallas, ...prismaData } = data;
 
     // Transición a FK: sincronizar categoryId solo si el payload trae category.
     const categoryId =
@@ -74,7 +86,7 @@ export async function PUT(
 
     const existing = await prisma.product.findUnique({
       where: { id },
-      select: { slug: true, name: true, stockHombre: true, stockMujer: true, stockAlmacenHombre: true, stockAlmacenMujer: true },
+      select: { slug: true, name: true, esPar: true, stockHombre: true, stockMujer: true, stockAlmacenHombre: true, stockAlmacenMujer: true },
     });
 
     // El slug no sigue al nombre: una vez publicada, la URL es la que está
@@ -89,6 +101,57 @@ export async function PUT(
     const newAlmacenH    = stockAlmacenH    ?? existing?.stockAlmacenHombre ?? 0;
     const newAlmacenM    = stockAlmacenM    ?? existing?.stockAlmacenMujer  ?? 0;
     const newStock = newStockHombre + newStockMujer + newAlmacenH + newAlmacenM;
+
+    if (data.stockPorTalla && (data.esPar ?? existing?.esPar)) {
+      return NextResponse.json(
+        { error: "Un producto no puede ser de pareja y llevarse por talla a la vez" },
+        { status: 400 }
+      );
+    }
+
+    // Las filas de talla se reemplazan enteras: es más simple que casar altas,
+    // bajas y renombrados, y son media docena por producto.
+    if (tallas) {
+      // Quitar una talla borra su fila, y con ella sus unidades. Si todavía
+      // quedan, se rechaza: perder inventario tiene que ser una decisión
+      // deliberada, no el efecto de haber tocado una `×`.
+      const conUnidades = await prisma.productSize.findMany({
+        where: {
+          productId: id,
+          talla: { notIn: tallas.map((t) => t.talla) },
+          OR: [{ stockTienda: { gt: 0 } }, { stockAlmacen: { gt: 0 } }],
+        },
+        select: { talla: true, stockTienda: true, stockAlmacen: true },
+      });
+      if (conUnidades.length > 0) {
+        const detalle = conUnidades
+          .map((t) => `${t.talla} (${t.stockTienda + t.stockAlmacen})`)
+          .join(", ");
+        return NextResponse.json(
+          {
+            error: `No puedes quitar tallas que todavía tienen unidades: ${detalle}. Ponlas en cero primero.`,
+          },
+          { status: 400 }
+        );
+      }
+
+      await prisma.$transaction([
+        prisma.productSize.deleteMany({
+          where: { productId: id, talla: { notIn: tallas.map((t) => t.talla) } },
+        }),
+        ...tallas.map((t) =>
+          prisma.productSize.upsert({
+            where: { productId_talla: { productId: id, talla: t.talla } },
+            create: { productId: id, ...t },
+            update: { stockTienda: t.stockTienda, stockAlmacen: t.stockAlmacen, orden: t.orden },
+          })
+        ),
+      ]);
+    }
+
+    // Con inventario por talla los cuatro contadores dejan de escribirse a
+    // mano: son la suma de las tallas.
+    const escalares = data.stockPorTalla && tallas ? resumenEscalares(tallas) : null;
 
     const product = await prisma.product.update({
       where: { id },
@@ -107,6 +170,7 @@ export async function PUT(
         ...(stockAlmacenH !== undefined && { stockAlmacen: (stockAlmacenH ?? 0) + (stockAlmacenM ?? 0) }),
         ...(data.esPar !== undefined && { genero: data.esPar ? ["HOMBRE", "MUJER"] : ["UNISEX"] }),
         stock: newStock,
+        ...(escalares ?? {}),
       },
     });
 

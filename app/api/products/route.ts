@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { Prisma } from "@/app/generated/prisma/client";
 import { indexProduct } from "@/lib/algolia-sync";
 import { uniqueProductSlug } from "@/lib/product-slug";
+import { resumenEscalares } from "@/lib/tallas";
 
 const productCreateSchema = z.object({
   name: z.string().min(2),
@@ -25,6 +26,17 @@ const productCreateSchema = z.object({
   sizeInfo: z.string().default(""),
   category: z.string().optional().nullable(),
   sizes: z.array(z.string()).default([]),
+  stockPorTalla: z.boolean().optional(),
+  tallas: z
+    .array(
+      z.object({
+        talla: z.string().min(1),
+        stockTienda: z.number().int().min(0),
+        stockAlmacen: z.number().int().min(0),
+        orden: z.number().int().min(0),
+      })
+    )
+    .optional(),
   sku: z.string().optional().nullable(),
   isActive: z.boolean().default(true),
   engravingEnabled: z.boolean().default(false),
@@ -95,7 +107,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = productCreateSchema.parse(body);
 
-    const { stockAlmacenH, stockAlmacenM, ...prismaData } = data;
+    const { stockAlmacenH, stockAlmacenM, tallas, ...prismaData } = data;
+
+    // Un producto es de pareja o se lleva por talla, nunca las dos cosas: la
+    // talla es el único eje de un producto que se vende por talla.
+    if (data.stockPorTalla && data.esPar) {
+      return NextResponse.json(
+        { error: "Un producto no puede ser de pareja y llevarse por talla a la vez" },
+        { status: 400 }
+      );
+    }
+
+    // Con inventario por talla, los cuatro contadores son un resumen.
+    const escalares = data.stockPorTalla && tallas ? resumenEscalares(tallas) : null;
 
     // Transición a FK: mantener categoryId sincronizado con el nombre (category).
     const categoryId = data.category
@@ -113,6 +137,8 @@ export async function POST(request: NextRequest) {
         stockAlmacenMujer: stockAlmacenM,
         stockAlmacen: stockAlmacenH + stockAlmacenM,
         genero: data.esPar ? ["HOMBRE", "MUJER"] : ["UNISEX"],
+        ...(escalares ?? {}),
+        ...(tallas?.length ? { tallas: { create: tallas } } : {}),
       },
     });
 
