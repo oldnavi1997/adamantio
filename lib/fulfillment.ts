@@ -102,19 +102,40 @@ async function descontarTalla(
     return `${p.name}: SIN TALLA${talla ? ` («${talla}» ya no existe)` : ""}, revisar a mano`;
   }
 
-  // Igual que con los escalares: si el almacén cubre la cantidad sale de ahí.
-  const columna = fila.stockAlmacen >= qty ? "stockAlmacen" : "stockTienda";
+  // Sale del almacén lo que haya, y el resto de tienda.
+  //
+  // El reparto no es un lujo: el checkout valida contra el total de la talla,
+  // sumando las dos ubicaciones. Descontar de una sola, todo o nada, dejaba
+  // pedidos cobrados sin descontar cuando las unidades estaban repartidas —dos
+  // en tienda y una en almacén para un pedido de tres, por ejemplo—.
+  const deAlmacen = Math.min(fila.stockAlmacen, qty);
+  const deTienda = qty - deAlmacen;
+
+  // Las dos condiciones van dentro del `where` para que el reparto entero sea
+  // atómico: o se descuentan las dos partes o no se descuenta ninguna.
   const { count } = await tx.productSize.updateMany({
-    where: { id: fila.id, [columna]: { gte: qty } },
-    data: { [columna]: { decrement: qty } },
+    where: {
+      id: fila.id,
+      ...(deAlmacen > 0 && { stockAlmacen: { gte: deAlmacen } }),
+      ...(deTienda > 0 && { stockTienda: { gte: deTienda } }),
+    },
+    data: {
+      ...(deAlmacen > 0 && { stockAlmacen: { decrement: deAlmacen } }),
+      ...(deTienda > 0 && { stockTienda: { decrement: deTienda } }),
+    },
   });
 
   await sincronizarEscalares(tx, p.id);
 
-  const donde = columna === "stockAlmacen" ? "ALMACÉN" : "TIENDA";
   if (count !== 1) {
     return `${p.name} (talla ${fila.talla}): SIN STOCK para ${qty}, revisar a mano`;
   }
+  const donde =
+    deAlmacen > 0 && deTienda > 0
+      ? `${deAlmacen} de ALMACÉN y ${deTienda} de TIENDA`
+      : deAlmacen > 0
+        ? "ALMACÉN"
+        : "TIENDA";
   return `${p.name} (talla ${fila.talla}): descontado de ${donde}`;
 }
 

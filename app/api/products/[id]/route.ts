@@ -112,6 +112,29 @@ export async function PUT(
     // Las filas de talla se reemplazan enteras: es más simple que casar altas,
     // bajas y renombrados, y son media docena por producto.
     if (tallas) {
+      // Quitar una talla borra su fila, y con ella sus unidades. Si todavía
+      // quedan, se rechaza: perder inventario tiene que ser una decisión
+      // deliberada, no el efecto de haber tocado una `×`.
+      const conUnidades = await prisma.productSize.findMany({
+        where: {
+          productId: id,
+          talla: { notIn: tallas.map((t) => t.talla) },
+          OR: [{ stockTienda: { gt: 0 } }, { stockAlmacen: { gt: 0 } }],
+        },
+        select: { talla: true, stockTienda: true, stockAlmacen: true },
+      });
+      if (conUnidades.length > 0) {
+        const detalle = conUnidades
+          .map((t) => `${t.talla} (${t.stockTienda + t.stockAlmacen})`)
+          .join(", ");
+        return NextResponse.json(
+          {
+            error: `No puedes quitar tallas que todavía tienen unidades: ${detalle}. Ponlas en cero primero.`,
+          },
+          { status: 400 }
+        );
+      }
+
       await prisma.$transaction([
         prisma.productSize.deleteMany({
           where: { productId: id, talla: { notIn: tallas.map((t) => t.talla) } },
