@@ -270,14 +270,29 @@ model Payment {
 // ─── Modelos POS ─────────────────────────────────────────────────────────────
 
 model Customer {
-  id        String   @id @default(cuid())
-  name      String
+  id   String @id @default(cuid())
+  name String
+
+  // Documento de identidad del cliente del POS. Lo escribe y lo lee solo el POS
+  // (lo consulta contra RENIEC/SUNAT), pero se declara aquí para que un
+  // `db push` de este repo no lo dropee por drift, igual que con
+  // `Product.stockMinimo`.
+  //
+  // Nullable y no `@default("")`: hay filas históricas sin documento, y con el
+  // índice único de abajo todas colisionarían en `("", "")`.
+  documentType   String?
+  documentNumber String?
+  address        String?
+
   phone     String?
   email     String?
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   sales     Sale[]
+
+  @@unique([documentType, documentNumber])
+  @@index([documentNumber])
 }
 
 model Sale {
