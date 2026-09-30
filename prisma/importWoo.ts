@@ -123,7 +123,8 @@ async function uploadImageToCloudinary(url: string): Promise<string | null> {
   try {
     const result = await cloudinary.uploader.upload(url, {
       folder: "adamantio-products",
-      transformation: [{ width: 1200, height: 1200, crop: "limit" }, { quality: "auto" }],
+      // Mismo master que `uploadProductImage()` en lib/cloudinary.ts.
+      transformation: [{ width: 5000, height: 5000, crop: "limit" }, { quality: 88 }],
     });
     return result.secure_url;
   } catch (err) {

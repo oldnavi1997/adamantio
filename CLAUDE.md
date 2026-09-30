@@ -278,7 +278,33 @@ Products are indexed to Algolia. `lib/algolia.ts` holds the client, `lib/algolia
 
 - Remote patterns: `res.cloudinary.com` and `images.unsplash.com` (configured in `next.config.ts`)
 - Seed data uses Unsplash URLs for product images
-- Production uploads use Cloudinary (`CldUploadWidget` unsigned preset `luminus-products`)
+- Production uploads use Cloudinary through `CldUploadWidget` (`components/admin/ImageManager.tsx`),
+  which uploads straight to Cloudinary and never touches this app.
+
+### The quality of a photo is decided on upload, and only once
+
+Cloudinary stores the **result** of a preset's incoming transformation and throws the
+uploaded file away; there is no backup. Whatever that transformation removes is gone for good.
+The rule is the one Luminus arrived at after measuring its catalogue (Sept 2026): **`5000x5000
+c_limit` + `quality: 88`**, never `1200` + `q_auto`, which left ~29 KB masters and erased fine
+detail.
+
+- **Two presets, on purpose.** Photos go through the unsigned preset **`adamantio-fotos`**,
+  which carries that transformation. Videos (`ImageManager` and `VideoSpotlightPanel`) stay on
+  **`adamantio-products`**, which has **no** transformation: `q_88` on a preset would re-encode
+  every video on upload. Don't merge them.
+- **Every place that uploads photos must agree:** the `adamantio-fotos` preset (edited in the
+  Cloudinary console, not in this repo), `uploadProductImage()` in `lib/cloudinary.ts`, and
+  `prisma/importWoo.ts`.
+- **5000 is the Free plan's ceiling per image** (25 MP), taken as headroom. **3840 is the floor**:
+  it is what the lightbox zoom requests (`ANCHO_ZOOM` in `components/product/ImageGallery.tsx`).
+- **The preset only caps; it cannot add detail.** As of Sept 2026 the catalogue's masters sit at
+  800–1254 px because that is how the photos were exported before upload. Better photos come
+  from exporting at ~4000 px (JPG at high quality or PNG), not from any setting here.
+- **Delivery is not where quality is lost.** `lib/cloudinary-loader.ts` asks for
+  `w_<ancho>,q_auto,c_limit,f_auto`; Luminus measured that recompression at PSNR 51 dB,
+  which is invisible. The `srcset` never goes above 1920 (`deviceSizes`); only the zoom
+  layer asks for 3840, directly from the loader.
 
 ## Email
 
