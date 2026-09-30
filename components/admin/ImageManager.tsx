@@ -76,8 +76,11 @@ export function ImageManager({
 
       <div className="flex flex-wrap gap-2">
         {!isVideo && (
+          // Las fotos tienen su propio preset: `adamantio-fotos` fija el master
+          // (5000 px, q88) al subir, y esa transformación no puede tocar los
+          // videos, que siguen por `adamantio-products`. Ver `lib/cloudinary.ts`.
           <CldUploadWidget
-            uploadPreset="adamantio-products"
+            uploadPreset="adamantio-fotos"
             options={{ multiple: true, resourceType: "image" }}
             onSuccess={(result) => {
               const info = result.info as { secure_url: string };

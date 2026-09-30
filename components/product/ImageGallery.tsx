@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
+import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 import { isVideoUrl, posterDeliveryUrl, videoDeliveryUrl, videoPosterUrl } from "@/lib/media";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 
 /**
  * Los layouts desktop y móvil se montan los dos y solo se ocultan por CSS, así
@@ -57,6 +59,251 @@ function PlayBadge({ size = 20 }: { size?: number }) {
         </svg>
       </span>
     </span>
+  );
+}
+
+/** Un GIF ya es el original: no se pasa por el loader ni se le pide capa nítida. */
+const esGif = (url: string) => /\.gif$/i.test(url);
+
+const ZOOM_MAX = 4;
+/** Zoom de un doble toque/clic: suficiente para leer un grabado sin perder el encuadre. */
+const ZOOM_DOBLE = 2.5;
+/**
+ * Ancho de la capa nítida del lightbox. Se pide al loader a mano en vez de
+ * agregarlo a `deviceSizes`: por el `srcset` lo heredaría toda vista que use
+ * anchos en `vw`, y acá sólo lo necesita el zoom.
+ *
+ * Cubre el zoom máximo: 4x sobre una caja de ~342 px en un teléfono a 3x son
+ * ~4100 px. Es además el piso del master en `lib/cloudinary.ts`. En las fotos
+ * que se subieron chicas `c_limit` devuelve su tamaño real: no hay ampliación,
+ * sólo menos detalle.
+ */
+const ANCHO_ZOOM = 3840;
+
+/**
+ * La foto del lightbox, con zoom. Portada de Luminus.
+ *
+ * Todo pasa por Pointer Events, que unifican dedo y mouse: dos punteros
+ * pellizcan, uno arrastra. El `touch-action: none` es imprescindible — sin él el
+ * navegador se queda el gesto para hacer scroll o su propio zoom de página.
+ *
+ * El acercamiento conserva el punto bajo el dedo: mantenerlo fijo al pasar de
+ * `s0` a `s1` da `d1 = d0 + (p - d0) * (1 - s1/s0)`.
+ */
+function FotoConZoom({
+  src,
+  alt,
+  onTap,
+}: {
+  src: string;
+  alt: string;
+  /** Un toque limpio, sin arrastre ni zoom: el overlay lo usa para cerrarse. */
+  onTap: () => void;
+}) {
+  // Escala y desplazamiento en un solo estado, para que los updaters sean puros.
+  const [vista, setVista] = useState({ escala: 1, x: 0, y: 0 });
+  const { escala } = vista;
+  const [hiResLista, setHiResLista] = useState(() => esGif(src));
+  const cajaRef = useRef<HTMLDivElement>(null);
+  const punteros = useRef(new Map<number, { x: number; y: number }>());
+  const pellizco = useRef<{ dist: number; escala: number; centro: { x: number; y: number } } | null>(null);
+  const arrastre = useRef<{ x: number; y: number; desp: { x: number; y: number }; movido: boolean } | null>(null);
+  const ultimoTap = useRef(0);
+  /**
+   * El cierre por toque simple espera a ver si viene un segundo toque. Sin esta
+   * espera el primer toque de un doble toque cierra el lightbox y el segundo
+   * cae sobre la galería de abajo.
+   */
+  const cierrePendiente = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Hay un dedo/botón apoyado: mientras dure, la transformación sigue al dedo sin transición. */
+  const [gesto, setGesto] = useState(false);
+
+  const ampliada = escala > 1.01;
+
+  /** Impide que la foto se despegue de su caja: a escala `s` sobra `(s-1)/2` por lado. */
+  const limitar = useCallback((v: { escala: number; x: number; y: number }) => {
+    const caja = cajaRef.current;
+    if (!caja) return v;
+    const maxX = (caja.clientWidth * (v.escala - 1)) / 2;
+    const maxY = (caja.clientHeight * (v.escala - 1)) / 2;
+    return {
+      escala: v.escala,
+      x: Math.max(-maxX, Math.min(maxX, v.x)),
+      y: Math.max(-maxY, Math.min(maxY, v.y)),
+    };
+  }, []);
+
+  /** Lleva la escala a `s1` dejando quieto el punto `p` (relativo al centro de la caja). */
+  const acercarA = useCallback(
+    (s1: number, p: { x: number; y: number }) => {
+      setVista((v) => {
+        const s = Math.max(1, Math.min(ZOOM_MAX, s1));
+        if (s === 1) return { escala: 1, x: 0, y: 0 };
+        const factor = 1 - s / v.escala;
+        return limitar({ escala: s, x: v.x + (p.x - v.x) * factor, y: v.y + (p.y - v.y) * factor });
+      });
+    },
+    [limitar]
+  );
+
+  /** Coordenadas de un evento respecto del centro de la caja. */
+  const respectoAlCentro = (e: { clientX: number; clientY: number }) => {
+    const r = cajaRef.current?.getBoundingClientRect();
+    if (!r) return { x: 0, y: 0 };
+    return { x: e.clientX - (r.left + r.width / 2), y: e.clientY - (r.top + r.height / 2) };
+  };
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    // Con la captura, arrastrar más allá del borde sigue mandando eventos acá.
+    // Capturar un puntero que el navegador ya no considera activo lanza.
+    try {
+      (e.target as Element).setPointerCapture?.(e.pointerId);
+    } catch {
+      /* sin captura, el gesto sigue funcionando mientras el dedo no se salga */
+    }
+    punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    setGesto(true);
+    if (cierrePendiente.current) {
+      clearTimeout(cierrePendiente.current);
+      cierrePendiente.current = null;
+    }
+
+    if (punteros.current.size === 2) {
+      const [a, b] = [...punteros.current.values()];
+      pellizco.current = {
+        dist: Math.hypot(a.x - b.x, a.y - b.y),
+        escala,
+        centro: respectoAlCentro({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 }),
+      };
+      arrastre.current = null;
+    } else if (punteros.current.size === 1) {
+      arrastre.current = { x: e.clientX, y: e.clientY, desp: { x: vista.x, y: vista.y }, movido: false };
+    }
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!punteros.current.has(e.pointerId)) return;
+    punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (punteros.current.size >= 2 && pellizco.current) {
+      const [a, b] = [...punteros.current.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      acercarA((pellizco.current.escala * dist) / pellizco.current.dist, pellizco.current.centro);
+      return;
+    }
+
+    const arr = arrastre.current;
+    if (!arr || !ampliada) return;
+    const dx = e.clientX - arr.x;
+    const dy = e.clientY - arr.y;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) arr.movido = true;
+    setVista((v) => limitar({ escala: v.escala, x: arr.desp.x + dx, y: arr.desp.y + dy }));
+  };
+
+  const onPointerUp = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    punteros.current.delete(e.pointerId);
+    if (punteros.current.size < 2) pellizco.current = null;
+
+    const arr = arrastre.current;
+    arrastre.current = null;
+    if (punteros.current.size > 0) return;
+    setGesto(false);
+
+    // Doble toque: alterna entre ajustada y ampliada sobre el punto tocado.
+    const ahora = Date.now();
+    const esDoble = ahora - ultimoTap.current < 300;
+    ultimoTap.current = ahora;
+    if (esDoble && !arr?.movido) {
+      acercarA(ampliada ? 1 : ZOOM_DOBLE, respectoAlCentro(e));
+      return;
+    }
+    // Un toque sin más, con la foto ajustada, cierra. Ampliada no: ahí el
+    // usuario está mirando, y para salir están la X y el doble toque.
+    if (!arr?.movido && !ampliada) {
+      cierrePendiente.current = setTimeout(onTap, 280);
+    }
+  };
+
+  const onWheel = (e: React.WheelEvent) => {
+    e.stopPropagation();
+    acercarA(escala * Math.exp(-e.deltaY / 400), respectoAlCentro(e));
+  };
+
+  // Sin un empujón nadie prueba a pellizcar una foto que ya está entera en
+  // pantalla. La pista se va sola y no vuelve.
+  const [pista, setPista] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setPista(false), 3500);
+    return () => {
+      clearTimeout(t);
+      if (cierrePendiente.current) clearTimeout(cierrePendiente.current);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={cajaRef}
+      className="absolute inset-0 touch-none select-none"
+      style={{ cursor: ampliada ? "grab" : "zoom-in" }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onWheel={onWheel}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          transform: `translate(${vista.x}px, ${vista.y}px) scale(${escala})`,
+          transition: gesto ? "none" : "transform 0.15s ease-out",
+        }}
+      >
+        <Image src={src} alt={alt} fill className="object-contain" sizes="90vw" priority unoptimized={esGif(src)} />
+        {/* La capa nítida se pide al abrir, no al acercar: es la única forma de
+            que el zoom sea instantáneo. Se revela al terminar de cargar, para no
+            tapar la foto ajustada con un hueco en blanco. */}
+        {!esGif(src) && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={cloudinaryLoader({ src, width: ANCHO_ZOOM })}
+            alt=""
+            aria-hidden
+            fetchPriority="high"
+            // `complete` cubre la imagen que ya estaba en caché y disparó `load`
+            // antes de que React montara el handler.
+            ref={(el) => {
+              if (el?.complete && el.naturalWidth > 0) setHiResLista(true);
+            }}
+            onLoad={() => setHiResLista(true)}
+            onError={() => setHiResLista(true)}
+            className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-200 ${
+              hiResLista ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        )}
+      </div>
+
+      <div
+        className={`pointer-events-none absolute top-4 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-3.5 py-1.5 text-[11px] tracking-wide text-[#111111] shadow-sm transition-opacity duration-500 ${
+          ampliada && !hiResLista ? "opacity-100" : pista && !ampliada ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        {ampliada ? (
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block h-2.5 w-2.5 animate-spin rounded-full border border-[#111111]/25 border-t-[#111111]/70" />
+            Afinando detalle…
+          </span>
+        ) : (
+          <>
+            <span className="sm:hidden">Pellizca para acercar</span>
+            <span className="hidden sm:inline">Rueda o doble clic para acercar</span>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -124,13 +371,45 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
     [slides]
   );
 
+  /** Slide abierto en el lightbox, o `null` si está cerrado. */
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const lightboxOpen = lightboxIdx !== null;
+
+  // Con el lightbox abierto la galería de abajo no reproduce: el video, si toca,
+  // se ve en el lightbox.
   useEffect(() => {
-    syncPlayback(desktopVideoRefs.current, isDesktop === true ? selectedIdx : -1);
-  }, [selectedIdx, slides, syncPlayback, isDesktop]);
+    syncPlayback(desktopVideoRefs.current, isDesktop === true && !lightboxOpen ? selectedIdx : -1);
+  }, [selectedIdx, slides, syncPlayback, isDesktop, lightboxOpen]);
 
   useEffect(() => {
-    syncPlayback(mobileVideoRefs.current, isDesktop === false ? mobileIdx : -1);
-  }, [mobileIdx, slides, syncPlayback, isDesktop]);
+    syncPlayback(mobileVideoRefs.current, isDesktop === false && !lightboxOpen ? mobileIdx : -1);
+  }, [mobileIdx, slides, syncPlayback, isDesktop, lightboxOpen]);
+
+  const cerrarLightbox = useCallback(() => setLightboxIdx(null), []);
+  const showPrev = useCallback(
+    () => setLightboxIdx((i) => (i === null ? i : (i - 1 + slides.length) % slides.length)),
+    [slides.length]
+  );
+  const showNext = useCallback(
+    () => setLightboxIdx((i) => (i === null ? i : (i + 1) % slides.length)),
+    [slides.length]
+  );
+
+  // Teclado y bloqueo del scroll mientras el lightbox está abierto.
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    document.body.style.overflow = "hidden";
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") cerrarLightbox();
+      else if (e.key === "ArrowLeft") showPrev();
+      else if (e.key === "ArrowRight") showNext();
+    };
+    document.addEventListener("keydown", handler);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", handler);
+    };
+  }, [lightboxOpen, cerrarLightbox, showPrev, showNext]);
 
   if (slides.length === 0) {
     return (
@@ -205,43 +484,146 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
               />
             )
           )}
+          {/* Sobre un video no: ahí el clic es del reproductor. */}
+          {slides[selectedIdx]?.type === "image" && (
+            <button
+              type="button"
+              onClick={() => setLightboxIdx(selectedIdx)}
+              aria-label="Ampliar imagen"
+              className="absolute inset-0 cursor-zoom-in"
+            />
+          )}
         </div>
       </div>
 
       {/* Mobile layout: free-scroll carousel with peek (Embla) */}
-      <div ref={emblaRef} className="overflow-hidden sm:hidden">
-        <div className="flex gap-0.5">
-          {slides.map((slide, idx) => (
-            <div
-              key={idx}
-              className="w-[80%] flex-shrink-0 relative aspect-square bg-[#f5f5f5]"
-            >
-              {slide.type === "video" ? (
-                <video
-                  ref={(el) => {
-                    mobileVideoRefs.current[idx] = el;
-                  }}
-                  poster={posterDeliveryUrl(slide.poster, 800)}
-                  muted
-                  loop
-                  playsInline
-                  preload="none"
-                  className="absolute inset-0 w-full h-full object-contain"
-                />
-              ) : (
-                <Image
-                  src={slide.src}
-                  alt={`${name} ${idx + 1}`}
-                  fill
-                  className="object-contain"
-                  sizes="80vw"
-                  priority={idx === 0}
-                />
-              )}
-            </div>
-          ))}
+      <div className="relative sm:hidden">
+        <div ref={emblaRef} className="overflow-hidden">
+          <div className="flex gap-0.5">
+            {slides.map((slide, idx) => (
+              <div
+                key={idx}
+                // Embla anula el clic que termina un arrastre, así que tocar abre
+                // y deslizar no.
+                onClick={slide.type === "image" ? () => setLightboxIdx(idx) : undefined}
+                className="w-[80%] flex-shrink-0 relative aspect-square bg-[#f5f5f5]"
+              >
+                {slide.type === "video" ? (
+                  <video
+                    ref={(el) => {
+                      mobileVideoRefs.current[idx] = el;
+                    }}
+                    poster={posterDeliveryUrl(slide.poster, 800)}
+                    muted
+                    loop
+                    playsInline
+                    preload="none"
+                    className="absolute inset-0 w-full h-full object-contain"
+                  />
+                ) : (
+                  <Image
+                    src={slide.src}
+                    alt={`${name} ${idx + 1}`}
+                    fill
+                    className="object-contain"
+                    sizes="80vw"
+                    priority={idx === 0}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
+        {/* La lupa: sin ella nadie sabe que la foto se puede ampliar. */}
+        {slides[mobileIdx]?.type === "image" && (
+          <button
+            type="button"
+            onClick={() => setLightboxIdx(mobileIdx)}
+            aria-label="Ampliar imagen"
+            className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center text-[#111111] active:scale-95 transition-transform"
+          >
+            <ZoomIn className="h-4 w-4" />
+          </button>
+        )}
       </div>
+
+      {lightboxIdx !== null && slides[lightboxIdx] && (
+        <div
+          className="fixed inset-0 z-[60] bg-[#f8f7f4] animate-[fade-in_0.2s_ease-out] flex items-center justify-center"
+          onClick={cerrarLightbox}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${name} — imagen ampliada`}
+        >
+          <div className="relative w-full h-full max-w-5xl max-h-[85vh] mx-auto px-6 sm:px-16">
+            <div className="relative w-full h-full">
+              {(() => {
+                const slide = slides[lightboxIdx];
+                return slide.type === "video" ? (
+                  // El clic se detiene acá: los controles nativos del video
+                  // viven dentro del overlay, y el overlay cierra al clic.
+                  <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
+                    <video
+                      key={slide.src}
+                      src={videoDeliveryUrl(slide.src)}
+                      poster={posterDeliveryUrl(slide.poster, 1080)}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      controls
+                      className="absolute inset-0 w-full h-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  // `key` por foto: cada una entra ajustada, sin la escala de la anterior.
+                  <FotoConZoom
+                    key={slide.src}
+                    src={slide.src}
+                    alt={`${name} ${lightboxIdx + 1}`}
+                    onTap={cerrarLightbox}
+                  />
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Por encima de la foto, que al ampliarse desborda su caja */}
+          <div
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {slides.length > 1 && (
+              <button
+                type="button"
+                onClick={showPrev}
+                aria-label="Imagen anterior"
+                className="w-11 h-11 rounded-full bg-white shadow-md flex items-center justify-center text-[#111111] hover:bg-[#f3f4f6] transition-colors"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={cerrarLightbox}
+              aria-label="Cerrar"
+              className="w-11 h-11 rounded-full bg-white shadow-md flex items-center justify-center text-[#111111] hover:bg-[#f3f4f6] transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            {slides.length > 1 && (
+              <button
+                type="button"
+                onClick={showNext}
+                aria-label="Imagen siguiente"
+                className="w-11 h-11 rounded-full bg-white shadow-md flex items-center justify-center text-[#111111] hover:bg-[#f3f4f6] transition-colors"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
