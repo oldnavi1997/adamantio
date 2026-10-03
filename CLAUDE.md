@@ -208,6 +208,8 @@ document (`ON CONFLICT DO NOTHING`, the POS rule: an existing customer is never 
   `AGENCIA` only if the text says "agencia" — the POS can correct it. The table is separate from
   `Sale` on purpose: the nota de venta never prints it. The POS owns the label itself
   (`adamantio-puntoventa/lib/envio.ts`); keep `courier`/`modalidad` values in step with it.
+  `sale_envios.mercaderia` (package size for Shalom's bulk upload) is written only by the POS;
+  the web leaves it null.
 
 Pages `checkout/success`, `checkout/failure`, `checkout/pending` exist only for external deep
 links (e.g., from confirmation emails); the live flow goes to `/pedido/confirmacion/[orderId]`.
