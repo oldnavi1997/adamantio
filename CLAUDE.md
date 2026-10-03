@@ -181,6 +181,34 @@ browser response and webhook — so a plain `order.update({ status: "PAID" })` w
 stock. Callers only send the email/push when `yaProcesada` is false, and use `after()` from
 `next/server` for it: on Vercel the lambda freezes as soon as it responds.
 
+### Every paid order leaves a nota de venta in the POS
+
+Same idea as luminus (its serie NV002), adapted to this POS's model: once `aprobarOrden` wins the
+compare-and-swap it calls `emitirNotaVentaWeb()` (`lib/nota-venta-web.ts`), which writes a `Sale`
+with `canal = "WEB"` and `orderId` set, signed by the system user **Tienda Web**
+(`web@adamantio.com`, hash `!`, so nobody can log in with it), linked to a `Customer` found by
+document (`ON CONFLICT DO NOTHING`, the POS rule: an existing customer is never overwritten).
+
+- **It runs after the transaction, not inside it.** The order is already charged; a failure here
+  must not undo the approval or make the webhook retry forever. It logs and moves on, and
+  `npx tsx prisma/backfill-notas-web.ts` (no arguments = dry run, `--aplicar` writes) puts back
+  whatever is missing. That script also covered the orders paid before this existed.
+- **It does not touch stock** (`aprobarOrden` already did) **and does not add to any cash
+  session** (`cajaSessionId` null): the money arrives through Izipay/Culqi, not the till. That
+  is why the POS refuses to delete a `WEB` sale.
+- **The total is what was charged.** `Sale.envio` and `Sale.comision` exist because `SaleItem`
+  requires a product. Invariant: `total = subtotal - descuento + envio + comision`; both are 0
+  for counter sales.
+- `Sale.notas` carries the order recap (number, gateway, delivery, contact, engraving, where the
+  stock came from). `Sale.orderId` is UNIQUE, which keeps it to one note per order.
+- Cancelling a paid order in the admin **does not** void its note (or return its stock) yet.
+- **Shipping label.** For `shalom`/`olva` orders the note also gets a `sale_envios` row
+  (`envioDelPedido()`): name, document, phone, city (the district), courier, `modalidad` and
+  `destino`. Shalom is always `AGENCIA`; Olva stores agency or address in one free field, so it is
+  `AGENCIA` only if the text says "agencia" — the POS can correct it. The table is separate from
+  `Sale` on purpose: the nota de venta never prints it. The POS owns the label itself
+  (`adamantio-puntoventa/lib/envio.ts`); keep `courier`/`modalidad` values in step with it.
+
 Pages `checkout/success`, `checkout/failure`, `checkout/pending` exist only for external deep
 links (e.g., from confirmation emails); the live flow goes to `/pedido/confirmacion/[orderId]`.
 
