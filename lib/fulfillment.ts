@@ -2,6 +2,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { ETIQUETA_CORTA, esVariante, piezasDeVariante } from "@/lib/variantes";
 import { resumenEscalares } from "@/lib/tallas";
+import { emitirNotaVentaWeb } from "@/lib/nota-venta-web";
 
 /**
  * Punto único de aprobación de una orden.
@@ -154,6 +155,27 @@ async function sincronizarEscalares(tx: Prisma.TransactionClient, productId: str
 }
 
 export async function aprobarOrden(
+  orderId: string,
+  opts: OpcionesAprobacion
+): Promise<ResultadoAprobacion> {
+  const resultado = await aprobarEnTransaccion(orderId, opts);
+
+  // La nota de venta del POS va fuera de la transacción a propósito: la orden
+  // ya está cobrada, y un fallo aquí no puede deshacer la aprobación ni hacer
+  // que el webhook reintente en bucle. Si falla, la repone
+  // `prisma/backfill-notas-web.ts`. Ver `lib/nota-venta-web.ts`.
+  if (!resultado.yaProcesada) {
+    try {
+      await emitirNotaVentaWeb(orderId);
+    } catch (err) {
+      console.error(`aprobarOrden: no se pudo emitir la nota de venta de ${orderId}`, err);
+    }
+  }
+
+  return resultado;
+}
+
+async function aprobarEnTransaccion(
   orderId: string,
   opts: OpcionesAprobacion
 ): Promise<ResultadoAprobacion> {

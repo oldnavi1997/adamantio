@@ -231,6 +231,8 @@ model Order {
   updatedAt    DateTime    @updatedAt
   items        OrderItem[]
   payments     Payment[]
+  /// Nota de venta que este pedido dejó en el POS al aprobarse. Ver `lib/nota-venta-web.ts`.
+  sale         Sale?
 }
 
 model OrderItem {
@@ -309,6 +311,43 @@ model Sale {
   cambio        Float?
   createdAt     DateTime   @default(now())
   items         SaleItem[]
+
+  /// "TIENDA" | "WEB". TEXT con CHECK en la base, no un enum.
+  canal         String     @default("TIENDA")
+  /// El pedido web que originó esta venta. Único: un pedido, una nota.
+  orderId       String?    @unique
+  order         Order?     @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  /// Envío y comisión de pasarela de un pedido web; 0 en el mostrador.
+  /// Invariante: total = subtotal - descuento + envio + comision.
+  envio         Float      @default(0)
+  comision      Float      @default(0)
+  /// Repaso del pedido web: número, pasarela, entrega y contacto.
+  notas         String?
+  /// Datos para la etiqueta del paquete. Aparte de la venta para que la nota
+  /// de venta no los imprima nunca.
+  datosEnvio    SaleEnvio?
+}
+
+/// Etiqueta de envío de una venta. La escriben el POS y, para los pedidos con
+/// Shalom u Olva, `lib/nota-venta-web.ts`.
+model SaleEnvio {
+  id              String   @id @default(cuid())
+  saleId          String   @unique
+  sale            Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  nombre          String
+  tipoDocumento   String?
+  numeroDocumento String?
+  celular         String
+  ciudad          String
+  /// "SHALOM", "OLVA" o el nombre que se escriba en "Otro".
+  courier         String
+  /// "AGENCIA" | "DIRECCION": dice si `destino` es la sede o la dirección.
+  modalidad       String   @default("AGENCIA")
+  destino         String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("sale_envios")
 }
 
 model SaleItem {
