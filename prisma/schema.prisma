@@ -344,6 +344,9 @@ model SaleEnvio {
   /// "AGENCIA" | "DIRECCION": dice si `destino` es la sede o la dirección.
   modalidad       String   @default("AGENCIA")
   destino         String
+  /// Tamaño para la carga masiva de Shalom ("SOBRE", "PAQUETE XXS"…). Nulo = el
+  /// valor por defecto del POS. Lo escribe solo el POS.
+  mercaderia      String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
