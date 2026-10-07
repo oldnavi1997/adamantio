@@ -181,6 +181,9 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
+    if ((error as { code?: string }).code === "P2002") {
+      return NextResponse.json({ error: "Ese SKU ya lo tiene otro producto" }, { status: 409 });
+    }
     console.error("Update product error:", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }

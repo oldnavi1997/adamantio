@@ -214,6 +214,11 @@ document (`ON CONFLICT DO NOTHING`, the POS rule: an existing customer is never 
 Pages `checkout/success`, `checkout/failure`, `checkout/pending` exist only for external deep
 links (e.g., from confirmation emails); the live flow goes to `/pedido/confirmacion/[orderId]`.
 
+**SKU = correlativo del POS** (`001`, `002`, …): `siguienteSku()` en `lib/sku.ts`, gemelo del
+del punto de venta (max + 1 casteando a `int`). El alta en el admin lo muestra ya rellenado; si
+se deja tal cual, `POST /api/products` lo recalcula al guardar con reintento ante `P2002`. Uno
+escrito a mano se respeta y un duplicado responde `409`.
+
 ## Product Model (Jewelry Fields)
 
 Product schema uses jewelry-specific fields: `material`, `color`, `stonetype`, `finish`, `weight`, `gender`, `brand`. The old optics fields (`frameColor`, `frameMaterial`, `frameType`, `lensType`, `dim*`) were removed in the `jewelry-schema` migration. Do not reference them.
