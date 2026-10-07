@@ -63,9 +63,11 @@ interface ProductFormProps {
   categories: Category[];
   product?: ProductConTallas;
   posStock?: PosStock | null;
+  /// Siguiente correlativo libre (lib/sku.ts), calculado en el servidor.
+  skuSugerido?: string;
 }
 
-export function ProductForm({ categories, product, posStock }: ProductFormProps) {
+export function ProductForm({ categories, product, posStock, skuSugerido }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>(product?.imageUrls ?? (product?.imageUrl ? [product.imageUrl] : []));
@@ -120,7 +122,7 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
           precioVentaHombre: String(product.precioVentaHombre ?? ""),
           precioVentaMujer: String(product.precioVentaMujer ?? ""),
         }
-      : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, esPar: false, stockHombre: "0", stockMujer: "0", stockAlmacenH: "0", stockAlmacenM: "0", sku: "" },
+      : { isActive: true, engravingEnabled: false, freeShipping: false, testMode: false, esPar: false, stockHombre: "0", stockMujer: "0", stockAlmacenH: "0", stockAlmacenM: "0", sku: skuSugerido ?? "" },
   });
 
   const esPar = watch("esPar");
@@ -174,7 +176,10 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
       const enOferta = oferta !== null && oferta > 0 && oferta < precio;
       const body = {
         ...resto,
-        sku: data.sku?.trim() || null,
+        // Si en el alta se deja el correlativo propuesto, el servidor lo vuelve
+        // a calcular al guardar: otro admin (o el POS) pudo tomarlo mientras
+        // el formulario estaba abierto. Uno escrito a mano se respeta tal cual.
+        sku: !product && data.sku?.trim() === skuSugerido ? null : data.sku?.trim() || null,
         price: enOferta ? oferta : precio,
         comparePrice: enOferta ? precio : null,
         stock: sH + sM + sAH + sAM,
@@ -242,25 +247,26 @@ export function ProductForm({ categories, product, posStock }: ProductFormProps)
             <label className="block text-sm font-medium text-gray-700 mb-1">SKU</label>
             <div className="flex gap-2">
               <Input
-                placeholder="Ej: ANI-001"
+                placeholder="Ej: 001"
                 error={errors.sku?.message}
                 {...register("sku")}
                 className="flex-1"
               />
-              <button
-                type="button"
-                onClick={() => {
-                  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                  const sku = Array.from({ length: 10 }, () =>
-                    chars[Math.floor(Math.random() * chars.length)]
-                  ).join("");
-                  setValue("sku", sku, { shouldValidate: true });
-                }}
-                className="px-3 py-2 text-xs font-medium bg-[#f8f7f4] border border-gray-300 text-[#111111]/70 hover:text-[#111111] hover:bg-[#efefec] transition-colors whitespace-nowrap"
-              >
-                Generar
-              </button>
+              {skuSugerido && (
+                <button
+                  type="button"
+                  onClick={() => setValue("sku", skuSugerido, { shouldValidate: true })}
+                  className="px-3 py-2 text-xs font-medium bg-[#f8f7f4] border border-gray-300 text-[#111111]/70 hover:text-[#111111] hover:bg-[#efefec] transition-colors whitespace-nowrap"
+                >
+                  Siguiente
+                </button>
+              )}
             </div>
+            {!product && skuSugerido && (
+              <p className="mt-1 text-xs text-[#111111]/40">
+                Correlativo del POS. Si otro producto lo toma antes, se asigna el siguiente libre al guardar.
+              </p>
+            )}
             {errors.sku && <p className="mt-1 text-xs text-red-500">{errors.sku.message}</p>}
           </div>
           <div>

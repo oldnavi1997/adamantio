@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ProductForm } from "@/components/admin/ProductForm";
+import { siguienteSku } from "@/lib/sku";
 
 export const metadata = { title: "Editar producto | Admin" };
 
@@ -19,6 +20,10 @@ export default async function EditProductPage({
 
   if (!product) notFound();
 
+  // Solo hace falta para los que llegaron sin código (creados antes del
+  // correlativo o desde otra vía): el botón "Siguiente" lo propone.
+  const skuSugerido = product.sku ? undefined : await siguienteSku(prisma);
+
   const posStock: PosStockRow = {
     stockHombre: product.stockHombre,
     stockMujer: product.stockMujer,
@@ -29,7 +34,7 @@ export default async function EditProductPage({
   return (
     <div>
       <h1 className="text-2xl font-bold text-[#111111] mb-6">Editar producto</h1>
-      <ProductForm categories={categories} product={JSON.parse(JSON.stringify(product))} posStock={posStock} />
+      <ProductForm categories={categories} product={JSON.parse(JSON.stringify(product))} posStock={posStock} skuSugerido={skuSugerido} />
     </div>
   );
 }

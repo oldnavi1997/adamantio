@@ -7,6 +7,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { indexProduct } from "@/lib/algolia-sync";
 import { uniqueProductSlug } from "@/lib/product-slug";
 import { resumenEscalares } from "@/lib/tallas";
+import { siguienteSku } from "@/lib/sku";
 
 const productCreateSchema = z.object({
   name: z.string().min(2),
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = productCreateSchema.parse(body);
 
-    const { stockAlmacenH, stockAlmacenM, tallas, ...prismaData } = data;
+    const { stockAlmacenH, stockAlmacenM, tallas, sku, ...prismaData } = data;
 
     // Un producto es de pareja o se lleva por talla, nunca las dos cosas: la
     // talla es el único eje de un producto que se vende por talla.
@@ -126,21 +127,48 @@ export async function POST(request: NextRequest) {
       ? (await prisma.category.findUnique({ where: { name: data.category }, select: { id: true } }))?.id ?? null
       : null;
 
-    const product = await prisma.product.create({
-      data: {
-        ...prismaData,
-        slug: await uniqueProductSlug(data.name),
-        categoryId,
-        price: new Prisma.Decimal(data.price),
-        comparePrice: data.comparePrice == null ? null : new Prisma.Decimal(data.comparePrice),
-        stockAlmacenHombre: stockAlmacenH,
-        stockAlmacenMujer: stockAlmacenM,
-        stockAlmacen: stockAlmacenH + stockAlmacenM,
-        genero: data.esPar ? ["HOMBRE", "MUJER"] : ["UNISEX"],
-        ...(escalares ?? {}),
-        ...(tallas?.length ? { tallas: { create: tallas } } : {}),
-      },
-    });
+    const skuManual = sku?.trim() || null;
+    const slug = await uniqueProductSlug(data.name);
+
+    const crear = (skuFinal: string) =>
+      prisma.product.create({
+        data: {
+          ...prismaData,
+          sku: skuFinal,
+          slug,
+          categoryId,
+          price: new Prisma.Decimal(data.price),
+          comparePrice: data.comparePrice == null ? null : new Prisma.Decimal(data.comparePrice),
+          stockAlmacenHombre: stockAlmacenH,
+          stockAlmacenMujer: stockAlmacenM,
+          stockAlmacen: stockAlmacenH + stockAlmacenM,
+          genero: data.esPar ? ["HOMBRE", "MUJER"] : ["UNISEX"],
+          ...(escalares ?? {}),
+          ...(tallas?.length ? { tallas: { create: tallas } } : {}),
+        },
+      });
+
+    // Mismo esquema que el POS: sin transacción, el correlativo se toma justo
+    // antes de insertar y, si otro admin o el POS gana la carrera, el unique
+    // de `sku` dispara P2002 y se reintenta con el siguiente.
+    let product: Awaited<ReturnType<typeof crear>> | null = null;
+    for (let intento = 0; intento < 5 && !product; intento++) {
+      try {
+        product = await crear(skuManual ?? (await siguienteSku(prisma)));
+      } catch (e) {
+        if ((e as { code?: string }).code !== "P2002") throw e;
+        // Código escrito a mano: el duplicado es real, no hay nada que reintentar.
+        if (skuManual) {
+          return NextResponse.json({ error: `El SKU ${skuManual} ya existe` }, { status: 409 });
+        }
+      }
+    }
+    if (!product) {
+      return NextResponse.json(
+        { error: "No se pudo asignar un SKU correlativo, intenta de nuevo" },
+        { status: 409 }
+      );
+    }
 
     indexProduct(product).catch(console.error);
 
