@@ -491,7 +491,7 @@ export function ProductForm({ categories, product, posStock, skuSugerido }: Prod
             </p>
             {porTalla && totalTallas === 0 && (
               <p className="text-xs text-red-600">
-                Con todas las tallas en cero el producto queda agotado y desaparece del catálogo.
+                Con todas las tallas en cero el producto queda agotado: sigue en el catálogo, al final y con la etiqueta «Agotado».
               </p>
             )}
           </div>
