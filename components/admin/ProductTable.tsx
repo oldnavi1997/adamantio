@@ -10,13 +10,17 @@ import { formatPEN, cn, precioConOferta } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Category } from "@/app/generated/prisma/client";
 import { PosStockData, AdminProductRow } from "@/app/admin/productos/page";
-import { getSearchClient, INDEX_NAME } from "@/lib/algolia";
 import { productThumbnail } from "@/lib/media";
 
 type SortCol = "sku" | "name" | "price";
 type SortDir = "asc" | "desc";
 
 const LOW_STOCK_THRESHOLD = 5;
+
+/** Minúsculas y sin tildes, para que «tulipan» encuentre «Tulipán». */
+function normalizar(texto: string): string {
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
 
 /** Stock total en tienda (POS). null si el producto no está vinculado al POS por SKU. */
 function storeStock(p: AdminProductRow, posStock: Record<string, PosStockData>): number | null {
@@ -72,8 +76,6 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
   const [bulkPrimaryId, setBulkPrimaryId] = useState("");
   const [bulkLoading, setBulkLoading] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-  const [algoliaIds, setAlgoliaIds] = useState<Set<string> | null>(null);
-  const [algoliaLoading, setAlgoliaLoading] = useState(false);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`¿Eliminar "${name}"?`)) return;
@@ -175,29 +177,6 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
     };
   }, []);
 
-  useEffect(() => {
-    const trimmed = query.trim();
-    if (!trimmed) {
-      setAlgoliaIds(null);
-      return;
-    }
-    const timer = setTimeout(async () => {
-      setAlgoliaLoading(true);
-      try {
-        const results = await getSearchClient().searchSingleIndex({
-          indexName: INDEX_NAME,
-          searchParams: { query: trimmed, hitsPerPage: 200, attributesToRetrieve: ["objectID"] },
-        });
-        setAlgoliaIds(new Set(results.hits.map((h) => h.objectID as string)));
-      } catch {
-        setAlgoliaIds(null);
-      } finally {
-        setAlgoliaLoading(false);
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [query]);
-
   const toggleSort = (col: SortCol) => {
     if (sortCol === col) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -213,9 +192,13 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
   );
 
   const filtered = useMemo(() => {
+    // Cada palabra tiene que aparecer en el nombre, el SKU o la categoría.
+    const palabras = normalizar(query).split(/\s+/).filter(Boolean);
     const result = products.filter((p) => {
-      // El SKU no está en Algolia: se compara aquí, contra lo que ya está cargado.
-      if (algoliaIds !== null && !algoliaIds.has(p.id) && !p.sku?.includes(query.trim())) return false;
+      if (palabras.length > 0) {
+        const texto = normalizar(`${p.name} ${p.sku ?? ""} ${p.category ?? ""}`);
+        if (!palabras.every((w) => texto.includes(w))) return false;
+      }
       if (filterCategory && (p.category ?? "") !== filterCategory) return false;
       if (filterStatus === "active" && !p.isActive) return false;
       if (filterStatus === "inactive" && p.isActive) return false;
@@ -243,7 +226,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
       });
     }
     return result;
-  }, [products, algoliaIds, query, filterCategory, filterStatus, filterStock, sortCol, sortDir, posStock]);
+  }, [products, query, filterCategory, filterStatus, filterStock, sortCol, sortDir, posStock]);
 
   const stockSummary = useMemo(() => {
     let out = 0;
@@ -323,16 +306,12 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
         )}
 
         <div className="relative ml-auto w-56">
-          {algoliaLoading ? (
-            <div className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 border border-[#111111]/30 border-t-[#111111]/60 rounded-full animate-spin" aria-hidden="true" />
-          ) : (
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#111111]/30 pointer-events-none" aria-hidden="true" />
-          )}
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#111111]/30 pointer-events-none" aria-hidden="true" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar con Algolia…"
+            placeholder="Buscar por nombre o SKU…"
             aria-label="Buscar productos"
             className="w-full pl-8 pr-7 py-1.5 text-[11px] bg-[#f8f7f4] border border-[#111111]/8 text-[#111111] placeholder-[#111111]/30 focus:outline-none focus:border-[#111111]/25 transition-[border-color] duration-150"
           />
