@@ -509,17 +509,31 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
                 className="w-[80%] flex-shrink-0 relative aspect-square bg-[#f5f5f5]"
               >
                 {slide.type === "video" ? (
-                  <video
-                    ref={(el) => {
-                      mobileVideoRefs.current[idx] = el;
-                    }}
-                    poster={posterDeliveryUrl(slide.poster, 800)}
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                    className="absolute inset-0 w-full h-full object-contain"
-                  />
+                  <>
+                    <video
+                      ref={(el) => {
+                        mobileVideoRefs.current[idx] = el;
+                      }}
+                      poster={posterDeliveryUrl(slide.poster, 800)}
+                      muted
+                      loop
+                      playsInline
+                      preload="none"
+                      className="absolute inset-0 w-full h-full object-contain"
+                    />
+                    {/* Hasta que el slide queda activo el video es un póster quieto
+                        y no se distingue de una foto. Abajo a la izquierda porque
+                        es lo que asoma del slide siguiente en el peek, y arriba a la
+                        derecha ya está la lupa de la foto activa. */}
+                    <span
+                      aria-hidden
+                      className="absolute bottom-3 left-3 z-10 w-9 h-9 rounded-full bg-black/55 backdrop-blur-sm shadow-md flex items-center justify-center pointer-events-none"
+                    >
+                      <svg width="12" height="14" viewBox="0 0 10 12" fill="white" style={{ marginLeft: 2 }}>
+                        <path d="M0 0L10 6L0 12Z" />
+                      </svg>
+                    </span>
+                  </>
                 ) : (
                   <Image
                     src={slide.src}
