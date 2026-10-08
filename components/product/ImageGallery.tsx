@@ -68,21 +68,11 @@ function formatoTiempo(segundos: number): string {
 }
 
 /**
- * Barra de reproductor sobre un video del carrusel móvil: sin ella, hasta que
- * el slide queda activo el video es un póster quieto y nadie sabe que lo es.
- * Escucha al <video> en vez de llevar su propio estado, porque quien decide
- * reproducir o pausar al cambiar de slide es `syncPlayback`.
+ * Duración, posición y estado de un <video>, leídos de sus eventos. Escucha al
+ * elemento en vez de llevar estado propio porque quien decide reproducir o
+ * pausar al cambiar de slide es `syncPlayback`.
  */
-function VideoBar({
-  getVideo,
-  activo,
-  onActivar,
-}: {
-  getVideo: () => HTMLVideoElement | null;
-  activo: boolean;
-  /** Lleva el carrusel a este slide; al quedar activo arranca solo. */
-  onActivar: () => void;
-}) {
+function useEstadoVideo(getVideo: () => HTMLVideoElement | null) {
   const [duracion, setDuracion] = useState(0);
   const [actual, setActual] = useState(0);
   const [reproduciendo, setReproduciendo] = useState(false);
@@ -100,6 +90,36 @@ function VideoBar({
     eventos.forEach((e) => video.addEventListener(e, leer));
     return () => eventos.forEach((e) => video.removeEventListener(e, leer));
   }, [getVideo]);
+
+  return { duracion, actual, reproduciendo };
+}
+
+/** Duración en la esquina de la miniatura de un video (desktop). */
+function DuracionMiniatura({ getVideo }: { getVideo: () => HTMLVideoElement | null }) {
+  const { duracion } = useEstadoVideo(getVideo);
+  if (duracion <= 0) return null;
+  return (
+    <span className="absolute bottom-0.5 right-0.5 rounded-sm bg-black/60 px-1 text-[9px] leading-[14px] tabular-nums text-white pointer-events-none">
+      {formatoTiempo(duracion)}
+    </span>
+  );
+}
+
+/**
+ * Barra de reproductor sobre un video de la galería: sin ella, hasta que el
+ * slide queda activo el video es un póster quieto y nadie sabe que lo es.
+ */
+function VideoBar({
+  getVideo,
+  activo,
+  onActivar,
+}: {
+  getVideo: () => HTMLVideoElement | null;
+  activo: boolean;
+  /** Lleva la galería a este slide; al quedar activo arranca solo. */
+  onActivar: () => void;
+}) {
+  const { duracion, actual, reproduciendo } = useEstadoVideo(getVideo);
 
   function alternar(e: React.MouseEvent) {
     e.stopPropagation();
@@ -472,12 +492,13 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
     syncPlayback(mobileVideoRefs.current, isDesktop === false && !lightboxOpen ? mobileIdx : -1);
   }, [mobileIdx, slides, syncPlayback, isDesktop, lightboxOpen]);
 
-  // En móvil la barra de cada video muestra su duración antes de llegar a él,
-  // así que se piden los metadatos (unos KB, no el video). En desktop no hace
-  // falta: ahí la miniatura ya lleva su ▶.
+  // La barra (móvil) y la miniatura (desktop) muestran la duración de cada
+  // video antes de llegar a él, así que se piden los metadatos (unos KB, no el
+  // video). Solo del layout visible: el otro sigue sin descargar nada.
   useEffect(() => {
-    if (isDesktop !== false) return;
-    mobileVideoRefs.current.forEach((video, idx) => {
+    if (isDesktop === null) return;
+    const refs = isDesktop ? desktopVideoRefs.current : mobileVideoRefs.current;
+    refs.forEach((video, idx) => {
       const slide = slides[idx];
       if (!video || video.src || slide?.type !== "video") return;
       video.preload = "metadata";
@@ -547,7 +568,12 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
                   className="object-cover"
                   sizes="68px"
                 />
-                {slide.type === "video" && <PlayBadge size={22} />}
+                {slide.type === "video" && (
+                  <>
+                    <PlayBadge size={22} />
+                    <DuracionMiniatura getVideo={() => desktopVideoRefs.current[idx] ?? null} />
+                  </>
+                )}
               </button>
             ))}
           </div>
@@ -583,6 +609,17 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
                 loading={idx === 0 ? undefined : "eager"}
               />
             )
+          )}
+          {/* Los slides se apilan y solo el seleccionado es visible, así que la
+              barra va una sola vez; la key la vuelve a montar sobre el video
+              nuevo al cambiar de slide. */}
+          {slides[selectedIdx]?.type === "video" && (
+            <VideoBar
+              key={selectedIdx}
+              getVideo={() => desktopVideoRefs.current[selectedIdx] ?? null}
+              activo
+              onActivar={() => setSelectedIdx(selectedIdx)}
+            />
           )}
           {/* Sobre un video no: ahí el clic es del reproductor. */}
           {slides[selectedIdx]?.type === "image" && (
