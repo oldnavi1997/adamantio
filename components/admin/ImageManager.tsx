@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -45,6 +45,23 @@ export function ImageManager({
   // El badge "Principal" marca la miniatura real del producto (ver productThumbnail).
   const primaryUrl = showPrimaryBadge ? images.find((url) => !isVideoUrl(url)) : undefined;
 
+  // Con `multiple`, el widget dispara un onSuccess por archivo y lo hace con el
+  // callback del momento en que se abrió: todos leían el mismo `images` y cada
+  // uno pisaba al anterior, así que de cinco fotos solo quedaba la última. La
+  // ref acumula entre eventos sin esperar a que el padre vuelva a renderizar.
+  const imagesRef = useRef(images);
+  useLayoutEffect(() => {
+    imagesRef.current = images;
+  }, [images]);
+
+  function agregarSubida(result: { info?: unknown }) {
+    const url = (result.info as { secure_url?: string } | undefined)?.secure_url;
+    if (!url || imagesRef.current.includes(url)) return;
+    const siguientes = [...imagesRef.current, url];
+    imagesRef.current = siguientes;
+    onChange(siguientes);
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -82,12 +99,7 @@ export function ImageManager({
           <CldUploadWidget
             uploadPreset="adamantio-fotos"
             options={{ multiple: true, resourceType: "image" }}
-            onSuccess={(result) => {
-              const info = result.info as { secure_url: string };
-              if (info?.secure_url && !images.includes(info.secure_url)) {
-                onChange([...images, info.secure_url]);
-              }
-            }}
+            onSuccess={agregarSubida}
           >
             {({ open }) => (
               <button
@@ -105,12 +117,7 @@ export function ImageManager({
           <CldUploadWidget
             uploadPreset="adamantio-products"
             options={{ multiple: true, resourceType: "video", sources: ["local", "url"] }}
-            onSuccess={(result) => {
-              const info = result.info as { secure_url: string };
-              if (info?.secure_url && !images.includes(info.secure_url)) {
-                onChange([...images, info.secure_url]);
-              }
-            }}
+            onSuccess={agregarSubida}
           >
             {({ open }) => (
               <button
