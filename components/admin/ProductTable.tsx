@@ -13,7 +13,7 @@ import { PosStockData, AdminProductRow } from "@/app/admin/productos/page";
 import { getSearchClient, INDEX_NAME } from "@/lib/algolia";
 import { productThumbnail } from "@/lib/media";
 
-type SortCol = "name" | "price";
+type SortCol = "sku" | "name" | "price";
 type SortDir = "asc" | "desc";
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -214,7 +214,8 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
 
   const filtered = useMemo(() => {
     const result = products.filter((p) => {
-      if (algoliaIds !== null && !algoliaIds.has(p.id)) return false;
+      // El SKU no está en Algolia: se compara aquí, contra lo que ya está cargado.
+      if (algoliaIds !== null && !algoliaIds.has(p.id) && !p.sku?.includes(query.trim())) return false;
       if (filterCategory && (p.category ?? "") !== filterCategory) return false;
       if (filterStatus === "active" && !p.isActive) return false;
       if (filterStatus === "inactive" && p.isActive) return false;
@@ -230,13 +231,19 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
     if (sortCol) {
       result.sort((a, b) => {
         let cmp = 0;
+        // Correlativo del POS ("001", "002"…): numérico, sin SKU al final.
+        if (sortCol === "sku") {
+          cmp = !a.sku || !b.sku
+            ? Number(!a.sku) - Number(!b.sku)
+            : a.sku.localeCompare(b.sku, undefined, { numeric: true });
+        }
         if (sortCol === "name") cmp = a.name.localeCompare(b.name);
         if (sortCol === "price") cmp = a.price - b.price;
         return sortDir === "asc" ? cmp : -cmp;
       });
     }
     return result;
-  }, [products, algoliaIds, filterCategory, filterStatus, filterStock, sortCol, sortDir, posStock]);
+  }, [products, algoliaIds, query, filterCategory, filterStatus, filterStock, sortCol, sortDir, posStock]);
 
   const stockSummary = useMemo(() => {
     let out = 0;
@@ -462,6 +469,22 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                 />
               </th>
 
+              {/* SKU — sortable */}
+              <th className="text-left py-3 px-4">
+                <button
+                  type="button"
+                  onClick={() => toggleSort("sku")}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111]/40 hover:text-[#111111]/70 transition-[color] duration-150"
+                >
+                  SKU
+                  {sortCol === "sku" ? (
+                    sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                  ) : (
+                    <ChevronsUpDown className="h-3 w-3 opacity-40" />
+                  )}
+                </button>
+              </th>
+
               {/* Producto — sortable */}
               <th className="text-left py-3 px-4">
                 <button
@@ -592,7 +615,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-[11px] text-[#111111]/30">
+                <td colSpan={9} className="py-12 text-center text-[11px] text-[#111111]/30">
                   Sin resultados para &ldquo;{query}&rdquo;
                 </td>
               </tr>
@@ -614,6 +637,9 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                       onChange={() => toggleSelect(product.id)}
                       className="accent-[#111111]"
                     />
+                  </td>
+                  <td className="py-3.5 px-4 text-sm tabular-nums text-[#111111]/70">
+                    {product.sku ?? "—"}
                   </td>
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
