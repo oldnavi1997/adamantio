@@ -10,13 +10,17 @@ import { formatPEN, cn, precioConOferta } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Category } from "@/app/generated/prisma/client";
 import { PosStockData, AdminProductRow } from "@/app/admin/productos/page";
-import { getSearchClient, INDEX_NAME } from "@/lib/algolia";
 import { productThumbnail } from "@/lib/media";
 
-type SortCol = "name" | "price";
+type SortCol = "sku" | "name" | "price";
 type SortDir = "asc" | "desc";
 
 const LOW_STOCK_THRESHOLD = 5;
+
+/** Minúsculas y sin tildes, para que «tulipan» encuentre «Tulipán». */
+function normalizar(texto: string): string {
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
 
 /** Stock total en tienda (POS). null si el producto no está vinculado al POS por SKU. */
 function storeStock(p: AdminProductRow, posStock: Record<string, PosStockData>): number | null {
@@ -72,8 +76,6 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
   const [bulkPrimaryId, setBulkPrimaryId] = useState("");
   const [bulkLoading, setBulkLoading] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-  const [algoliaIds, setAlgoliaIds] = useState<Set<string> | null>(null);
-  const [algoliaLoading, setAlgoliaLoading] = useState(false);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`¿Eliminar "${name}"?`)) return;
@@ -175,29 +177,6 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
     };
   }, []);
 
-  useEffect(() => {
-    const trimmed = query.trim();
-    if (!trimmed) {
-      setAlgoliaIds(null);
-      return;
-    }
-    const timer = setTimeout(async () => {
-      setAlgoliaLoading(true);
-      try {
-        const results = await getSearchClient().searchSingleIndex({
-          indexName: INDEX_NAME,
-          searchParams: { query: trimmed, hitsPerPage: 200, attributesToRetrieve: ["objectID"] },
-        });
-        setAlgoliaIds(new Set(results.hits.map((h) => h.objectID as string)));
-      } catch {
-        setAlgoliaIds(null);
-      } finally {
-        setAlgoliaLoading(false);
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [query]);
-
   const toggleSort = (col: SortCol) => {
     if (sortCol === col) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -213,8 +192,13 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
   );
 
   const filtered = useMemo(() => {
+    // Cada palabra tiene que aparecer en el nombre, el SKU o la categoría.
+    const palabras = normalizar(query).split(/\s+/).filter(Boolean);
     const result = products.filter((p) => {
-      if (algoliaIds !== null && !algoliaIds.has(p.id)) return false;
+      if (palabras.length > 0) {
+        const texto = normalizar(`${p.name} ${p.sku ?? ""} ${p.category ?? ""}`);
+        if (!palabras.every((w) => texto.includes(w))) return false;
+      }
       if (filterCategory && (p.category ?? "") !== filterCategory) return false;
       if (filterStatus === "active" && !p.isActive) return false;
       if (filterStatus === "inactive" && p.isActive) return false;
@@ -230,13 +214,19 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
     if (sortCol) {
       result.sort((a, b) => {
         let cmp = 0;
+        // Correlativo del POS ("001", "002"…): numérico, sin SKU al final.
+        if (sortCol === "sku") {
+          cmp = !a.sku || !b.sku
+            ? Number(!a.sku) - Number(!b.sku)
+            : a.sku.localeCompare(b.sku, undefined, { numeric: true });
+        }
         if (sortCol === "name") cmp = a.name.localeCompare(b.name);
         if (sortCol === "price") cmp = a.price - b.price;
         return sortDir === "asc" ? cmp : -cmp;
       });
     }
     return result;
-  }, [products, algoliaIds, filterCategory, filterStatus, filterStock, sortCol, sortDir, posStock]);
+  }, [products, query, filterCategory, filterStatus, filterStock, sortCol, sortDir, posStock]);
 
   const stockSummary = useMemo(() => {
     let out = 0;
@@ -316,16 +306,12 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
         )}
 
         <div className="relative ml-auto w-56">
-          {algoliaLoading ? (
-            <div className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 border border-[#111111]/30 border-t-[#111111]/60 rounded-full animate-spin" aria-hidden="true" />
-          ) : (
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#111111]/30 pointer-events-none" aria-hidden="true" />
-          )}
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#111111]/30 pointer-events-none" aria-hidden="true" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar con Algolia…"
+            placeholder="Buscar por nombre o SKU…"
             aria-label="Buscar productos"
             className="w-full pl-8 pr-7 py-1.5 text-[11px] bg-[#f8f7f4] border border-[#111111]/8 text-[#111111] placeholder-[#111111]/30 focus:outline-none focus:border-[#111111]/25 transition-[border-color] duration-150"
           />
@@ -462,6 +448,22 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                 />
               </th>
 
+              {/* SKU — sortable */}
+              <th className="text-left py-3 px-4">
+                <button
+                  type="button"
+                  onClick={() => toggleSort("sku")}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111]/40 hover:text-[#111111]/70 transition-[color] duration-150"
+                >
+                  SKU
+                  {sortCol === "sku" ? (
+                    sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                  ) : (
+                    <ChevronsUpDown className="h-3 w-3 opacity-40" />
+                  )}
+                </button>
+              </th>
+
               {/* Producto — sortable */}
               <th className="text-left py-3 px-4">
                 <button
@@ -592,7 +594,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-[11px] text-[#111111]/30">
+                <td colSpan={9} className="py-12 text-center text-[11px] text-[#111111]/30">
                   Sin resultados para &ldquo;{query}&rdquo;
                 </td>
               </tr>
@@ -614,6 +616,9 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                       onChange={() => toggleSelect(product.id)}
                       className="accent-[#111111]"
                     />
+                  </td>
+                  <td className="py-3.5 px-4 text-sm tabular-nums text-[#111111]/70">
+                    {product.sku ?? "—"}
                   </td>
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
