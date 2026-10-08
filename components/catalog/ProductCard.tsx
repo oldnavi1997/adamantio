@@ -15,7 +15,7 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
   const { precio, antes, descuento } = precioConOferta(product);
 
   // Arriba a la izquierda a propósito: la derecha es del corazón de la
-  // wishlist y el centro se lo come el velo de "Sin stock".
+  // wishlist y el centro se lo come el velo de "Agotado".
   const etiquetaOferta = antes !== null && (
     <span className="bg-[#d4af37] text-[#111111] text-[9px] font-semibold uppercase tracking-[0.15em] px-2 py-1">
       -{descuento}%
@@ -42,10 +42,10 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
               </svg>
             </div>
           )}
-          {product.stock === 0 && (
+          {product.stock <= 0 && (
             <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[1px]">
               <span className="text-[10px] font-medium text-[#111111]/50 uppercase tracking-[0.2em] border border-[#111111]/20 px-3 py-1.5">
-                Sin stock
+                Agotado
               </span>
             </div>
           )}
@@ -103,10 +103,10 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
             )}
           </div>
         )}
-        {product.stock === 0 && (
+        {product.stock <= 0 && (
           <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[1px]">
             <span className="text-[10px] font-medium text-[#111111]/50 uppercase tracking-[0.2em] border border-[#111111]/20 px-3 py-1.5">
-              Sin stock
+              Agotado
             </span>
           </div>
         )}

@@ -52,7 +52,7 @@ export async function generateMetadata({
     };
   }
 
-  const filtro = { isActive: true, stock: { gt: 0 }, category: { in: categoria.nombres } };
+  const filtro = { isActive: true, category: { in: categoria.nombres } };
   const [total, primero] = await Promise.all([
     prisma.product.count({ where: filtro }),
     prisma.product.findFirst({
@@ -112,7 +112,7 @@ interface SearchParams {
 }
 
 async function getProducts(params: SearchParams) {
-  const where: Prisma.ProductWhereInput = { isActive: true, stock: { gt: 0 } };
+  const where: Prisma.ProductWhereInput = { isActive: true };
 
   if (params.category) {
     const categoria = await resolverCategoria(params.category);
@@ -151,16 +151,34 @@ async function getProducts(params: SearchParams) {
   const limit = 24;
   const orderBy = sortMap[params.sort ?? ""] ?? sortMap.newest;
 
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      orderBy,
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.product.count({ where }),
+  // Los agotados se muestran, con su etiqueta, pero siempre al final: primero
+  // todos los disponibles en el orden elegido y después los agotados en ese
+  // mismo orden. Prisma no ordena por una condición, así que se pagina sobre
+  // los dos tramos como si fueran una sola lista.
+  const disponibles: Prisma.ProductWhereInput = { AND: [where, { stock: { gt: 0 } }] };
+  const agotados: Prisma.ProductWhereInput = { AND: [where, { stock: { lte: 0 } }] };
+  const [nDisponibles, nAgotados] = await Promise.all([
+    prisma.product.count({ where: disponibles }),
+    prisma.product.count({ where: agotados }),
   ]);
 
+  const desde = (page - 1) * limit;
+  const products =
+    desde < nDisponibles
+      ? await prisma.product.findMany({ where: disponibles, orderBy, skip: desde, take: limit })
+      : [];
+  if (products.length < limit) {
+    products.push(
+      ...(await prisma.product.findMany({
+        where: agotados,
+        orderBy,
+        skip: Math.max(0, desde - nDisponibles),
+        take: limit - products.length,
+      }))
+    );
+  }
+
+  const total = nDisponibles + nAgotados;
   return { products, total, pages: Math.ceil(total / limit), page };
 }
 
