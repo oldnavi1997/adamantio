@@ -62,6 +62,93 @@ function PlayBadge({ size = 20 }: { size?: number }) {
   );
 }
 
+function formatoTiempo(segundos: number): string {
+  const total = Math.max(0, Math.floor(segundos));
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+}
+
+/**
+ * Barra de reproductor sobre un video del carrusel móvil: sin ella, hasta que
+ * el slide queda activo el video es un póster quieto y nadie sabe que lo es.
+ * Escucha al <video> en vez de llevar su propio estado, porque quien decide
+ * reproducir o pausar al cambiar de slide es `syncPlayback`.
+ */
+function VideoBar({
+  getVideo,
+  activo,
+  onActivar,
+}: {
+  getVideo: () => HTMLVideoElement | null;
+  activo: boolean;
+  /** Lleva el carrusel a este slide; al quedar activo arranca solo. */
+  onActivar: () => void;
+}) {
+  const [duracion, setDuracion] = useState(0);
+  const [actual, setActual] = useState(0);
+  const [reproduciendo, setReproduciendo] = useState(false);
+
+  useEffect(() => {
+    const video = getVideo();
+    if (!video) return;
+    const leer = () => {
+      setDuracion(Number.isFinite(video.duration) ? video.duration : 0);
+      setActual(video.currentTime);
+      setReproduciendo(!video.paused);
+    };
+    leer();
+    const eventos = ["loadedmetadata", "durationchange", "timeupdate", "play", "pause", "seeked", "emptied"];
+    eventos.forEach((e) => video.addEventListener(e, leer));
+    return () => eventos.forEach((e) => video.removeEventListener(e, leer));
+  }, [getVideo]);
+
+  function alternar(e: React.MouseEvent) {
+    e.stopPropagation();
+    const video = getVideo();
+    if (!activo || !video) return onActivar();
+    if (video.paused) video.play().catch(() => {});
+    else video.pause();
+  }
+
+  const pausado = !activo || !reproduciendo;
+  const progreso = activo && duracion > 0 ? (actual / duracion) * 100 : 0;
+
+  return (
+    <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/60 to-transparent pt-8">
+      <div className="flex items-center gap-2 px-3 pb-2.5 text-white">
+        <button
+          type="button"
+          onClick={alternar}
+          aria-label={pausado ? "Reproducir video" : "Pausar video"}
+          className="w-7 h-7 -ml-1 flex items-center justify-center active:scale-95 transition-transform"
+        >
+          {pausado ? (
+            <svg width="12" height="14" viewBox="0 0 10 12" fill="currentColor" style={{ marginLeft: 2 }}>
+              <path d="M0 0L10 6L0 12Z" />
+            </svg>
+          ) : (
+            <svg width="12" height="14" viewBox="0 0 10 12" fill="currentColor">
+              <rect x="0" y="0" width="3.5" height="12" />
+              <rect x="6.5" y="0" width="3.5" height="12" />
+            </svg>
+          )}
+        </button>
+        {/* Sin metadata (iOS no la precarga) no hay duración: queda solo el botón. */}
+        {duracion > 0 && (
+          <span className="text-[11px] tabular-nums tracking-wide">
+            {activo ? `${formatoTiempo(actual)} / ${formatoTiempo(duracion)}` : formatoTiempo(duracion)}
+          </span>
+        )}
+      </div>
+      <div className="h-0.5 bg-white/30">
+        <div
+          className="h-full bg-white transition-[width] duration-300 ease-linear"
+          style={{ width: `${progreso}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 /** Un GIF ya es el original: no se pasa por el loader ni se le pide capa nítida. */
 const esGif = (url: string) => /\.gif$/i.test(url);
 
@@ -385,6 +472,19 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
     syncPlayback(mobileVideoRefs.current, isDesktop === false && !lightboxOpen ? mobileIdx : -1);
   }, [mobileIdx, slides, syncPlayback, isDesktop, lightboxOpen]);
 
+  // En móvil la barra de cada video muestra su duración antes de llegar a él,
+  // así que se piden los metadatos (unos KB, no el video). En desktop no hace
+  // falta: ahí la miniatura ya lleva su ▶.
+  useEffect(() => {
+    if (isDesktop !== false) return;
+    mobileVideoRefs.current.forEach((video, idx) => {
+      const slide = slides[idx];
+      if (!video || video.src || slide?.type !== "video") return;
+      video.preload = "metadata";
+      video.src = videoDeliveryUrl(slide.src);
+    });
+  }, [isDesktop, slides]);
+
   const cerrarLightbox = useCallback(() => setLightboxIdx(null), []);
   const showPrev = useCallback(
     () => setLightboxIdx((i) => (i === null ? i : (i - 1 + slides.length) % slides.length)),
@@ -509,17 +609,24 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
                 className="w-[80%] flex-shrink-0 relative aspect-square bg-[#f5f5f5]"
               >
                 {slide.type === "video" ? (
-                  <video
-                    ref={(el) => {
-                      mobileVideoRefs.current[idx] = el;
-                    }}
-                    poster={posterDeliveryUrl(slide.poster, 800)}
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                    className="absolute inset-0 w-full h-full object-contain"
-                  />
+                  <>
+                    <video
+                      ref={(el) => {
+                        mobileVideoRefs.current[idx] = el;
+                      }}
+                      poster={posterDeliveryUrl(slide.poster, 800)}
+                      muted
+                      loop
+                      playsInline
+                      preload="none"
+                      className="absolute inset-0 w-full h-full object-contain"
+                    />
+                    <VideoBar
+                      getVideo={() => mobileVideoRefs.current[idx] ?? null}
+                      activo={idx === mobileIdx}
+                      onActivar={() => emblaApi?.scrollTo(idx)}
+                    />
+                  </>
                 ) : (
                   <Image
                     src={slide.src}
