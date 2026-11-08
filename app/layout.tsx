@@ -4,7 +4,8 @@ import "./globals.css";
 import { Providers } from "@/components/layout/Providers";
 import { Navbar, type NavCategory } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { prisma } from "@/lib/prisma";
+import { getCategoriasPublicas, type CategoriaPublica } from "@/lib/categorias";
+import { construirArbol, rutaCategoria, type NodoArbol } from "@/lib/category-tree";
 import { Analytics } from "@vercel/analytics/next";
 import { StoreChrome } from "@/components/layout/StoreChrome";
 import { CookieBanner } from "@/components/layout/CookieBanner";
@@ -45,18 +46,16 @@ export default async function RootLayout({
 }) {
   let navCategories: NavCategory[] = [];
   try {
-    navCategories = await prisma.category.findMany({
-      where: { parentId: null },
-      include: {
-        children: {
-          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-          include: {
-            children: { orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { id: true, name: true } },
-          },
-        },
-      },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    // Cacheado hasta la próxima edición de categorías: el menú sale en cada
+    // página y antes costaba una consulta por petición.
+    const publicas = await getCategoriasPublicas();
+    const aNav = (n: NodoArbol<CategoriaPublica>): NavCategory => ({
+      id: n.id,
+      name: n.name,
+      href: rutaCategoria(publicas, n.id),
+      children: n.children.map(aNav),
     });
+    navCategories = construirArbol(publicas).map(aNav);
   } catch {
     // DB unavailable during build (e.g. Railway build phase)
   }

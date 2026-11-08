@@ -7,6 +7,8 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { indexProduct, deleteFromIndex } from "@/lib/algolia-sync";
 import { uniqueProductSlug } from "@/lib/product-slug";
 import { resumenEscalares } from "@/lib/tallas";
+import { setProductCategories, validarCategoryIds, invalidarCategorias, CategoryRuleError } from "@/lib/categorias";
+import { categoryIdsSchema } from "@/lib/categorias-schema";
 
 export async function GET(
   _request: NextRequest,
@@ -30,6 +32,9 @@ const updateSchema = z.object({
   productDetails: z.string().optional(),
   sizeInfo: z.string().optional(),
   category: z.string().optional().nullable(),
+  /// Todas las categorías; la primera es la principal. Si viene, reemplaza
+  /// el conjunto entero y `category` se ignora.
+  categoryIds: categoryIdsSchema.optional(),
   sizes: z.array(z.string()).optional(),
   stockPorTalla: z.boolean().optional(),
   tallas: z
@@ -74,11 +79,18 @@ export async function PUT(
     const body = await request.json();
     const data = updateSchema.parse(body);
 
-    const { stockAlmacenH, stockAlmacenM, tallas, ...prismaData } = data;
+    const { stockAlmacenH, stockAlmacenM, tallas, categoryIds: idsPedidos, ...prismaData } = data;
+    if (idsPedidos !== undefined) delete prismaData.category;
 
-    // Transición a FK: sincronizar categoryId solo si el payload trae category.
+    const categoryIds = idsPedidos !== undefined ? await validarCategoryIds(idsPedidos) : undefined;
+
+    // Sin `categoryIds` (clientes anteriores): se sincroniza categoryId desde el
+    // nombre, solo si el payload trae category. El trigger de "Product" mueve
+    // la fila de la principal en product_categories y respeta las demás.
     const categoryId =
-      data.category !== undefined
+      categoryIds !== undefined
+        ? undefined
+        : data.category !== undefined
         ? data.category
           ? (await prisma.category.findUnique({ where: { name: data.category }, select: { id: true } }))?.id ?? null
           : null
@@ -153,7 +165,7 @@ export async function PUT(
     // mano: son la suma de las tallas.
     const escalares = data.stockPorTalla && tallas ? resumenEscalares(tallas) : null;
 
-    const product = await prisma.product.update({
+    const actualizar = (db: Prisma.TransactionClient | typeof prisma) => db.product.update({
       where: { id },
       data: {
         ...prismaData,
@@ -174,12 +186,29 @@ export async function PUT(
       },
     });
 
-    indexProduct(product).catch(console.error);
+    const product =
+      categoryIds === undefined
+        ? await actualizar(prisma)
+        : await prisma.$transaction(async (tx) => {
+            await actualizar(tx);
+            await setProductCategories(tx, id, categoryIds);
+            return tx.product.findUniqueOrThrow({ where: { id } });
+          });
+
+    const nombres = await prisma.productCategory.findMany({
+      where: { productId: id },
+      select: { category: { select: { name: true } } },
+    });
+    indexProduct({ ...product, categories: nombres.map((n) => n.category.name) }).catch(console.error);
+    if (categoryIds !== undefined || categoryId !== undefined) invalidarCategorias();
 
     return NextResponse.json(product);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
+    }
+    if (error instanceof CategoryRuleError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
     }
     if ((error as { code?: string }).code === "P2002") {
       return NextResponse.json({ error: "Ese SKU ya lo tiene otro producto" }, { status: 409 });

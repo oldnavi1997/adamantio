@@ -11,6 +11,8 @@ import { precioConOferta, productPath } from "@/lib/utils";
 import { opcionesDeVariante } from "@/lib/variantes";
 import { resolveEngravingSamples } from "@/lib/engraving";
 import { productThumbnail } from "@/lib/media";
+import { getCategoriasPublicas } from "@/lib/categorias";
+import { ancestros, rutaCategoria } from "@/lib/category-tree";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -74,6 +76,12 @@ export default async function ProductPage({ params }: Props) {
 
   const engravingSamples = product.engravingEnabled ? await resolveEngravingSamples(product) : [];
 
+  // Migas hasta la categoría principal, si está activa.
+  const categorias = product.categoryId ? await getCategoriasPublicas() : [];
+  const migasCategoria = product.categoryId
+    ? ancestros(categorias, product.categoryId).map((c) => ({ name: c.name, href: rutaCategoria(categorias, c.id) }))
+    : [];
+
   const images = product.imageUrls.length > 0 ? product.imageUrls : (product.imageUrl ? [product.imageUrl] : []);
   const image = productThumbnail(product);
   const { precio, antes, descuento } = precioConOferta(product);
@@ -127,8 +135,19 @@ export default async function ProductPage({ params }: Props) {
         <Link href="/joyas" className="hover:text-[#111111]/60 transition-colors">
           Catálogo
         </Link>
-        <span>/</span>
-        <span className="text-[#111111]/55">{product.category}</span>
+        {migasCategoria.length > 0
+          ? migasCategoria.map((m) => (
+              <span key={m.href} className="flex items-center gap-2">
+                <span>/</span>
+                <Link href={m.href} className="hover:text-[#111111]/60 transition-colors">{m.name}</Link>
+              </span>
+            ))
+          : product.category && (
+              <>
+                <span>/</span>
+                <span className="text-[#111111]/55">{product.category}</span>
+              </>
+            )}
       </nav>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-16">

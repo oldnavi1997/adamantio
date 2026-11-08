@@ -136,6 +136,7 @@ model Product {
   orderItems       OrderItem[]
   saleItems        SaleItem[]
   tallas           ProductSize[]
+  categories       ProductCategory[]
   stockEntries     StockEntry[]
 }
 
@@ -168,17 +169,51 @@ model SiteSetting {
 }
 
 model Category {
-  id        String     @id
-  name      String     @unique
-  parentId  String?    @map("parent_id")
-  sortOrder Int        @default(0)  @map("sort_order")
-  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
-  children  Category[] @relation("CategoryTree")
-  products  Product[]
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @default(now()) @map("updated_at")
+  id              String     @id
+  name            String     @unique
+  /// Tramo de la URL pública: /categorias/<padre>/<hija>. Nullable por la misma
+  /// razón que `Product.slug`: la tabla es compartida con el POS. Cuando falta,
+  /// la web cae al `id` (ver `segmentoCategoria()` en lib/category-tree.ts).
+  slug            String?    @unique
+  description     String?
+  image           String?
+  banner          String?
+  parentId        String?    @map("parent_id")
+  /// 1 = principal, 2 = subcategoría, 3 = sub-subcategoría. Lo mantiene
+  /// lib/categorias.ts al crear y al mover; hay un CHECK 1..3 en la base.
+  level           Int        @default(1)
+  /// El `position` del módulo: orden entre hermanas.
+  sortOrder       Int        @default(0)  @map("sort_order")
+  isActive        Boolean    @default(true) @map("is_active")
+  metaTitle       String?    @map("meta_title")
+  metaDescription String?    @map("meta_description")
+  parent          Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children        Category[] @relation("CategoryTree")
+  /// Productos cuya categoría *principal* es esta (Product.categoryId).
+  products        Product[]
+  /// Todas las asignaciones, principal incluida. Es lo que filtra la tienda.
+  productLinks    ProductCategory[]
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @default(now()) @updatedAt @map("updated_at")
 
+  @@index([parentId, sortOrder])
   @@map("categories")
+}
+
+/// Un producto puede estar en varias categorías. Es la fuente de verdad para
+/// filtrar; `Product.categoryId` (+ el texto `Product.category`) es la
+/// principal, y siempre tiene su fila aquí: un trigger en "Product" la crea
+/// cuando el POS cambia `categoryId` sin pasar por la web.
+model ProductCategory {
+  productId  String   @map("product_id")
+  categoryId String   @map("category_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@id([productId, categoryId])
+  @@index([categoryId, productId])
+  @@map("product_categories")
 }
 
 model Address {

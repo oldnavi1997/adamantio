@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { randomUUID } from "crypto";
+import { isAdmin, requireAdmin, respuestaDeError } from "@/lib/api-admin";
+import { createCategory } from "@/lib/categorias";
+import { crearCategoriaSchema } from "@/lib/categorias-schema";
 
-export async function GET() {
+/**
+ * Lista plana. El público ve solo las activas; un admin con `?all=1` ve todas.
+ * (Una hija de una inactiva sigue saliendo aquí: para lo que ve la tienda, usar
+ * /api/categories/tree, que poda el subárbol.)
+ */
+export async function GET(req: Request) {
+  const todas = new URL(req.url).searchParams.get("all") === "1" && (await isAdmin());
   const categories = await prisma.category.findMany({
+    where: todas ? {} : { isActive: true },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     include: {
-      parent: { select: { id: true, name: true } },
+      parent: { select: { id: true, name: true, slug: true } },
       _count: { select: { children: true } },
     },
   });
@@ -14,19 +23,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const denegado = await requireAdmin();
+  if (denegado) return denegado;
   try {
-    const { name, parentId } = await req.json();
-    if (!name) {
-      return NextResponse.json({ error: "Nombre es requerido" }, { status: 400 });
-    }
-    const category = await prisma.category.create({
-      data: { id: randomUUID(), name, parentId: parentId || null },
-    });
+    const data = crearCategoriaSchema.parse(await req.json());
+    const category = await createCategory(data);
     return NextResponse.json(category, { status: 201 });
-  } catch (err: any) {
-    if (err.code === "P2002") {
-      return NextResponse.json({ error: "Ya existe una categoría con ese nombre" }, { status: 409 });
-    }
-    return NextResponse.json({ error: "Error al crear categoría" }, { status: 500 });
+  } catch (error) {
+    return respuestaDeError(error, "Crear categoría");
   }
 }

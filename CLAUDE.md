@@ -219,6 +219,31 @@ del punto de venta (max + 1 casteando a `int`). El alta en el admin lo muestra y
 se deja tal cual, `POST /api/products` lo recalcula al guardar con reintento ante `P2002`. Uno
 escrito a mano se respeta y un duplicado responde `409`.
 
+## Categorías
+
+Árbol de **máximo 3 niveles** en `categories` (compartida con el POS, que solo la lee). Las
+reglas son funciones puras en `lib/category-tree.ts` (niveles, ciclos, qué padre es válido, qué
+se puede borrar, rutas); `lib/categorias.ts` es el servicio y **la única puerta de escritura**.
+Cada escritura de la jerarquía corre en una transacción con
+`pg_advisory_xact_lock(hashtext('categories_tree'))`: sin el lock, dos movimientos cruzados
+pasarían su validación y dejarían un ciclo. Hay un `CHECK level BETWEEN 1 AND 3`.
+
+- **Varias categorías por producto**: `product_categories` es la fuente de verdad para filtrar.
+  `Product.categoryId` (+ el texto `Product.category`) es la **principal**: la lee el POS,
+  Algolia, el feed y el panel de grabado. En la API, `categoryIds` lleva la principal primero.
+- **Trigger `product_categories_sync_principal`** en "Product": cuando el POS cambia
+  `categoryId`, quita la fila de la principal anterior y crea la nueva. Por eso
+  `setProductCategories()` escribe **primero el producto y después** reconcilia el conjunto; al
+  revés, el trigger borraría una fila que la web quería conservar.
+- Borrar solo categorías vacías (FK `RESTRICT` desde `product_categories`); si no, desactivar.
+  Una inactiva oculta en la tienda toda su descendencia (`soloActivas()`).
+- **URLs** `/categorias/<raiz>/<hija>/<nieta>`: `rutaCategoria()`, nunca a mano. Se valida la
+  cadena entera; por id o con otra grafía, 308 al canónico. El slug, como el de producto, no
+  sigue al nombre. Los enlaces viejos `/joyas?category=<slug>` responden 308.
+- **Caché**: `getCategoriasPublicas()` (`unstable_cache`, tag `categories`) alimenta el menú,
+  las páginas y el sitemap; toda escritura llama a `invalidarCategorias()`.
+- Tests: `npm test` (Vitest, sin base de datos: Prisma va mockeado).
+
 ## Product Model (Jewelry Fields)
 
 Product schema uses jewelry-specific fields: `material`, `color`, `stonetype`, `finish`, `weight`, `gender`, `brand`. The old optics fields (`frameColor`, `frameMaterial`, `frameType`, `lensType`, `dim*`) were removed in the `jewelry-schema` migration. Do not reference them.
