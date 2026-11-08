@@ -1,51 +1,23 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { z } from "zod";
-import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import { requireAdmin, respuestaDeError } from "@/lib/api-admin";
+import { assignProductsToCategory } from "@/lib/categorias";
+import { asignarSchema } from "@/lib/categorias-schema";
+import { reindexarProductos } from "@/lib/algolia-sync";
 
-const bulkSchema = z.object({
-  productIds: z.array(z.string()).min(1),
-  categoryIds: z.array(z.string()).min(1),
-  mode: z.enum(["add", "set", "remove"]),
-  primaryCategoryId: z.string().optional(),
-});
-
-export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
+/**
+ * Cambio de categorías en lote: `add` suma, `set` reemplaza y `remove` quita.
+ * La principal (Product.categoryId) se conserva salvo que se indique otra con
+ * `primaryCategoryId` o que la operación la quite.
+ */
+export async function POST(request: Request) {
+  const denegado = await requireAdmin();
+  if (denegado) return denegado;
   try {
-    const body = await request.json();
-    const { productIds, categoryIds, mode } = bulkSchema.parse(body);
-
-    let categoryName: string | null = null;
-    let categoryId: string | null = null;
-    if (mode !== "remove" && categoryIds.length > 0) {
-      const cat = await prisma.category.findUnique({ where: { id: categoryIds[0] } });
-      categoryName = cat?.name ?? null;
-      categoryId = cat?.id ?? null;
-    }
-
-    await prisma.$transaction(
-      productIds.map((id) =>
-        prisma.product.update({
-          where: { id },
-          data:
-            mode === "remove"
-              ? { category: null, categoryId: null }
-              : { category: categoryName, categoryId },
-        })
-      )
-    );
-
-    return NextResponse.json({ success: true, updated: productIds.length });
+    const { productIds, categoryIds, mode, primaryCategoryId } = asignarSchema.parse(await request.json());
+    const updated = await assignProductsToCategory(productIds, categoryIds, mode, primaryCategoryId);
+    reindexarProductos(productIds).catch(console.error);
+    return NextResponse.json({ success: true, updated });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.issues }, { status: 400 });
-    }
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+    return respuestaDeError(error, "Categorías en lote");
   }
 }

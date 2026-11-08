@@ -14,11 +14,21 @@ export default async function EditProductPage({
   type PosStockRow = { stockHombre: number; stockMujer: number; stockAlmacenHombre: number; stockAlmacenMujer: number };
 
   const [product, categories] = await Promise.all([
-    prisma.product.findUnique({ where: { id }, include: { tallas: { orderBy: { orden: "asc" } } } }),
-    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.product.findUnique({
+      where: { id },
+      include: { tallas: { orderBy: { orden: "asc" } }, categories: { select: { categoryId: true } } },
+    }),
+    prisma.category.findMany({ orderBy: [{ sortOrder: "asc" }, { name: "asc" }] }),
   ]);
 
   if (!product) notFound();
+
+  // La principal primero: es la convención de `categoryIds`.
+  const { categories: links, ...productoSinLinks } = product;
+  const categoryIds = [
+    ...(product.categoryId ? [product.categoryId] : []),
+    ...links.map((l) => l.categoryId).filter((cid) => cid !== product.categoryId),
+  ];
 
   // Solo hace falta para los que llegaron sin código (creados antes del
   // correlativo o desde otra vía): el botón "Siguiente" lo propone.
@@ -34,7 +44,7 @@ export default async function EditProductPage({
   return (
     <div>
       <h1 className="text-2xl font-bold text-[#111111] mb-6">Editar producto</h1>
-      <ProductForm categories={categories} product={JSON.parse(JSON.stringify(product))} posStock={posStock} skuSugerido={skuSugerido} />
+      <ProductForm categories={categories} product={JSON.parse(JSON.stringify(productoSinLinks))} categoryIds={categoryIds} posStock={posStock} skuSugerido={skuSugerido} />
     </div>
   );
 }

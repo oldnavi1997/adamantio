@@ -22,7 +22,10 @@ export type AdminProductRow = {
   name: string;
   imageUrl: string | null;
   imageUrls: string[];
+  /// La principal (texto denormalizado).
   category: string | null;
+  /// Todas sus categorías, la principal primero.
+  categoryNames: string[];
   price: number;
   comparePrice: number | null;
   sku: string | null;
@@ -40,6 +43,8 @@ export default async function AdminProductsPage() {
         imageUrl: true,
         imageUrls: true,
         category: true,
+        categoryId: true,
+        categories: { select: { categoryId: true, category: { select: { name: true } } } },
         price: true,
         comparePrice: true,
         sku: true,
@@ -53,7 +58,7 @@ export default async function AdminProductsPage() {
         stockAlmacenMujer: true,
       },
     }),
-    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.category.findMany({ orderBy: [{ sortOrder: "asc" }, { name: "asc" }] }),
   ]);
 
   const posStock: Record<string, PosStockData> = {};
@@ -74,6 +79,10 @@ export default async function AdminProductsPage() {
       imageUrl: p.imageUrl,
       imageUrls: p.imageUrls,
       category: p.category,
+      categoryNames: [
+        ...p.categories.filter((c) => c.categoryId === p.categoryId),
+        ...p.categories.filter((c) => c.categoryId !== p.categoryId),
+      ].map((c) => c.category.name),
       price: Number(p.price), // Decimal → number (serializable hacia el cliente)
       comparePrice: p.comparePrice == null ? null : Number(p.comparePrice),
       sku: p.sku,

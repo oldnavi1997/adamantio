@@ -5,6 +5,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { OG_DEFECTO } from "@/lib/seo";
 import { precioConOferta, productPath } from "@/lib/utils";
+import { getCategoriasPublicas } from "@/lib/categorias";
+import { rutaCategoria } from "@/lib/category-tree";
 
 export const metadata: Metadata = {
   // `absolute` evita la plantilla "%s | Adamantio" del layout: el título de la
@@ -26,24 +28,45 @@ import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { VideoSpotlight, type SpotlightItem } from "@/components/home/VideoSpotlight";
 import { getVideoSpotlightConfig } from "@/lib/video-spotlight-server";
 
+/**
+ * `slug` es el de la columna `categories.slug`, que no cambia al renombrar la
+ * categoría. La ruta completa (/categorias/...) se resuelve contra el árbol al
+ * renderizar; si la categoría no existe o está inactiva, el bloque lleva al
+ * catálogo completo.
+ */
 const FEATURED_CATEGORIES = [
   {
     name: "Anillos de Pareja",
-    slug: "Anillos de Pareja",
+    slug: "anillos-de-parejas",
     description:
       "Símbolos de un compromiso que trasciende lo visible. Cada anillo guarda un mensaje secreto que solo ustedes dos pueden revelar. Diseños en plata 925 que cuentan vuestra historia.",
     cta: "Ver anillos de pareja",
   },
   {
     name: "Pulseras",
-    slug: "Pulseras",
+    slug: "pulseras",
     description:
       "Dos piezas que se complementan, como dos almas unidas. Pulseras de plata de ley para llevar el vínculo siempre cerca. El regalo perfecto para decir «siempre contigo».",
     cta: "Ver pulseras",
   },
 ] as const;
 
+async function rutasDestacadas(): Promise<Record<string, string>> {
+  try {
+    const categorias = await getCategoriasPublicas();
+    return Object.fromEntries(
+      FEATURED_CATEGORIES.map((f) => {
+        const c = categorias.find((x) => x.slug === f.slug);
+        return [f.slug, c ? rutaCategoria(categorias, c.id) : "/joyas"];
+      })
+    );
+  } catch {
+    return {};
+  }
+}
+
 export default async function HomePage() {
+  const rutas = await rutasDestacadas();
   const [featuredProducts, spotlightConfig] = await Promise.all([
     prisma.product.findMany({
       where: { isActive: true },
@@ -135,7 +158,7 @@ export default async function HomePage() {
               <h3 className="text-lg font-semibold text-[#111111]">{cat.name}</h3>
               <p className="text-sm text-[#111111]/55 leading-relaxed flex-1">{cat.description}</p>
               <Link
-                href={`/joyas?categoria=${encodeURIComponent(cat.slug)}`}
+                href={rutas[cat.slug] ?? "/joyas"}
                 className="self-start text-[11px] font-semibold uppercase tracking-[0.2em] text-[#111111] border-b border-[#111111] pb-0.5 hover:text-[#c9a84c] hover:border-[#c9a84c] transition-colors"
               >
                 {cat.cta}

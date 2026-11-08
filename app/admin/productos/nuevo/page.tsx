@@ -6,7 +6,7 @@ export const metadata = { title: "Nuevo producto | Admin" };
 
 export default async function NewProductPage() {
   const [categories, skuSugerido] = await Promise.all([
-    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.category.findMany({ orderBy: [{ sortOrder: "asc" }, { name: "asc" }] }),
     siguienteSku(prisma),
   ]);
   return (

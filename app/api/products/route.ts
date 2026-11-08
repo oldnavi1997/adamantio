@@ -8,6 +8,9 @@ import { indexProduct } from "@/lib/algolia-sync";
 import { uniqueProductSlug } from "@/lib/product-slug";
 import { resumenEscalares } from "@/lib/tallas";
 import { siguienteSku } from "@/lib/sku";
+import { setProductCategories, validarCategoryIds, invalidarCategorias } from "@/lib/categorias";
+import { categoryIdsSchema } from "@/lib/categorias-schema";
+import { respuestaDeError } from "@/lib/api-admin";
 
 const productCreateSchema = z.object({
   name: z.string().min(2),
@@ -25,7 +28,11 @@ const productCreateSchema = z.object({
   contentImages: z.array(z.string()).default([]),
   productDetails: z.string().default(""),
   sizeInfo: z.string().default(""),
+  /// Nombre de la categoría principal. Lo que mandaba el admin antes de
+  /// `categoryIds`; se sigue aceptando por compatibilidad.
   category: z.string().optional().nullable(),
+  /// Todas las categorías del producto; la primera es la principal.
+  categoryIds: categoryIdsSchema.optional(),
   sizes: z.array(z.string()).default([]),
   stockPorTalla: z.boolean().optional(),
   tallas: z
@@ -108,7 +115,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = productCreateSchema.parse(body);
 
-    const { stockAlmacenH, stockAlmacenM, tallas, sku, ...prismaData } = data;
+    const { stockAlmacenH, stockAlmacenM, tallas, sku, categoryIds: idsPedidos, ...prismaData } = data;
 
     // Un producto es de pareja o se lleva por talla, nunca las dos cosas: la
     // talla es el único eje de un producto que se vende por talla.
@@ -122,21 +129,26 @@ export async function POST(request: NextRequest) {
     // Con inventario por talla, los cuatro contadores son un resumen.
     const escalares = data.stockPorTalla && tallas ? resumenEscalares(tallas) : null;
 
-    // Transición a FK: mantener categoryId sincronizado con el nombre (category).
-    const categoryId = data.category
-      ? (await prisma.category.findUnique({ where: { name: data.category }, select: { id: true } }))?.id ?? null
-      : null;
+    // `categoryIds` manda; sin él, el nombre legado se traduce a su id.
+    const categoryIds =
+      idsPedidos !== undefined
+        ? await validarCategoryIds(idsPedidos)
+        : data.category
+          ? [(await prisma.category.findUnique({ where: { name: data.category }, select: { id: true } }))?.id].filter(
+              (id): id is string => !!id
+            )
+          : [];
 
     const skuManual = sku?.trim() || null;
     const slug = await uniqueProductSlug(data.name);
 
     const crear = (skuFinal: string) =>
-      prisma.product.create({
+      prisma.$transaction(async (tx) => {
+        const creado = await tx.product.create({
         data: {
           ...prismaData,
           sku: skuFinal,
           slug,
-          categoryId,
           price: new Prisma.Decimal(data.price),
           comparePrice: data.comparePrice == null ? null : new Prisma.Decimal(data.comparePrice),
           stockAlmacenHombre: stockAlmacenH,
@@ -146,6 +158,10 @@ export async function POST(request: NextRequest) {
           ...(escalares ?? {}),
           ...(tallas?.length ? { tallas: { create: tallas } } : {}),
         },
+        });
+        if (categoryIds.length === 0) return creado;
+        await setProductCategories(tx, creado.id, categoryIds);
+        return tx.product.findUniqueOrThrow({ where: { id: creado.id } });
       });
 
     // Mismo esquema que el POS: sin transacción, el correlativo se toma justo
@@ -171,12 +187,13 @@ export async function POST(request: NextRequest) {
     }
 
     indexProduct(product).catch(console.error);
+    if (categoryIds.length) invalidarCategorias();
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+    return respuestaDeError(error, "Crear producto");
   }
 }

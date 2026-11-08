@@ -12,6 +12,7 @@ import { Category } from "@/app/generated/prisma/client";
 import { ProductConTallas } from "@/types";
 import { ImageManager } from "@/components/admin/ImageManager";
 import { productThumbnail } from "@/lib/media";
+import { CategoryPicker } from "@/components/admin/CategoryPicker";
 
 const productSchema = z.object({
   name: z.string().min(2, "Nombre requerido"),
@@ -23,7 +24,6 @@ const productSchema = z.object({
   stockMujer: z.string(),
   stockAlmacenH: z.string(),
   stockAlmacenM: z.string(),
-  category: z.string().optional(),
   productDetails: z.string().optional(),
   sizeInfo: z.string().optional(),
   isActive: z.boolean(),
@@ -65,9 +65,11 @@ interface ProductFormProps {
   posStock?: PosStock | null;
   /// Siguiente correlativo libre (lib/sku.ts), calculado en el servidor.
   skuSugerido?: string;
+  /// Categorías actuales del producto, la principal primero.
+  categoryIds?: string[];
 }
 
-export function ProductForm({ categories, product, posStock, skuSugerido }: ProductFormProps) {
+export function ProductForm({ categories, product, posStock, skuSugerido, categoryIds: categoriasIniciales = [] }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>(product?.imageUrls ?? (product?.imageUrl ? [product.imageUrl] : []));
@@ -85,6 +87,10 @@ export function ProductForm({ categories, product, posStock, skuSugerido }: Prod
   const [sizeInput, setSizeInput] = useState("");
   const [contentImages, setContentImages] = useState<string[]>(product?.contentImages ?? []);
   const [engravingImages, setEngravingImages] = useState<string[]>(product?.engravingImages ?? []);
+  const [categoryIds, setCategoryIds] = useState<string[]>(categoriasIniciales);
+  // Solo se mandan si se tocaron: así un producto con una categoría en texto
+  // que ya no existe en el árbol no la pierde por guardar otro campo.
+  const [categoriasTocadas, setCategoriasTocadas] = useState(false);
 
   const {
     register,
@@ -111,7 +117,6 @@ export function ProductForm({ categories, product, posStock, skuSugerido }: Prod
             ? String(posStock?.stockAlmacenHombre ?? 0)
             : String((posStock?.stockAlmacenHombre ?? 0) + (posStock?.stockAlmacenMujer ?? 0)),
           stockAlmacenM: String(posStock?.stockAlmacenMujer ?? 0),
-          category: product.category || "",
           productDetails: product.productDetails || "",
           sizeInfo: product.sizeInfo || "",
           isActive: product.isActive,
@@ -187,6 +192,7 @@ export function ProductForm({ categories, product, posStock, skuSugerido }: Prod
         stockMujer: sM,
         stockAlmacenH: sAH,
         stockAlmacenM: sAM,
+        ...((!product || categoriasTocadas) && { categoryIds }),
         imageUrls: images,
         imageUrl: productThumbnail({ imageUrls: images }),
         contentImages,
@@ -270,27 +276,20 @@ export function ProductForm({ categories, product, posStock, skuSugerido }: Prod
             {errors.sku && <p className="mt-1 text-xs text-red-500">{errors.sku.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
-              {...register("category")}
-            >
-              <option value="">Sin categoría</option>
-              {/* Si la categoría actual del producto ya no existe en la lista
-                  (p.ej. una categoría renombrada/eliminada), la mostramos igual
-                  para que el navegador no la descarte en silencio al guardar. */}
-              {product?.category &&
-                !categories.some((c) => c.name === product.category) && (
-                  <option value={product.category}>
-                    {product.category} (categoría inexistente)
-                  </option>
-                )}
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.name}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Categorías</label>
+            {product?.category && categoriasIniciales.length === 0 && !categoriasTocadas && (
+              <p className="mb-1 text-xs text-amber-600">
+                Tiene «{product.category}», que no está en el árbol de categorías.
+              </p>
+            )}
+            <CategoryPicker
+              categories={categories}
+              value={categoryIds}
+              onChange={(ids) => {
+                setCategoryIds(ids);
+                setCategoriasTocadas(true);
+              }}
+            />
           </div>
         </div>
         <div>

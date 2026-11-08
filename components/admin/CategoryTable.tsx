@@ -1,23 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
-  Edit,
-  Trash2,
-  Plus,
-  Tag,
-  GripVertical,
-  Navigation,
-  ChevronRight,
   ChevronDown,
+  ChevronRight,
+  Edit,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  GripVertical,
+  Plus,
+  Search,
+  Tag,
+  Trash2,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   DndContext,
   closestCenter,
+  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
@@ -25,26 +29,38 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
-  arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { formatPEN, precioConOferta } from "@/lib/utils";
+import { ImageManager } from "@/components/admin/ImageManager";
+import { formatPEN, precioConOferta, slugFromName } from "@/lib/utils";
 import { productThumbnail } from "@/lib/media";
+import { MAX_NIVEL, motivoParaNoBorrar, padresPosibles } from "@/lib/category-tree";
 
-interface Category {
+export type CategoriaAdmin = {
   id: string;
   name: string;
+  slug: string | null;
+  description: string | null;
+  image: string | null;
+  banner: string | null;
   parentId: string | null;
+  level: number;
   sortOrder: number;
+  isActive: boolean;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  path: string;
   productCount: number;
-  parent: { id: string; name: string } | null;
-  _count: { children: number };
-}
+  totalProductCount: number;
+  children: CategoriaAdmin[];
+};
 
 interface ProductItem {
   id: string;
@@ -57,720 +73,747 @@ interface ProductItem {
   imageUrls: string[];
 }
 
-interface CategoryTableProps {
-  categories: Category[];
+type Estado = "all" | "active" | "inactive";
+
+type Form = {
+  name: string;
+  slug: string;
+  parentId: string;
+  description: string;
+  image: string | null;
+  banner: string | null;
+  isActive: boolean;
+  metaTitle: string;
+  metaDescription: string;
+};
+
+const FORM_VACIO: Form = {
+  name: "",
+  slug: "",
+  parentId: "",
+  description: "",
+  image: null,
+  banner: null,
+  isActive: true,
+  metaTitle: "",
+  metaDescription: "",
+};
+
+function aplanar(nodos: CategoriaAdmin[]): CategoriaAdmin[] {
+  return nodos.flatMap((n) => [n, ...aplanar(n.children)]);
 }
 
-// ─── Panel 1: Root category row ───────────────────────────────────────────────
+const normalizar = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
-interface SortableMenuRowProps {
-  cat: Category;
-  childCount: number;
-  expanded: boolean;
-  onToggle: () => void;
+async function pedir(url: string, init?: RequestInit) {
+  const res = await fetch(url, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...init?.headers },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Error desconocido");
+  return data;
 }
 
-function SortableMenuRow({ cat, childCount, expanded, onToggle }: SortableMenuRowProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: cat.id });
+// ─── Fila del árbol ───────────────────────────────────────────────────────────
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center gap-3 px-5 py-3.5 border-b border-[#111111]/4 hover:bg-[#f8f7f4]/50 transition-colors"
-    >
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing text-[#111111]/20 hover:text-[#111111]/50 transition-colors touch-none flex-shrink-0"
-        title="Arrastrar para reordenar"
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
-      <p className="flex-1 text-sm font-medium text-[#111111] leading-tight">{cat.name}</p>
-      {childCount > 0 ? (
-        <button
-          onClick={onToggle}
-          className="flex items-center gap-1.5 text-[10px] text-[#111111]/40 hover:text-[#111111]/70 bg-[#f8f7f4] hover:bg-[#f0ede6] px-2 py-0.5 transition-colors flex-shrink-0"
-        >
-          {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-          {childCount} sub{childCount === 1 ? "cat." : "cats."}
-        </button>
-      ) : (
-        <span className="text-[10px] text-[#111111]/25 bg-[#f8f7f4] px-2 py-0.5 flex-shrink-0">
-          Sin subcats.
-        </span>
-      )}
-    </div>
-  );
-}
-
-// ─── Panel 1: Subcategory row ─────────────────────────────────────────────────
-
-function SortableSubRow({ cat }: { cat: Category }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: cat.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center gap-3 pl-12 pr-5 py-2.5 border-b border-[#111111]/4 bg-[#fafaf8] hover:bg-[#f5f3ef] transition-colors"
-    >
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing text-[#111111]/20 hover:text-[#111111]/50 transition-colors touch-none flex-shrink-0"
-        title="Arrastrar para reordenar"
-      >
-        <GripVertical className="h-3.5 w-3.5" />
-      </button>
-      <span className="text-[11px] text-[#111111]/40 flex-shrink-0">↳</span>
-      <p className="flex-1 text-sm text-[#111111]/80">{cat.name}</p>
-    </div>
-  );
-}
-
-// ─── Panel 2: Full table row ──────────────────────────────────────────────────
-
-interface SortableRowProps {
-  cat: Category;
-  selected: boolean;
+type FilaProps = {
+  nodo: CategoriaAdmin;
+  depth: number;
+  arrastrable: boolean;
+  expandida: boolean;
+  seleccionada: boolean;
+  onToggleExpand: () => void;
   onToggleSelect: () => void;
-  onEdit: (cat: Category) => void;
-  onDelete: (cat: Category) => void;
-  onOpenProducts: (cat: Category) => void;
-  productsLoading: boolean;
-}
+  onEdit: () => void;
+  onAddChild: () => void;
+  onToggleActive: () => void;
+  onDelete: () => void;
+  onProducts: () => void;
+  children?: React.ReactNode;
+};
 
-function SortableRow({
-  cat,
-  selected,
+function Fila({
+  nodo,
+  depth,
+  arrastrable,
+  expandida,
+  seleccionada,
+  onToggleExpand,
   onToggleSelect,
   onEdit,
+  onAddChild,
+  onToggleActive,
   onDelete,
-  onOpenProducts,
-  productsLoading,
-}: SortableRowProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: cat.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-    position: isDragging ? ("relative" as const) : undefined,
-    zIndex: isDragging ? 50 : undefined,
-  };
+  onProducts,
+  children,
+}: FilaProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: nodo.id,
+    disabled: !arrastrable,
+  });
+  const bloqueo = motivoParaNoBorrar(nodo.children.length, nodo.productCount);
 
   return (
-    <tr
+    <div
       ref={setNodeRef}
-      style={style}
-      className={`group border-b border-[#111111]/4 transition-colors ${
-        selected ? "bg-[#d4af37]/8" : "hover:bg-[#f8f7f4]/60"
-      }`}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        position: "relative",
+        zIndex: isDragging ? 20 : undefined,
+      }}
     >
-      <td className="py-3.5 pl-4 pr-1 w-8">
+      <div
+        className={`group flex items-center gap-2 pr-4 py-2.5 border-b border-[#111111]/5 transition-colors ${
+          seleccionada ? "bg-[#d4af37]/8" : depth > 0 ? "bg-[#f8f7f4]/40 hover:bg-[#f8f7f4]" : "bg-white hover:bg-[#f8f7f4]/60"
+        }`}
+        style={{ paddingLeft: `${12 + depth * 28}px` }}
+      >
         <input
           type="checkbox"
-          checked={selected}
+          checked={seleccionada}
           onChange={onToggleSelect}
-          className="h-3.5 w-3.5 accent-[#d4af37] cursor-pointer"
+          aria-label={`Seleccionar ${nodo.name}`}
+          className="h-3.5 w-3.5 accent-[#d4af37] cursor-pointer shrink-0"
         />
-      </td>
-      <td className="py-3.5 pl-1 pr-1 w-8">
         <button
+          type="button"
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing text-[#111111]/20 hover:text-[#111111]/50 transition-colors touch-none"
-          title="Arrastrar para reordenar"
+          disabled={!arrastrable}
+          className="cursor-grab active:cursor-grabbing text-[#111111]/20 hover:text-[#111111]/50 disabled:cursor-default disabled:opacity-30 touch-none shrink-0"
+          title={arrastrable ? "Arrastrar para reordenar entre hermanas" : "Limpia la búsqueda y el filtro para reordenar"}
+          aria-label="Reordenar"
         >
           <GripVertical className="h-4 w-4" />
         </button>
-      </td>
-      <td className="py-3.5 px-5 font-medium text-[#111111]">{cat.name}</td>
-      <td className="py-3.5 px-5 text-[#111111]/50">
-        {cat.parent ? (
-          <span className="text-xs text-[#d4af37]">{cat.parent.name}</span>
-        ) : (
-          <span className="text-xs text-[#111111]/25">—</span>
-        )}
-      </td>
-      <td className="py-3.5 px-5 text-center text-sm text-[#111111]/50">
-        {cat._count.children > 0 ? cat._count.children : <span className="text-[#111111]/25">0</span>}
-      </td>
-      <td className="py-3.5 px-5 text-center">
-        {cat.productCount > 0 ? (
-          <button
-            onClick={() => onOpenProducts(cat)}
-            className="text-sm font-medium text-[#111111] hover:text-[#d4af37] underline-offset-2 hover:underline transition-colors"
-            title="Ver productos"
-          >
-            {productsLoading ? "..." : cat.productCount}
-          </button>
-        ) : (
-          <span className="text-sm text-[#111111]/30">0</span>
-        )}
-      </td>
-      <td className="py-3.5 px-5">
-        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-          <button
-            onClick={() => onEdit(cat)}
-            className="p-1.5 text-[#111111]/30 hover:text-[#111111] hover:bg-[#f8f7f4] transition-colors"
-            title="Editar"
-          >
+        <button
+          type="button"
+          onClick={onToggleExpand}
+          disabled={nodo.children.length === 0}
+          className="w-4 shrink-0 text-[#111111]/40 hover:text-[#111111] disabled:invisible"
+          aria-label={expandida ? "Contraer" : "Expandir"}
+          aria-expanded={expandida}
+        >
+          {expandida ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+        </button>
+
+        <div className="relative w-8 h-8 shrink-0 bg-[#f8f7f4] overflow-hidden flex items-center justify-center">
+          {nodo.image ? (
+            <Image src={nodo.image} alt="" fill sizes="32px" className="object-cover" />
+          ) : (
+            <Tag className="h-3.5 w-3.5 text-[#111111]/20" />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm leading-tight truncate ${nodo.isActive ? "text-[#111111]" : "text-[#111111]/40 line-through decoration-[#111111]/20"}`}>
+            {nodo.name}
+          </p>
+          <p className="text-[10px] text-[#111111]/35 truncate">{nodo.path}</p>
+        </div>
+
+        <span className="hidden sm:inline text-[9px] uppercase tracking-wider text-[#111111]/40 bg-[#f8f7f4] px-1.5 py-0.5 shrink-0">
+          Nivel {nodo.level}
+        </span>
+
+        <button
+          type="button"
+          onClick={onProducts}
+          disabled={nodo.totalProductCount === 0}
+          className="w-20 text-right text-xs tabular-nums shrink-0 text-[#111111] hover:text-[#d4af37] disabled:text-[#111111]/25 disabled:hover:text-[#111111]/25"
+          title="Directos (con subcategorías)"
+        >
+          {nodo.productCount}
+          {nodo.totalProductCount !== nodo.productCount && (
+            <span className="text-[#111111]/40"> ({nodo.totalProductCount})</span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={onToggleActive}
+          className={`w-20 text-[10px] font-medium px-2 py-0.5 shrink-0 transition-colors ${
+            nodo.isActive
+              ? "text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+              : "text-[#111111]/40 bg-[#f8f7f4] hover:bg-[#111111]/8"
+          }`}
+          title={nodo.isActive ? "Desactivar: se oculta de la tienda con sus subcategorías" : "Activar"}
+        >
+          {nodo.isActive ? "Activa" : "Inactiva"}
+        </button>
+
+        <div className="flex items-center gap-0.5 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100 transition-opacity">
+          {nodo.level < MAX_NIVEL && (
+            <button type="button" onClick={onAddChild} className="p-1.5 text-[#111111]/30 hover:text-[#111111] hover:bg-white" title="Nueva subcategoría">
+              <Plus className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {nodo.isActive && (
+            <a href={nodo.path} target="_blank" rel="noreferrer" className="p-1.5 text-[#111111]/30 hover:text-[#111111] hover:bg-white" title="Ver en la tienda">
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          )}
+          <button type="button" onClick={onEdit} className="p-1.5 text-[#111111]/30 hover:text-[#111111] hover:bg-white" title="Editar">
             <Edit className="h-3.5 w-3.5" />
           </button>
           <button
-            onClick={() => onDelete(cat)}
-            className="p-1.5 text-[#111111]/30 hover:text-red-500 hover:bg-red-50 transition-colors"
-            title={
-              cat.productCount > 0
-                ? "Tiene productos — no se puede eliminar"
-                : "Eliminar"
-            }
+            type="button"
+            onClick={onDelete}
+            className="p-1.5 text-[#111111]/30 hover:text-red-500 hover:bg-red-50"
+            title={bloqueo ?? "Eliminar"}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
-      </td>
-    </tr>
+      </div>
+      {children}
+    </div>
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Componente principal ────────────────────────────────────────────────────
 
-export function CategoryTable({ categories }: CategoryTableProps) {
+export function CategoryTable({ tree }: { tree: CategoriaAdmin[] }) {
   const router = useRouter();
-  const [items, setItems] = useState<Category[]>(categories);
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<Category | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: "", parentId: "" });
+  const [arbol, setArbol] = useState(tree);
+  useEffect(() => setArbol(tree), [tree]);
 
-  // Bulk selection
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [bulkLoading, setBulkLoading] = useState(false);
+  const planas = useMemo(() => aplanar(arbol), [arbol]);
+  const porId = useMemo(() => new Map(planas.map((c) => [c.id, c])), [planas]);
 
-  // Products modal
-  const [productsModal, setProductsModal] = useState<{
-    category: Category;
-    items: ProductItem[];
-  } | null>(null);
-  const [productsLoading, setProductsLoading] = useState(false);
+  const [expandidas, setExpandidas] = useState<Set<string>>(() => new Set(tree.map((c) => c.id)));
+  const [busqueda, setBusqueda] = useState("");
+  const [estado, setEstado] = useState<Estado>("all");
+  const [seleccion, setSeleccion] = useState<Set<string>>(new Set());
+  const [borrandoLote, setBorrandoLote] = useState(false);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [editando, setEditando] = useState<CategoriaAdmin | null>(null);
+  const [form, setForm] = useState<Form>(FORM_VACIO);
+  const [guardando, setGuardando] = useState(false);
 
-  // Derived maps
-  const rootItems = items.filter((c) => c.parentId === null);
-  const childrenOf = new Map<string | null, Category[]>();
-  for (const cat of items) {
-    const key = cat.parentId ?? null;
-    if (!childrenOf.has(key)) childrenOf.set(key, []);
-    childrenOf.get(key)!.push(cat);
-  }
+  const [productos, setProductos] = useState<{ categoria: CategoriaAdmin; items: ProductItem[]; total: number } | null>(null);
+  const [cargandoProductos, setCargandoProductos] = useState(false);
 
-  const toggleExpand = (id: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
-  // ── Panel 1: reorder root categories ──
-  const handleMenuDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+  // ── Búsqueda y filtro: una fila se ve si coincide ella o alguna descendiente.
+  const filtrando = busqueda.trim() !== "" || estado !== "all";
+  const visibles = useMemo(() => {
+    if (!filtrando) return null;
+    const q = normalizar(busqueda.trim());
+    const ok = new Set<string>();
+    const recorrer = (n: CategoriaAdmin): boolean => {
+      const propia =
+        (!q || normalizar(`${n.name} ${n.slug ?? ""}`).includes(q)) &&
+        (estado === "all" || (estado === "active") === n.isActive);
+      const alguna = n.children.map(recorrer).some(Boolean);
+      if (propia || alguna) ok.add(n.id);
+      return propia || alguna;
+    };
+    arbol.forEach(recorrer);
+    return ok;
+  }, [arbol, busqueda, estado, filtrando]);
+
+  const refrescar = () => router.refresh();
+
+  // ── Orden: solo entre hermanas. Mover a otro padre se hace desde el modal.
+  const onDragEnd = async ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
-
-    const oldIndex = rootItems.findIndex((c) => c.id === active.id);
-    const newIndex = rootItems.findIndex((c) => c.id === over.id);
-    const newRootItems = arrayMove(rootItems, oldIndex, newIndex);
-    const nonRootItems = items.filter((c) => c.parentId !== null);
-    setItems([...newRootItems, ...nonRootItems]);
-
-    try {
-      const res = await fetch("/api/categories/reorder", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newRootItems.map((c, idx) => ({ id: c.id, sortOrder: idx }))),
-      });
-      if (!res.ok) throw new Error();
-      toast.success("Orden del menú guardado");
-      router.refresh();
-    } catch {
-      toast.error("Error al guardar el orden");
-      setItems(categories);
-    }
-  };
-
-  // ── Panel 1: reorder subcategories within a parent ──
-  const handleSubDragEnd = async (parentId: string, event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const subs = childrenOf.get(parentId) ?? [];
-    const oldIndex = subs.findIndex((c) => c.id === active.id);
-    const newIndex = subs.findIndex((c) => c.id === over.id);
-    const newSubs = arrayMove(subs, oldIndex, newIndex);
-
-    setItems((prev) => {
-      const others = prev.filter((c) => c.parentId !== parentId);
-      return [...others, ...newSubs];
-    });
-
-    try {
-      const res = await fetch("/api/categories/reorder", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newSubs.map((c, idx) => ({ id: c.id, sortOrder: idx }))),
-      });
-      if (!res.ok) throw new Error();
-      toast.success("Orden guardado");
-      router.refresh();
-    } catch {
-      toast.error("Error al guardar el orden");
-      setItems(categories);
-    }
-  };
-
-  // ── Panel 2: reorder all categories in flat table ──
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = items.findIndex((c) => c.id === active.id);
-    const newIndex = items.findIndex((c) => c.id === over.id);
-    const newItems = arrayMove(items, oldIndex, newIndex);
-    setItems(newItems);
-
-    try {
-      const res = await fetch("/api/categories/reorder", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newItems.map((c, idx) => ({ id: c.id, sortOrder: idx }))),
-      });
-      if (!res.ok) throw new Error();
-      toast.success("Orden guardado");
-      router.refresh();
-    } catch {
-      toast.error("Error al guardar el orden");
-      setItems(categories);
-    }
-  };
-
-  const parentOptions: { cat: Category; depth: number }[] = [];
-  function walkCats(parentId: string | null, depth: number) {
-    for (const cat of childrenOf.get(parentId) ?? []) {
-      parentOptions.push({ cat, depth });
-      walkCats(cat.id, depth + 1);
-    }
-  }
-  walkCats(null, 0);
-  const indent = (depth: number) => (depth > 0 ? " ".repeat(depth * 2) + "↳ " : "");
-
-  const openCreate = () => {
-    setEditing(null);
-    setForm({ name: "", parentId: "" });
-    setModalOpen(true);
-  };
-
-  const openEdit = (cat: Category) => {
-    setEditing(cat);
-    setForm({ name: cat.name, parentId: cat.parentId ?? "" });
-    setModalOpen(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const url = editing ? `/api/categories/${editing.id}` : "/api/categories";
-      const method = editing ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, parentId: form.parentId || null }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Error desconocido");
-      }
-      toast.success(editing ? "Categoría actualizada" : "Categoría creada");
-      setModalOpen(false);
-      router.refresh();
-    } catch (err: any) {
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (cat: Category) => {
-    if (cat.productCount > 0) {
-      toast.error(`No se puede eliminar: tiene ${cat.productCount} producto(s)`);
+    const a = porId.get(String(active.id));
+    const b = porId.get(String(over.id));
+    if (!a || !b) return;
+    if (a.parentId !== b.parentId) {
+      toast.info("Para cambiar de categoría padre, edítala");
       return;
     }
-    if (!confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
-    const res = await fetch(`/api/categories/${cat.id}`, { method: "DELETE" });
-    if (res.ok) {
-      toast.success("Categoría eliminada");
-      router.refresh();
-    } else {
-      const data = await res.json();
-      toast.error(data.error || "Error al eliminar");
-    }
-  };
+    const hermanas = a.parentId ? porId.get(a.parentId)!.children : arbol;
+    const nuevas = arrayMove(hermanas, hermanas.indexOf(a), hermanas.indexOf(b));
 
-  // ── Products modal ──
-  const openProducts = async (cat: Category) => {
-    if (cat.productCount === 0) return;
-    setProductsLoading(true);
+    const reemplazar = (nodos: CategoriaAdmin[]): CategoriaAdmin[] =>
+      a.parentId === null ? nuevas : nodos.map((n) => (n.id === a.parentId ? { ...n, children: nuevas } : { ...n, children: reemplazar(n.children) }));
+    const anterior = arbol;
+    setArbol(a.parentId === null ? nuevas : reemplazar(arbol));
+
     try {
-      const res = await fetch(
-        `/api/products?category=${encodeURIComponent(cat.name)}&admin=true&limit=100`
-      );
-      const data = await res.json();
-      setProductsModal({ category: cat, items: data.products ?? [] });
-    } catch {
-      toast.error("Error al cargar productos");
-    } finally {
-      setProductsLoading(false);
+      await pedir("/api/categories/reorder", {
+        method: "PATCH",
+        body: JSON.stringify(nuevas.map((c, i) => ({ id: c.id, sortOrder: i }))),
+      });
+      toast.success("Orden guardado");
+      refrescar();
+    } catch (e) {
+      setArbol(anterior);
+      toast.error((e as Error).message);
     }
   };
 
-  // ── Bulk selection ──
-  const toggleSelect = (id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  // ── Modal ──
+  const abrirNueva = (parentId: string | null = null) => {
+    setEditando(null);
+    setForm({ ...FORM_VACIO, parentId: parentId ?? "" });
+    setModalAbierto(true);
   };
 
-  const toggleSelectAll = () => {
-    setSelected((prev) =>
-      prev.size === items.length ? new Set() : new Set(items.map((c) => c.id))
+  const abrirEdicion = (c: CategoriaAdmin) => {
+    setEditando(c);
+    setForm({
+      name: c.name,
+      slug: c.slug ?? "",
+      parentId: c.parentId ?? "",
+      description: c.description ?? "",
+      image: c.image,
+      banner: c.banner,
+      isActive: c.isActive,
+      metaTitle: c.metaTitle ?? "",
+      metaDescription: c.metaDescription ?? "",
+    });
+    setModalAbierto(true);
+  };
+
+  // El selector de padre ya excluye lo inválido: la propia categoría, su
+  // descendencia, el nivel 3 y cualquier padre que dejaría el subárbol en un
+  // 4.º nivel. El servidor vuelve a comprobarlo todo.
+  const opcionesPadre = useMemo(
+    () => (modalAbierto ? padresPosibles(planas, editando?.id ?? null) : []),
+    [modalAbierto, planas, editando]
+  );
+
+  const guardar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGuardando(true);
+    try {
+      const body = {
+        name: form.name,
+        slug: form.slug,
+        parentId: form.parentId || null,
+        description: form.description,
+        image: form.image,
+        banner: form.banner,
+        isActive: form.isActive,
+        metaTitle: form.metaTitle,
+        metaDescription: form.metaDescription,
+      };
+      await pedir(editando ? `/api/categories/${editando.id}` : "/api/categories", {
+        method: editando ? "PATCH" : "POST",
+        body: JSON.stringify(body),
+      });
+      toast.success(editando ? "Categoría actualizada" : "Categoría creada");
+      if (form.parentId) setExpandidas((s) => new Set(s).add(form.parentId));
+      setModalAbierto(false);
+      refrescar();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const alternarActiva = async (c: CategoriaAdmin) => {
+    try {
+      await pedir(`/api/categories/${c.id}`, { method: "PATCH", body: JSON.stringify({ isActive: !c.isActive }) });
+      toast.success(c.isActive ? `«${c.name}» desactivada` : `«${c.name}» activada`);
+      refrescar();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const eliminar = async (c: CategoriaAdmin) => {
+    const motivo = motivoParaNoBorrar(c.children.length, c.productCount);
+    if (motivo) {
+      toast.error(motivo);
+      return;
+    }
+    if (!confirm(`¿Eliminar la categoría «${c.name}»?`)) return;
+    try {
+      await pedir(`/api/categories/${c.id}`, { method: "DELETE" });
+      toast.success("Categoría eliminada");
+      refrescar();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const eliminarSeleccion = async () => {
+    const elegidas = planas.filter((c) => seleccion.has(c.id));
+    if (!confirm(`¿Eliminar ${elegidas.length} categoría(s)? Las que no estén vacías se omiten.`)) return;
+    setBorrandoLote(true);
+    // Las hojas primero: así una madre cuyas hijas también se borran queda vacía a tiempo.
+    elegidas.sort((x, y) => y.level - x.level);
+    let ok = 0;
+    const fallidas: string[] = [];
+    for (const c of elegidas) {
+      try {
+        await pedir(`/api/categories/${c.id}`, { method: "DELETE" });
+        ok++;
+      } catch {
+        fallidas.push(c.name);
+      }
+    }
+    setBorrandoLote(false);
+    if (ok) toast.success(`${ok} categoría(s) eliminada(s)`);
+    if (fallidas.length) toast.error(`No se eliminaron (no están vacías): ${fallidas.join(", ")}`);
+    setSeleccion(new Set());
+    refrescar();
+  };
+
+  const verProductos = async (c: CategoriaAdmin) => {
+    setCargandoProductos(true);
+    try {
+      const data = await pedir(`/api/categories/${c.id}/products?limit=48`);
+      setProductos({ categoria: c, items: data.products ?? [], total: data.total ?? 0 });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setCargandoProductos(false);
+    }
+  };
+
+  const toggle = (set: Set<string>, id: string) => {
+    const s = new Set(set);
+    if (s.has(id)) s.delete(id);
+    else s.add(id);
+    return s;
+  };
+
+  const grupo = (nodos: CategoriaAdmin[], depth: number): React.ReactNode => {
+    const mostrados = visibles ? nodos.filter((n) => visibles.has(n.id)) : nodos;
+    return (
+      <SortableContext items={mostrados.map((n) => n.id)} strategy={verticalListSortingStrategy}>
+        {mostrados.map((n) => {
+          const abierta = filtrando || expandidas.has(n.id);
+          return (
+            <Fila
+              key={n.id}
+              nodo={n}
+              depth={depth}
+              arrastrable={!filtrando}
+              expandida={abierta}
+              seleccionada={seleccion.has(n.id)}
+              onToggleExpand={() => setExpandidas((s) => toggle(s, n.id))}
+              onToggleSelect={() => setSeleccion((s) => toggle(s, n.id))}
+              onEdit={() => abrirEdicion(n)}
+              onAddChild={() => abrirNueva(n.id)}
+              onToggleActive={() => alternarActiva(n)}
+              onDelete={() => eliminar(n)}
+              onProducts={() => verProductos(n)}
+            >
+              {abierta && n.children.length > 0 && grupo(n.children, depth + 1)}
+            </Fila>
+          );
+        })}
+      </SortableContext>
     );
   };
 
-  const handleBulkDelete = async () => {
-    const chosen = items.filter((c) => selected.has(c.id));
-    const deletable = chosen.filter((c) => c.productCount === 0);
-    const blocked = chosen.filter((c) => c.productCount > 0);
-
-    if (deletable.length === 0) {
-      toast.error("Las categorías seleccionadas tienen productos y no se pueden eliminar");
-      return;
-    }
-    if (!confirm(`¿Eliminar ${deletable.length} categoría(s) seleccionada(s)?`)) return;
-
-    setBulkLoading(true);
-    let ok = 0;
-    for (const cat of deletable) {
-      const res = await fetch(`/api/categories/${cat.id}`, { method: "DELETE" });
-      if (res.ok) ok++;
-    }
-    setBulkLoading(false);
-
-    if (ok > 0) toast.success(`${ok} categoría(s) eliminada(s)`);
-    if (blocked.length > 0) toast.error(`${blocked.length} con productos se omitieron`);
-    setSelected(new Set());
-    router.refresh();
-  };
-
-  const allSelected = items.length > 0 && selected.size === items.length;
+  const slugSugerido = slugFromName(form.name);
+  const rutaPadre = form.parentId ? porId.get(form.parentId)?.path : "/categorias";
+  const seoTitulo = form.metaTitle || form.name || "Nombre de la categoría";
+  const seoDescripcion =
+    form.metaDescription || form.description || `${form.name || "…"} — joyería en plata 925 con mensajes secretos y envío a todo Perú.`;
 
   return (
     <>
-      {/* ── Panel 1: Nav menu order ─────────────────────────────────────────── */}
-      <div className="border-b border-[#111111]/8">
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-[#111111]/6">
-          <Navigation className="h-3.5 w-3.5 text-[#d4af37]" />
-          <div>
-            <p className="text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.2em]">
-              Orden del menú de navegación
-            </p>
-            <p className="text-[10px] text-[#111111]/30 mt-0.5">
-              Arrastrá para cambiar el orden en que aparecen en el header del sitio
-            </p>
-          </div>
-        </div>
-
-        {rootItems.length === 0 ? (
-          <div className="px-5 py-6 text-[11px] text-[#111111]/30">Sin categorías raíz todavía</div>
-        ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMenuDragEnd}>
-            <SortableContext items={rootItems.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-              {rootItems.map((cat) => {
-                const subs = childrenOf.get(cat.id) ?? [];
-                const isExpanded = expanded.has(cat.id);
-                return (
-                  <div key={cat.id}>
-                    <SortableMenuRow
-                      cat={cat}
-                      childCount={subs.length}
-                      expanded={isExpanded}
-                      onToggle={() => toggleExpand(cat.id)}
-                    />
-                    {isExpanded && subs.length > 0 && (
-                      <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={(e) => handleSubDragEnd(cat.id, e)}
-                      >
-                        <SortableContext items={subs.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-                          {subs.map((sub) => (
-                            <SortableSubRow key={sub.id} cat={sub} />
-                          ))}
-                        </SortableContext>
-                      </DndContext>
-                    )}
-                  </div>
-                );
-              })}
-            </SortableContext>
-          </DndContext>
-        )}
-      </div>
-
-      {/* ── Panel 2: header — count / bulk actions ──────────────────────────── */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#111111]/6 min-h-[69px]">
-        {selected.size > 0 ? (
+      {/* ── Barra superior ───────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-[#111111]/6">
+        {seleccion.size > 0 ? (
           <>
             <p className="text-[11px] text-[#111111]/60">
-              {selected.size} seleccionada{selected.size === 1 ? "" : "s"}
+              {seleccion.size} seleccionada{seleccion.size === 1 ? "" : "s"}
             </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="danger"
-                size="sm"
-                className="gap-1.5"
-                loading={bulkLoading}
-                onClick={handleBulkDelete}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                Eliminar seleccionadas
-              </Button>
-              <button
-                onClick={() => setSelected(new Set())}
-                className="p-1.5 text-[#111111]/30 hover:text-[#111111] transition-colors"
-                title="Cancelar selección"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            <Button variant="danger" size="sm" className="gap-1.5" loading={borrandoLote} onClick={eliminarSeleccion}>
+              <Trash2 className="h-3.5 w-3.5" />
+              Eliminar seleccionadas
+            </Button>
+            <button
+              type="button"
+              onClick={() => setSeleccion(new Set())}
+              className="p-1.5 text-[#111111]/30 hover:text-[#111111]"
+              title="Cancelar selección"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </>
         ) : (
           <>
-            <div>
-              <p className="text-[10px] text-[#111111]/40 uppercase tracking-[0.2em]">
-                {items.length} {items.length === 1 ? "categoría" : "categorías"}
-              </p>
-              <p className="text-[10px] text-[#111111]/30 mt-0.5">
-                Gestión completa de categorías y subcategorías
-              </p>
+            <div className="relative flex-1 min-w-[180px] max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#111111]/30" />
+              <input
+                type="search"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Buscar por nombre o slug…"
+                className="w-full pl-9 pr-3 py-2 bg-white border border-[#111111]/15 text-sm text-[#111111] focus:outline-none focus:border-[#d4af37]"
+              />
             </div>
-            <Button size="sm" onClick={openCreate} className="gap-1.5">
-              <Plus className="h-3.5 w-3.5" />
-              Nueva categoría
-            </Button>
+            <div className="flex border border-[#111111]/15 text-[10px] uppercase tracking-wider">
+              {(
+                [
+                  ["all", "Todas"],
+                  ["active", "Activas"],
+                  ["inactive", "Inactivas"],
+                ] as const
+              ).map(([v, l]) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setEstado(v)}
+                  className={`px-3 py-2 transition-colors ${estado === v ? "bg-[#111111] text-white" : "text-[#111111]/50 hover:text-[#111111]"}`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3 ml-auto">
+              <button
+                type="button"
+                onClick={() =>
+                  setExpandidas((s) => (s.size >= planas.filter((c) => c.children.length).length ? new Set() : new Set(planas.map((c) => c.id))))
+                }
+                className="text-[10px] uppercase tracking-wider text-[#111111]/40 hover:text-[#111111]"
+              >
+                Expandir / contraer
+              </button>
+              <Button size="sm" onClick={() => abrirNueva()} className="gap-1.5">
+                <Plus className="h-3.5 w-3.5" />
+                Nueva categoría
+              </Button>
+            </div>
           </>
         )}
       </div>
 
-      {items.length === 0 ? (
+      <div className="flex items-center gap-2 px-5 py-2 border-b border-[#111111]/6 text-[9px] uppercase tracking-[0.2em] text-[#111111]/40">
+        <span className="flex-1">
+          {planas.length} {planas.length === 1 ? "categoría" : "categorías"} · máximo {MAX_NIVEL} niveles · arrastrá para ordenar el menú
+        </span>
+        <span className="w-20 text-right">Productos</span>
+        <span className="w-20 text-center">Estado</span>
+        <span className="hidden sm:block w-[104px]" />
+      </div>
+
+      {/* ── Árbol ────────────────────────────────────────────────────────── */}
+      {planas.length === 0 ? (
         <div className="text-center py-16 text-[#111111]/30">
           <Tag className="h-8 w-8 mx-auto mb-3 opacity-20" />
-          <p className="text-sm font-light" style={{ fontFamily: "var(--font-sans, sans-serif)" }}>
-            No hay categorías todavía
-          </p>
+          <p className="text-sm font-light">No hay categorías todavía</p>
         </div>
+      ) : visibles && visibles.size === 0 ? (
+        <p className="text-center py-12 text-sm text-[#111111]/40">Ninguna categoría coincide con el filtro</p>
       ) : (
         <div className="overflow-x-auto">
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={items.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[#111111]/6">
-                    <th className="py-3 pl-4 pr-1 w-8">
-                      <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={toggleSelectAll}
-                        className="h-3.5 w-3.5 accent-[#d4af37] cursor-pointer"
-                        title="Seleccionar todo"
-                      />
-                    </th>
-                    <th className="py-3 pl-1 pr-1 w-8" />
-                    <th className="text-left py-3 px-5 text-[9px] font-medium text-[#111111]/40 uppercase tracking-[0.2em]">
-                      Nombre
-                    </th>
-                    <th className="text-left py-3 px-5 text-[9px] font-medium text-[#111111]/40 uppercase tracking-[0.2em]">
-                      Categoría padre
-                    </th>
-                    <th className="text-center py-3 px-5 text-[9px] font-medium text-[#111111]/40 uppercase tracking-[0.2em]">
-                      Subcategorías
-                    </th>
-                    <th className="text-center py-3 px-5 text-[9px] font-medium text-[#111111]/40 uppercase tracking-[0.2em]">
-                      Productos
-                    </th>
-                    <th className="py-3 px-5" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((cat) => (
-                    <SortableRow
-                      key={cat.id}
-                      cat={cat}
-                      selected={selected.has(cat.id)}
-                      onToggleSelect={() => toggleSelect(cat.id)}
-                      onEdit={openEdit}
-                      onDelete={handleDelete}
-                      onOpenProducts={openProducts}
-                      productsLoading={productsLoading}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </SortableContext>
-          </DndContext>
+          <div className="min-w-[640px]">
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+              {grupo(arbol, 0)}
+            </DndContext>
+          </div>
         </div>
       )}
 
-      {/* Create / edit modal */}
+      {/* ── Crear / editar ───────────────────────────────────────────────── */}
       <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={editing ? "Editar categoría" : "Nueva categoría"}
+        open={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        title={editando ? `Editar «${editando.name}»` : form.parentId ? "Nueva subcategoría" : "Nueva categoría"}
+        className="max-w-2xl"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Nombre *"
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            placeholder="Ej: Anillos"
-            required
-          />
-          <div className="space-y-1.5">
-            <label className="block text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.15em]">
-              Categoría padre
+        <form onSubmit={guardar} className="space-y-6">
+          <section className="space-y-4">
+            <Input
+              label="Nombre *"
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder="Ej: Anillos de promesa"
+              required
+              minLength={2}
+              maxLength={80}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.15em]">Categoría padre</label>
+                <select
+                  value={form.parentId}
+                  onChange={(e) => setForm((f) => ({ ...f, parentId: e.target.value }))}
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#111111]/15 text-sm text-[#111111] focus:outline-none focus:border-[#d4af37]"
+                >
+                  <option value="">Ninguna (categoría principal)</option>
+                  {opcionesPadre
+                    .map((c) => porId.get(c.id)!)
+                    .sort((x, y) => x.path.localeCompare(y.path))
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {"  ".repeat(c.level - 1)}
+                        {c.level > 1 ? "↳ " : ""}
+                        {c.name}
+                      </option>
+                    ))}
+                </select>
+                {editando && editando.children.length > 0 && (
+                  <p className="text-[10px] text-[#111111]/40">Sus subcategorías se mueven con ella.</p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.15em]">Slug (URL)</label>
+                <input
+                  value={form.slug}
+                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+                  placeholder={slugSugerido || "se-genera-del-nombre"}
+                  maxLength={80}
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#111111]/15 text-sm text-[#111111] focus:outline-none focus:border-[#d4af37]"
+                />
+                <p className="text-[10px] text-[#111111]/40 truncate">
+                  {rutaPadre}/{slugFromName(form.slug) || slugSugerido || "…"}
+                  {editando && " · cambiarlo rompe los enlaces ya compartidos"}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.15em]">Descripción</label>
+              <textarea
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                rows={3}
+                maxLength={2000}
+                placeholder="Se muestra bajo el título en la página de la categoría"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#111111]/15 text-sm text-[#111111] focus:outline-none focus:border-[#d4af37]"
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm text-[#111111]/80 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.isActive}
+                onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
+                className="h-3.5 w-3.5 accent-[#d4af37]"
+              />
+              Activa (visible en la tienda)
             </label>
-            <select
-              value={form.parentId}
-              onChange={(e) => setForm((f) => ({ ...f, parentId: e.target.value }))}
-              className="w-full px-3.5 py-2.5 bg-white border border-[#111111]/15 text-sm text-[#111111] focus:outline-none focus:border-[#d4af37] transition-colors appearance-none"
-            >
-              <option value="">Sin padre (categoría raíz)</option>
-              {parentOptions
-                .filter(({ cat }) => !editing || cat.id !== editing.id)
-                .map(({ cat, depth }) => (
-                  <option key={cat.id} value={cat.id}>
-                    {indent(depth)}{cat.name}
-                  </option>
-                ))}
-            </select>
-          </div>
+          </section>
+
+          <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#111111]/6">
+            <div>
+              <p className="text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.15em] mb-1">Imagen</p>
+              <p className="text-[10px] text-[#111111]/40 mb-2">Miniatura en la página de su categoría padre. Cuadrada.</p>
+              <ImageManager
+                images={form.image ? [form.image] : []}
+                onChange={(urls) => setForm((f) => ({ ...f, image: urls[urls.length - 1] ?? null }))}
+              />
+            </div>
+            <div>
+              <p className="text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.15em] mb-1">Banner</p>
+              <p className="text-[10px] text-[#111111]/40 mb-2">Cabecera de la página. Apaisado, ~16:5.</p>
+              <ImageManager
+                images={form.banner ? [form.banner] : []}
+                onChange={(urls) => setForm((f) => ({ ...f, banner: urls[urls.length - 1] ?? null }))}
+              />
+            </div>
+          </section>
+
+          <section className="space-y-4 pt-4 border-t border-[#111111]/6">
+            <p className="text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.15em]">SEO</p>
+            <div>
+              <Input
+                label="Meta title"
+                value={form.metaTitle}
+                onChange={(e) => setForm((f) => ({ ...f, metaTitle: e.target.value }))}
+                placeholder={form.name || "Por defecto, el nombre"}
+                maxLength={70}
+              />
+              <p className="mt-1 text-[10px] text-right text-[#111111]/35">{form.metaTitle.length}/70</p>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-[10px] font-medium text-[#111111]/60 uppercase tracking-[0.15em]">Meta description</label>
+              <textarea
+                value={form.metaDescription}
+                onChange={(e) => setForm((f) => ({ ...f, metaDescription: e.target.value }))}
+                rows={2}
+                maxLength={170}
+                placeholder="Por defecto, la descripción"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#111111]/15 text-sm text-[#111111] focus:outline-none focus:border-[#d4af37]"
+              />
+              <p className="text-[10px] text-right text-[#111111]/35">{form.metaDescription.length}/170</p>
+            </div>
+            <div className="p-3 bg-[#f8f7f4] text-xs">
+              <p className="text-[10px] uppercase tracking-wider text-[#111111]/35 mb-1.5">Vista previa en Google</p>
+              <p className="text-[#1a0dab] text-sm truncate">{seoTitulo} | Adamantio</p>
+              <p className="text-[#006621] truncate">
+                adamantio.pe{rutaPadre}/{slugFromName(form.slug) || slugSugerido}
+              </p>
+              <p className="text-[#111111]/60 line-clamp-2">{seoDescripcion}</p>
+            </div>
+          </section>
+
           <div className="flex items-center justify-end gap-3 pt-2">
-            <Button type="button" variant="ghost" size="sm" onClick={() => setModalOpen(false)}>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setModalAbierto(false)}>
               Cancelar
             </Button>
-            <Button type="submit" size="sm" loading={loading}>
-              {editing ? "Guardar cambios" : "Crear categoría"}
+            <Button type="submit" size="sm" loading={guardando}>
+              {editando ? "Guardar cambios" : "Crear"}
             </Button>
           </div>
         </form>
       </Modal>
 
-      {/* Products modal */}
+      {/* ── Productos de la categoría ────────────────────────────────────── */}
       <Modal
-        open={!!productsModal}
-        onClose={() => setProductsModal(null)}
-        title={`Productos en "${productsModal?.category.name}"`}
+        open={!!productos || cargandoProductos}
+        onClose={() => setProductos(null)}
+        title={productos ? `Productos en «${productos.categoria.name}»` : "Cargando…"}
       >
         <div className="overflow-y-auto max-h-[60vh]">
-          {productsModal?.items.length === 0 ? (
+          {!productos ? (
+            <p className="text-sm text-[#111111]/40 text-center py-8">Cargando…</p>
+          ) : productos.items.length === 0 ? (
             <p className="text-sm text-[#111111]/40 text-center py-8">Sin productos</p>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[#111111]/6">
-                  <th className="text-left py-2 px-3 text-[9px] font-medium text-[#111111]/40 uppercase tracking-[0.2em]">
-                    Producto
-                  </th>
-                  <th className="text-right py-2 px-3 text-[9px] font-medium text-[#111111]/40 uppercase tracking-[0.2em]">
-                    Precio
-                  </th>
-                  <th className="text-center py-2 px-3 text-[9px] font-medium text-[#111111]/40 uppercase tracking-[0.2em]">
-                    Estado
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {productsModal?.items.map((p) => {
-                  const img = productThumbnail(p);
-                  return (
-                    <tr key={p.id} className="border-b border-[#111111]/4 hover:bg-[#f8f7f4]/60">
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-2.5">
-                          {img ? (
+            <>
+              <p className="text-[10px] text-[#111111]/40 mb-2">
+                {productos.total} producto{productos.total === 1 ? "" : "s"}, incluidas sus subcategorías
+                {productos.total > productos.items.length && ` (se muestran ${productos.items.length})`}
+              </p>
+              <table className="w-full text-sm">
+                <tbody>
+                  {productos.items.map((p) => {
+                    const img = productThumbnail(p);
+                    const { precio, antes } = precioConOferta(p);
+                    return (
+                      <tr key={p.id} className="border-b border-[#111111]/4">
+                        <td className="py-2.5 px-2">
+                          <div className="flex items-center gap-2.5">
                             <div className="relative w-8 h-8 shrink-0 bg-[#f8f7f4] overflow-hidden">
-                              <Image
-                                src={img}
-                                alt={p.name}
-                                fill
-                                className="object-cover"
-                                sizes="32px"
-                              />
+                              {img && <Image src={img} alt="" fill className="object-cover" sizes="32px" />}
                             </div>
-                          ) : (
-                            <div className="w-8 h-8 shrink-0 bg-[#f8f7f4]" />
-                          )}
-                          <div>
-                            <p className="font-medium text-[#111111] leading-tight">{p.name}</p>
-                            {p.sku && <p className="text-[11px] text-[#111111]/40">{p.sku}</p>}
+                            <div>
+                              <a href={`/admin/productos/${p.id}/editar`} className="font-medium text-[#111111] leading-tight hover:text-[#d4af37]">
+                                {p.name}
+                              </a>
+                              {p.sku && <p className="text-[11px] text-[#111111]/40">{p.sku}</p>}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3 text-right text-[#111111]/70">
-                        {formatPEN(precioConOferta(p).precio)}
-                        {precioConOferta(p).antes !== null && (
-                          <span className="block text-[11px] text-[#111111]/40 line-through">
-                            {formatPEN(precioConOferta(p).antes!)}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <span
-                          className={
-                            p.isActive
-                              ? "text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5"
-                              : "text-[10px] font-medium text-[#111111]/40 bg-[#f8f7f4] px-2 py-0.5"
-                          }
-                        >
-                          {p.isActive ? "Activo" : "Inactivo"}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                        <td className="py-2.5 px-2 text-right text-[#111111]/70">
+                          {formatPEN(precio)}
+                          {antes !== null && <span className="block text-[11px] text-[#111111]/40 line-through">{formatPEN(antes)}</span>}
+                        </td>
+                        <td className="py-2.5 px-2 text-center">
+                          {p.isActive ? (
+                            <Eye className="h-3.5 w-3.5 inline text-emerald-600" aria-label="Activo" />
+                          ) : (
+                            <EyeOff className="h-3.5 w-3.5 inline text-[#111111]/30" aria-label="Inactivo" />
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </>
           )}
         </div>
       </Modal>

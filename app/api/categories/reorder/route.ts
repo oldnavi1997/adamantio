@@ -1,22 +1,19 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { requireAdmin, respuestaDeError } from "@/lib/api-admin";
+import { reorderCategories } from "@/lib/categorias";
+import { reordenarSchema } from "@/lib/categorias-schema";
 
-export async function PUT(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+/** Cuerpo: `[{ id, sortOrder }]`. Se aplica entero o nada. */
+export async function PATCH(req: Request) {
+  const denegado = await requireAdmin();
+  if (denegado) return denegado;
   try {
-    const items: { id: string; sortOrder: number }[] = await req.json();
-    await Promise.all(
-      items.map(({ id, sortOrder }) =>
-        prisma.category.update({ where: { id }, data: { sortOrder } })
-      )
-    );
+    await reorderCategories(reordenarSchema.parse(await req.json()));
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ error: "Error al guardar el orden" }, { status: 500 });
+  } catch (error) {
+    return respuestaDeError(error, "Reordenar categorías");
   }
 }
+
+/** Compatibilidad con el admin anterior. */
+export const PUT = PATCH;

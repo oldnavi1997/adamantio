@@ -187,7 +187,7 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
   };
 
   const uniqueCategories = useMemo(
-    () => Array.from(new Set(products.map((p) => p.category ?? "").filter(Boolean))).sort(),
+    () => Array.from(new Set(products.flatMap((p) => p.categoryNames))).sort((a, b) => a.localeCompare(b, "es")),
     [products]
   );
 
@@ -196,10 +196,10 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
     const palabras = normalizar(query).split(/\s+/).filter(Boolean);
     const result = products.filter((p) => {
       if (palabras.length > 0) {
-        const texto = normalizar(`${p.name} ${p.sku ?? ""} ${p.category ?? ""}`);
+        const texto = normalizar(`${p.name} ${p.sku ?? ""} ${p.categoryNames.join(" ")}`);
         if (!palabras.every((w) => texto.includes(w))) return false;
       }
-      if (filterCategory && (p.category ?? "") !== filterCategory) return false;
+      if (filterCategory && !p.categoryNames.includes(filterCategory)) return false;
       if (filterStatus === "active" && !p.isActive) return false;
       if (filterStatus === "inactive" && p.isActive) return false;
       if (filterStock !== "all") {
@@ -643,7 +643,15 @@ export function ProductTable({ products, categories = [], posStock = {} }: Produ
                     </div>
                   </td>
                   <td className="py-3.5 px-4 text-[#111111]/55 text-sm">
-                    {product.category ?? "—"}
+                    {product.categoryNames[0] ?? product.category ?? "—"}
+                    {product.categoryNames.length > 1 && (
+                      <span
+                        className="ml-1.5 text-[10px] text-[#111111]/40"
+                        title={product.categoryNames.slice(1).join(", ")}
+                      >
+                        +{product.categoryNames.length - 1}
+                      </span>
+                    )}
                   </td>
                   <td className="py-3.5 px-4 text-right text-sm tabular-nums">
                     {(() => {
