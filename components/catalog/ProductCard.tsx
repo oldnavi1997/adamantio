@@ -4,6 +4,7 @@ import { ProductWithCategory } from "@/types";
 import { formatPEN, precioConOferta, productPath } from "@/lib/utils";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { productThumbnail } from "@/lib/media";
+import { aWishlistItem } from "@/lib/wishlist-item";
 
 interface ProductCardProps {
   product: ProductWithCategory;
@@ -50,7 +51,7 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
             </div>
           )}
           {etiquetaOferta && <div className="absolute top-2 left-2 z-10">{etiquetaOferta}</div>}
-          <WishlistButton product={product} variant="card" />
+          <WishlistButton item={aWishlistItem(product)} variant="card" />
         </div>
         <div className="mt-2 text-center">
           <p className="text-xs font-medium text-[#111111] line-clamp-1 leading-snug">
@@ -110,7 +111,7 @@ export function ProductCard({ product, view = "dense" }: ProductCardProps) {
             </span>
           </div>
         )}
-        <WishlistButton product={product} variant="card" />
+        <WishlistButton item={aWishlistItem(product)} variant="card" />
       </div>
 
       {/* Divider */}

@@ -3,11 +3,12 @@
 import { useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/Button";
-import { ProductConTallas, ProductWithCategory } from "@/types";
+import { ProductoPlano } from "@/types";
 import { useCartStore } from "@/stores/cart";
 import AccordionItem from "@/components/product/AccordionItem";
 import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { productThumbnail } from "@/lib/media";
+import { aWishlistItem } from "@/lib/wishlist-item";
 import { formatPEN } from "@/lib/utils";
 import { useVariante } from "@/components/product/VarianteContext";
 import { tallasDeProducto } from "@/lib/tallas";
@@ -26,7 +27,7 @@ import {
 const MAX_ENGRAVING = 30;
 
 interface Props {
-  product: ProductConTallas;
+  product: ProductoPlano;
   engravingSamples?: string[];
 }
 
@@ -82,7 +83,7 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
             Sin stock disponible
           </span>
         </div>
-        <WishlistButton product={product} variant="detail" />
+        <WishlistButton item={aWishlistItem(product)} variant="detail" />
         <Accordions product={product} />
       </>
     );
@@ -175,7 +176,7 @@ export function ProductDetails({ product, engravingSamples = [] }: Props) {
         Agregar al carrito
       </Button>
 
-      <WishlistButton product={product} variant="detail" />
+      <WishlistButton item={aWishlistItem(product)} variant="detail" />
 
       {/* Acordeones */}
       <div>
@@ -305,7 +306,7 @@ function ListaDetalles({ filas }: { filas: Detalle[] }) {
  * Acordeón de detalles. Vive aparte porque el archivo lo pinta en dos sitios
  * —la rama con stock y la rama sin stock— y las dos copias ya habían divergido.
  */
-function DetallesAccordion({ product }: { product: ProductWithCategory }) {
+function DetallesAccordion({ product }: { product: ProductoPlano }) {
   const detalles = detallesVisibles(product.productDetails);
   if (detalles.length === 0) return null;
 
@@ -362,7 +363,7 @@ function DetallesAccordion({ product }: { product: ProductWithCategory }) {
  * en unas setenta fichas. Los anillos que se venden por talla declaran `sizes`
  * y necesitan su propia tabla, así que no reciben este texto.
  */
-function TallasAccordion({ product }: { product: ProductWithCategory }) {
+function TallasAccordion({ product }: { product: ProductoPlano }) {
   const propias = parseLineas(product.sizeInfo);
   const lineas = propias.length > 0 ? propias : esAnilloAjustable(product) ? GUIA_AJUSTABLE : [];
   if (lineas.length === 0) return null;
@@ -385,7 +386,7 @@ function TallasAccordion({ product }: { product: ProductWithCategory }) {
   );
 }
 
-function Accordions({ product }: { product: ProductWithCategory }) {
+function Accordions({ product }: { product: ProductoPlano }) {
   return (
     <div>
       <DetallesAccordion product={product} />

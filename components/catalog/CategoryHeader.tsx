@@ -46,9 +46,10 @@ export function CategoryHeader({
         </div>
       )}
 
-      <h1 className="text-2xl sm:text-3xl font-light text-[#111111]">{titulo}</h1>
+      {/* Oculto a la vista, pero la página sigue teniendo su encabezado principal. */}
+      <h1 className="sr-only">{titulo}</h1>
       {descripcion && (
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#111111]/60 whitespace-pre-line">{descripcion}</p>
+        <p className="max-w-2xl text-sm leading-relaxed text-[#111111]/60 whitespace-pre-line">{descripcion}</p>
       )}
 
       {subcategorias.length > 0 &&
@@ -88,48 +89,5 @@ export function CategoryHeader({
           </ul>
         ))}
     </header>
-  );
-}
-
-/**
- * Filtros del listado. Un `<form method="get">` corriente: funciona sin JS y
- * el servidor es quien filtra. Conserva el orden y la vista elegidos.
- */
-export function CategoryFilters({
-  params,
-  accion,
-}: {
-  params: Record<string, string | undefined>;
-  accion: string;
-}) {
-  const activos = !!(params.minPrice || params.maxPrice || params.disponibles);
-  const campo =
-    "w-24 px-2.5 py-2 border border-[#111111]/15 bg-white text-[#111111] focus:outline-none focus:border-[#d4af37]";
-  return (
-    <form method="get" action={accion} className="flex flex-wrap items-end gap-3 py-4 border-b border-[#dadadd] mb-2 text-xs">
-      {(["sort", "view", "mview"] as const).map((k) =>
-        params[k] ? <input key={k} type="hidden" name={k} value={params[k]} /> : null
-      )}
-      <label className="flex flex-col gap-1">
-        <span className="text-[10px] uppercase tracking-wider text-[#111111]/40">Precio desde</span>
-        <input type="number" name="minPrice" min={0} step="1" inputMode="numeric" defaultValue={params.minPrice} placeholder="S/ 0" className={campo} />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-[10px] uppercase tracking-wider text-[#111111]/40">Hasta</span>
-        <input type="number" name="maxPrice" min={0} step="1" inputMode="numeric" defaultValue={params.maxPrice} placeholder="S/ 999" className={campo} />
-      </label>
-      <label className="flex items-center gap-2 py-2 cursor-pointer text-[#111111]/70">
-        <input type="checkbox" name="disponibles" value="1" defaultChecked={params.disponibles === "1"} className="accent-[#d4af37]" />
-        Solo disponibles
-      </label>
-      <button type="submit" className="px-4 py-2 bg-[#111111] text-white uppercase tracking-wider text-[10px] hover:bg-[#333] transition-colors">
-        Filtrar
-      </button>
-      {activos && (
-        <a href={accion} className="py-2 text-[#111111]/40 hover:text-[#111111] underline-offset-2 hover:underline">
-          Limpiar
-        </a>
-      )}
-    </form>
   );
 }

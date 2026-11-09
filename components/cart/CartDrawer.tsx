@@ -7,8 +7,10 @@ import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/stores/cart";
 import { formatPEN } from "@/lib/utils";
 import { ETIQUETA_VARIANTE } from "@/lib/variantes";
+import { useHidratado } from "@/lib/use-hidratado";
 
 export function CartDrawer() {
+  const hidratado = useHidratado();
   const {
     isDrawerOpen,
     closeDrawer,
@@ -42,6 +44,9 @@ export function CartDrawer() {
     }
     return () => { document.body.style.overflow = ""; };
   }, [isDrawerOpen]);
+
+  // El carrito vive en localStorage: el servidor siempre lo vería vacío.
+  if (!hidratado) return null;
 
   return (
     <>

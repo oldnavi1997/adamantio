@@ -11,7 +11,7 @@ import { OG_LADO, ogImageUrl } from "@/lib/media";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import { CatalogToolbar } from "@/components/catalog/CatalogToolbar";
 import { CatalogPagination } from "@/components/catalog/CatalogPagination";
-import { CategoryFilters, CategoryHeader } from "@/components/catalog/CategoryHeader";
+import { CategoryHeader } from "@/components/catalog/CategoryHeader";
 
 type SearchParams = {
   sort?: string;
@@ -131,8 +131,6 @@ export default async function CategoriaPage({ params, searchParams }: Props) {
         banner={categoria.banner}
         subcategorias={subcategorias}
       />
-
-      <CategoryFilters params={sp} accion={path} />
 
       <Suspense>
         <CatalogToolbar total={total} />

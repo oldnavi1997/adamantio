@@ -13,7 +13,7 @@ export function TrustBar() {
             </div>
             <div>
               <p className="text-sm font-semibold text-[#111111] uppercase tracking-[0.15em]">Envíos a nivel nacional</p>
-              <p className="text-xs text-[#111111]/50 mt-1 leading-relaxed">Despachamos a todo Argentina con seguimiento en tiempo real</p>
+              <p className="text-xs text-[#111111]/50 mt-1 leading-relaxed">Despachamos a todo el Perú con seguimiento en tiempo real</p>
             </div>
           </div>
 
@@ -39,7 +39,7 @@ export function TrustBar() {
             </div>
             <div>
               <p className="text-sm font-semibold text-[#111111] uppercase tracking-[0.15em]">Atención personalizada</p>
-              <p className="text-xs text-[#111111]/50 mt-1 leading-relaxed">Asesoramiento experto para encontrar tus lentes ideales</p>
+              <p className="text-xs text-[#111111]/50 mt-1 leading-relaxed">Asesoramiento personalizado para encontrar tu joya ideal</p>
             </div>
           </div>
 
