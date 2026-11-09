@@ -88,3 +88,5 @@ export function slugFromName(name: string): string {
 export function productPath(product: { id: string; slug?: string | null }): string {
   return `/joyas/${product.slug || product.id}`;
 }
+
+export const WHATSAPP_URL = "https://wa.me/51997676742";

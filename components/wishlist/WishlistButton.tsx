@@ -4,17 +4,16 @@ import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useWishlistStore } from "@/stores/wishlist";
-import { ProductWithCategory } from "@/types";
-import { productThumbnail } from "@/lib/media";
+import { WishlistItem } from "@/types";
 
 interface Props {
-  product: ProductWithCategory;
+  item: WishlistItem;
   variant?: "card" | "detail";
 }
 
-export function WishlistButton({ product, variant = "card" }: Props) {
+export function WishlistButton({ item, variant = "card" }: Props) {
   const toggle = useWishlistStore((s) => s.toggle);
-  const inList = useWishlistStore((s) => s.has(product.id));
+  const inList = useWishlistStore((s) => s.has(item.id));
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -24,16 +23,8 @@ export function WishlistButton({ product, variant = "card" }: Props) {
   const handleToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const wasIn = useWishlistStore.getState().has(product.id);
-    toggle({
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      price: Number(product.price),
-      imageUrl: productThumbnail(product) ?? undefined,
-      stock: product.stock,
-      sizes: product.sizes ?? undefined,
-    });
+    const wasIn = useWishlistStore.getState().has(item.id);
+    toggle(item);
     toast(wasIn ? "Eliminado de favoritos" : "Agregado a favoritos");
   };
 

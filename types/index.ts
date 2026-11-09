@@ -7,6 +7,13 @@ export type ProductWithCategory = Product;
 /// las que saben cuánto queda de cada una.
 export type ProductConTallas = Product & { tallas?: ProductSize[] };
 
+/// El mismo producto, con los `Decimal` ya convertidos para cruzar a un Client
+/// Component.
+export type ProductoPlano = Omit<ProductConTallas, "price" | "comparePrice"> & {
+  price: number;
+  comparePrice: number | null;
+};
+
 export type OrderWithItems = Order & {
   items: (OrderItem & {
     product: Product | null;

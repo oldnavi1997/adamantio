@@ -183,7 +183,14 @@ export default async function ProductPage({ params }: Props) {
             <div className="border-t border-[#111111]/8" />
 
             {/* Interactive section: variante, sizes, add to cart, accordions, engraving */}
-            <ProductDetails product={product} engravingSamples={engravingSamples} />
+            <ProductDetails
+              product={{
+                ...product,
+                price: Number(product.price),
+                comparePrice: product.comparePrice === null ? null : Number(product.comparePrice),
+              }}
+              engravingSamples={engravingSamples}
+            />
           </VarianteProvider>
         </div>
       </div>

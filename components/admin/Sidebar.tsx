@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, LogOut, ExternalLink, Tag, PenLine, Film, BookText } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, LogOut, ExternalLink, Tag, PenLine, Film, BookText, GalleryHorizontal, ChartColumn } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/insights", label: "Insights", icon: ChartColumn },
   { href: "/admin/productos", label: "Productos", icon: Package },
   { href: "/admin/categorias", label: "Categorías", icon: Tag },
   { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingCart },
   { href: "/admin/reclamaciones", label: "Reclamos", icon: BookText },
   { href: "/admin/grabado", label: "Grabado", icon: PenLine },
   { href: "/admin/videos", label: "Videos", icon: Film },
+  { href: "/admin/carrusel", label: "Carrusel", icon: GalleryHorizontal },
 ];
 
 export function AdminSidebar() {

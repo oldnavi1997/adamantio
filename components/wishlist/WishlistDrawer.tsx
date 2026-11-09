@@ -9,8 +9,10 @@ import { useWishlistStore } from "@/stores/wishlist";
 import { useCartStore } from "@/stores/cart";
 import { WishlistItem } from "@/types";
 import { formatPEN, productPath } from "@/lib/utils";
+import { useHidratado } from "@/lib/use-hidratado";
 
 export function WishlistDrawer() {
+  const hidratado = useHidratado();
   const { isDrawerOpen, closeDrawer, items, removeItem, count } = useWishlistStore();
   const addToCart = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openDrawer);
@@ -53,6 +55,9 @@ export function WishlistDrawer() {
     }
     return () => { document.body.style.overflow = ""; };
   }, [isDrawerOpen]);
+
+  // La lista vive en localStorage: el servidor siempre la vería vacía.
+  if (!hidratado) return null;
 
   return (
     <>
